@@ -1,0 +1,141 @@
+{
+  "" : {
+    "const-values" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary.swiftconstvalues",
+    "dependencies" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary.d",
+    "diagnostics" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary.dia",
+    "emit-module-dependencies" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary-emit-module.dia",
+    "pch" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFat-primary.swiftdeps"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/AddMealView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/AddMealView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/AddMealView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/AddMealView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/CSVDocument.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/CSVDocument.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/CSVDocument.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/CSVDocument.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/CalculatorView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/CalculatorView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/CalculatorView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/CalculatorView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/Components.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/Components.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/Components.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/Components.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/DashboardView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/DashboardView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/DashboardView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/DashboardView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/EditGoalsView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/EditGoalsView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/EditGoalsView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/EditGoalsView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/ForgivenessEngine.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ForgivenessEngine.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ForgivenessEngine.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ForgivenessEngine.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/HapticManager.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/HapticManager.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/HapticManager.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/HapticManager.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/HealthKitManager.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/HealthKitManager.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/HealthKitManager.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/HealthKitManager.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/InsightsView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/InsightsView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/InsightsView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/InsightsView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/LiveActivityManager.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/LiveActivityManager.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/LiveActivityManager.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/LiveActivityManager.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/MacroTetrisView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MacroTetrisView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MacroTetrisView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MacroTetrisView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/MainTabView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MainTabView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MainTabView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MainTabView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/MetabolismEngine.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MetabolismEngine.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MetabolismEngine.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/MetabolismEngine.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/Models.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/Models.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/Models.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/Models.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/NotificationManager.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/NotificationManager.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/NotificationManager.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/NotificationManager.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/OffFatApp.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFatApp.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFatApp.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OffFatApp.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/OnboardingView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OnboardingView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OnboardingView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OnboardingView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/OpenFoodFactsAPI.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OpenFoodFactsAPI.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OpenFoodFactsAPI.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/OpenFoodFactsAPI.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/RecipeViews.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/RecipeViews.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/RecipeViews.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/RecipeViews.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/ReviewManager.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ReviewManager.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ReviewManager.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ReviewManager.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/ScannerView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ScannerView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ScannerView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/ScannerView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/SettingsView.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/SettingsView.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/StarterDatabase.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/StarterDatabase.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/StarterDatabase.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/StarterDatabase.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/OffFat/WidgetPromoBanner.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/WidgetPromoBanner.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/WidgetPromoBanner.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/WidgetPromoBanner.o"
+  },
+  "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/OffFat.build/Release/OffFat.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/laurin/OFFFAT Experimental/build/OffFat.build/Release/OffFat.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  }
+}

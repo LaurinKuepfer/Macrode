@@ -1,0 +1,825 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4907749E2FCF2C4400741A69 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4907749D2FCF2C4400741A69 /* WidgetKit.framework */; };
+		490774A02FCF2C4400741A69 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4907749F2FCF2C4400741A69 /* SwiftUI.framework */; };
+		490774AD2FCF2C4500741A69 /* MacrodeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4907749B2FCF2C4400741A69 /* MacrodeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		490774AB2FCF2C4500741A69 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49587DD12FCE25FD0078C0C7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4907749A2FCF2C4400741A69;
+			remoteInfo = MacrodeWidgetExtension;
+		};
+		49587DE92FCE25FE0078C0C7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49587DD12FCE25FD0078C0C7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49587DD82FCE25FD0078C0C7;
+			remoteInfo = Macrode;
+		};
+		49587DF32FCE25FE0078C0C7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 49587DD12FCE25FD0078C0C7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 49587DD82FCE25FD0078C0C7;
+			remoteInfo = Macrode;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		490774B22FCF2C4500741A69 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				490774AD2FCF2C4500741A69 /* MacrodeWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		4907749B2FCF2C4400741A69 /* MacrodeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MacrodeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4907749D2FCF2C4400741A69 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		4907749F2FCF2C4400741A69 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		490774B62FCF2ED700741A69 /* MacrodeWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MacrodeWidgetExtension.entitlements; sourceTree = "<group>"; };
+		49587DD92FCE25FD0078C0C7 /* Macrode.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Macrode.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		49587DE82FCE25FE0078C0C7 /* MacrodeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacrodeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		49587DF22FCE25FE0078C0C7 /* MacrodeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacrodeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		490774AE2FCF2C4500741A69 /* Exceptions for "MacrodeWidget" folder in "MacrodeWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */;
+		};
+		490774B42FCF2CE500741A69 /* Exceptions for "Macrode" folder in "MacrodeWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models.swift,
+			);
+			target = 4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */;
+		};
+		49AED1A62FDDEC0D00072E07 /* Exceptions for "Macrode" folder in "Macrode" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 49587DD82FCE25FD0078C0C7 /* Macrode */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		490774A12FCF2C4400741A69 /* MacrodeWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				490774AE2FCF2C4500741A69 /* Exceptions for "MacrodeWidget" folder in "MacrodeWidgetExtension" target */,
+			);
+			path = MacrodeWidget;
+			sourceTree = "<group>";
+		};
+		49587DDB2FCE25FD0078C0C7 /* Macrode */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				49AED1A62FDDEC0D00072E07 /* Exceptions for "Macrode" folder in "Macrode" target */,
+				490774B42FCF2CE500741A69 /* Exceptions for "Macrode" folder in "MacrodeWidgetExtension" target */,
+			);
+			path = Macrode;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		490774982FCF2C4400741A69 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				490774A02FCF2C4400741A69 /* SwiftUI.framework in Frameworks */,
+				4907749E2FCF2C4400741A69 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DD62FCE25FD0078C0C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DE52FCE25FE0078C0C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DEF2FCE25FE0078C0C7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4907749C2FCF2C4400741A69 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4907749D2FCF2C4400741A69 /* WidgetKit.framework */,
+				4907749F2FCF2C4400741A69 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		49587DD02FCE25FD0078C0C7 = {
+			isa = PBXGroup;
+			children = (
+				490774B62FCF2ED700741A69 /* MacrodeWidgetExtension.entitlements */,
+				49587DDB2FCE25FD0078C0C7 /* Macrode */,
+				490774A12FCF2C4400741A69 /* MacrodeWidget */,
+				4907749C2FCF2C4400741A69 /* Frameworks */,
+				49587DDA2FCE25FD0078C0C7 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		49587DDA2FCE25FD0078C0C7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				49587DD92FCE25FD0078C0C7 /* Macrode.app */,
+				49587DE82FCE25FE0078C0C7 /* MacrodeTests.xctest */,
+				49587DF22FCE25FE0078C0C7 /* MacrodeUITests.xctest */,
+				4907749B2FCF2C4400741A69 /* MacrodeWidgetExtension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 490774AF2FCF2C4500741A69 /* Build configuration list for PBXNativeTarget "MacrodeWidgetExtension" */;
+			buildPhases = (
+				490774972FCF2C4400741A69 /* Sources */,
+				490774982FCF2C4400741A69 /* Frameworks */,
+				490774992FCF2C4400741A69 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				490774A12FCF2C4400741A69 /* MacrodeWidget */,
+			);
+			name = MacrodeWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = MacrodeWidgetExtension;
+			productReference = 4907749B2FCF2C4400741A69 /* MacrodeWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		49587DD82FCE25FD0078C0C7 /* Macrode */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49587DFC2FCE25FE0078C0C7 /* Build configuration list for PBXNativeTarget "Macrode" */;
+			buildPhases = (
+				49587DD52FCE25FD0078C0C7 /* Sources */,
+				49587DD62FCE25FD0078C0C7 /* Frameworks */,
+				49587DD72FCE25FD0078C0C7 /* Resources */,
+				490774B22FCF2C4500741A69 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				490774AC2FCF2C4500741A69 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				49587DDB2FCE25FD0078C0C7 /* Macrode */,
+			);
+			name = Macrode;
+			packageProductDependencies = (
+			);
+			productName = Macrode;
+			productReference = 49587DD92FCE25FD0078C0C7 /* Macrode.app */;
+			productType = "com.apple.product-type.application";
+		};
+		49587DE72FCE25FE0078C0C7 /* MacrodeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49587DFF2FCE25FE0078C0C7 /* Build configuration list for PBXNativeTarget "MacrodeTests" */;
+			buildPhases = (
+				49587DE42FCE25FE0078C0C7 /* Sources */,
+				49587DE52FCE25FE0078C0C7 /* Frameworks */,
+				49587DE62FCE25FE0078C0C7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				49587DEA2FCE25FE0078C0C7 /* PBXTargetDependency */,
+			);
+			name = MacrodeTests;
+			packageProductDependencies = (
+			);
+			productName = MacrodeTests;
+			productReference = 49587DE82FCE25FE0078C0C7 /* MacrodeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		49587DF12FCE25FE0078C0C7 /* MacrodeUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 49587E022FCE25FE0078C0C7 /* Build configuration list for PBXNativeTarget "MacrodeUITests" */;
+			buildPhases = (
+				49587DEE2FCE25FE0078C0C7 /* Sources */,
+				49587DEF2FCE25FE0078C0C7 /* Frameworks */,
+				49587DF02FCE25FE0078C0C7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				49587DF42FCE25FE0078C0C7 /* PBXTargetDependency */,
+			);
+			name = MacrodeUITests;
+			packageProductDependencies = (
+			);
+			productName = MacrodeUITests;
+			productReference = 49587DF22FCE25FE0078C0C7 /* MacrodeUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		49587DD12FCE25FD0078C0C7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					4907749A2FCF2C4400741A69 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					49587DD82FCE25FD0078C0C7 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					49587DE72FCE25FE0078C0C7 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 49587DD82FCE25FD0078C0C7;
+					};
+					49587DF12FCE25FE0078C0C7 = {
+						CreatedOnToolsVersion = 26.5;
+						TestTargetID = 49587DD82FCE25FD0078C0C7;
+					};
+				};
+			};
+			buildConfigurationList = 49587DD42FCE25FD0078C0C7 /* Build configuration list for PBXProject "Macrode" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				de,
+				es,
+				fr,
+			);
+			mainGroup = 49587DD02FCE25FD0078C0C7;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 49587DDA2FCE25FD0078C0C7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				49587DD82FCE25FD0078C0C7 /* Macrode */,
+				49587DE72FCE25FE0078C0C7 /* MacrodeTests */,
+				49587DF12FCE25FE0078C0C7 /* MacrodeUITests */,
+				4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		490774992FCF2C4400741A69 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DD72FCE25FD0078C0C7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DE62FCE25FE0078C0C7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DF02FCE25FE0078C0C7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		490774972FCF2C4400741A69 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DD52FCE25FD0078C0C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DE42FCE25FE0078C0C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		49587DEE2FCE25FE0078C0C7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		490774AC2FCF2C4500741A69 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */;
+			targetProxy = 490774AB2FCF2C4500741A69 /* PBXContainerItemProxy */;
+		};
+		49587DEA2FCE25FE0078C0C7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49587DD82FCE25FD0078C0C7 /* Macrode */;
+			targetProxy = 49587DE92FCE25FE0078C0C7 /* PBXContainerItemProxy */;
+		};
+		49587DF42FCE25FE0078C0C7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 49587DD82FCE25FD0078C0C7 /* Macrode */;
+			targetProxy = 49587DF32FCE25FE0078C0C7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		490774B02FCF2C4500741A69 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = MacrodeWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DU8F799KR5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MacrodeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MacrodeWidget;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Button(action: {\n                    playHaptic()\n                    showingAddSheet = true\n                }) {\n                    Image(systemName: \"plus\")\n                        .font(.system(size: 24, weight: .semibold))\n                        .foregroundColor(.white)\n                        .frame(width: 60, height: 60)\n                        .background(Color.green)\n                        .clipShape(Circle())\n                        .shadow(color: .green.opacity(0.4), radius: 10, x: 0, y: 5)\n                }\n                .padding(24)\nWe need permission to share your macros with Apple Health.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.Macrode.MacrodeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		490774B12FCF2C4500741A69 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = MacrodeWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DU8F799KR5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MacrodeWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MacrodeWidget;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Button(action: {\n                    playHaptic()\n                    showingAddSheet = true\n                }) {\n                    Image(systemName: \"plus\")\n                        .font(.system(size: 24, weight: .semibold))\n                        .foregroundColor(.white)\n                        .frame(width: 60, height: 60)\n                        .background(Color.green)\n                        .clipShape(Circle())\n                        .shadow(color: .green.opacity(0.4), radius: 10, x: 0, y: 5)\n                }\n                .padding(24)\nWe need permission to share your macros with Apple Health.";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.Macrode.MacrodeWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		49587DFA2FCE25FE0078C0C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		49587DFB2FCE25FE0078C0C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		49587DFD2FCE25FE0078C0C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Macrode/Macrode.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DU8F799KR5;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Macrode/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to scan food barcodes.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Macrode needs access to your health data to read your weight and active energy burned.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Macrode needs permission to write your macros to Apple Health.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.Macrode;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Debug;
+		};
+		49587DFE2FCE25FE0078C0C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Macrode/Macrode.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = DU8F799KR5;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Macrode/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to scan food barcodes.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Macrode needs access to your health data to read your weight and active energy burned.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Macrode needs permission to write your macros to Apple Health.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.Macrode;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Release;
+		};
+		49587E002FCE25FE0078C0C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.MacrodeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Macrode.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Macrode";
+				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Debug;
+		};
+		49587E012FCE25FE0078C0C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.MacrodeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Macrode.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Macrode";
+				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Release;
+		};
+		49587E032FCE25FE0078C0C7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.MacrodeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Macrode;
+				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Debug;
+		};
+		49587E042FCE25FE0078C0C7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Macrode.MacrodeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_TARGET_NAME = Macrode;
+				XROS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		490774AF2FCF2C4500741A69 /* Build configuration list for PBXNativeTarget "MacrodeWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				490774B02FCF2C4500741A69 /* Debug */,
+				490774B12FCF2C4500741A69 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49587DD42FCE25FD0078C0C7 /* Build configuration list for PBXProject "Macrode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49587DFA2FCE25FE0078C0C7 /* Debug */,
+				49587DFB2FCE25FE0078C0C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49587DFC2FCE25FE0078C0C7 /* Build configuration list for PBXNativeTarget "Macrode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49587DFD2FCE25FE0078C0C7 /* Debug */,
+				49587DFE2FCE25FE0078C0C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49587DFF2FCE25FE0078C0C7 /* Build configuration list for PBXNativeTarget "MacrodeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49587E002FCE25FE0078C0C7 /* Debug */,
+				49587E012FCE25FE0078C0C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		49587E022FCE25FE0078C0C7 /* Build configuration list for PBXNativeTarget "MacrodeUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				49587E032FCE25FE0078C0C7 /* Debug */,
+				49587E042FCE25FE0078C0C7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 49587DD12FCE25FD0078C0C7 /* Project object */;
+}

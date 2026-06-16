@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'OffFat' in project 'OffFat'
+➜ Explicit dependency on target 'OffFatWidgetExtension' in project 'OffFat'
+Target 'OffFatWidgetExtension' in project 'OffFat' (no dependencies)

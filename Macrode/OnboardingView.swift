@@ -1,0 +1,527 @@
+import SwiftUI
+import SwiftData
+import WidgetKit
+
+struct OnboardingView: View {
+    @Environment(\.modelContext) private var context
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
+    
+    // UI State
+    @State private var currentStep = 0
+    @FocusState private var isInputActive: Bool
+    
+    // User Data
+    @State private var isMale: Bool = true
+    @State private var age: String = ""
+    @State private var heightCM: String = ""
+    @State private var weightKG: String = ""
+    
+    // Goals & Activity
+    @State private var goal: GoalType = .maintain
+    @State private var activityLevel: ActivityLevel = .sedentary
+    
+    enum GoalType: String, CaseIterable {
+        case lose = "Lose Weight"
+        case maintain = "Maintain"
+        case gain = "Build Muscle"
+        
+        var icon: String {
+            switch self {
+            case .lose: return "arrow.down.forward.and.arrow.up.backward"
+            case .maintain: return "equal.circle"
+            case .gain: return "bolt.fill"
+            }
+        }
+    }
+    
+    enum ActivityLevel: String, CaseIterable {
+        case sedentary = "Couch / Office Job"
+        case light = "Light (1-2x Sport/Wk)"
+        case active = "Active (3-5x Sport/Wk)"
+        case athlete = "Athlete (Daily Hard Training)"
+        
+        var multiplier: Double {
+            switch self {
+            case .sedentary: return 1.2
+            case .light: return 1.375
+            case .active: return 1.55
+            case .athlete: return 1.725
+            }
+        }
+    }
+    
+    // Computed values for previewing results on step 3
+    private var computedMacros: (calories: Double, protein: Double, carbs: Double, fat: Double) {
+        let w = Double(weightKG.replacingOccurrences(of: ",", with: ".")) ?? 70.0
+        let h = Double(heightCM) ?? 170.0
+        let a = Double(age) ?? 30.0
+        
+        var bmr = (10.0 * w) + (6.25 * h) - (5.0 * a)
+        bmr += isMale ? 5.0 : -161.0
+        
+        var tdee = bmr * activityLevel.multiplier
+        if goal == .lose { tdee -= 500 }
+        if goal == .gain { tdee += 300 }
+        
+        let proteinPerKg = (activityLevel == .active || activityLevel == .athlete || goal == .gain) ? 2.0 : 1.6
+        let protein = round(w * proteinPerKg)
+        let fat = round((tdee * 0.25) / 9.0)
+        let remainingCals = tdee - (protein * 4.0) - (fat * 9.0)
+        let carbs = round(max(0, remainingCals / 4.0))
+        
+        return (round(tdee), protein, carbs, fat)
+    }
+    
+    var body: some View {
+        ZStack {
+            Color(UIColor.systemGroupedBackground)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Top Progress Indicator
+                progressHeader
+                    .padding(.horizontal, 24)
+                    .padding(.top, 16)
+                
+                TabView(selection: $currentStep) {
+                    welcomeScreen.tag(0)
+                    bodyStatsScreen.tag(1)
+                    goalsScreen.tag(2)
+                    resultScreen.tag(3)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .animation(.easeInOut, value: currentStep)
+            }
+            
+            // Back Button
+            if currentStep > 0 {
+                VStack {
+                    HStack {
+                        Button(action: {
+                            playHaptic()
+                            currentStep -= 1
+                        }) {
+                            Image(systemName: "chevron.left")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.primary)
+                                .padding(12)
+                                .background(Color(UIColor.secondarySystemBackground))
+                                .clipShape(Circle())
+                                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                        }
+                        Spacer()
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, 24)
+                .padding(.top, 70) // Keeps button below progress indicator
+            }
+        }
+    }
+    
+    // MARK: - PROGRESS HEADER
+    private var progressHeader: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<4) { index in
+                Capsule()
+                    .frame(height: 6)
+                    .foregroundColor(index <= currentStep ? .green : Color.secondary.opacity(0.2))
+                    .animation(.spring(), value: currentStep)
+            }
+        }
+    }
+    
+    // MARK: - SCREENS
+    
+    private var welcomeScreen: some View {
+        VStack(spacing: 32) {
+            Spacer()
+            
+            VStack(spacing: 16) {
+                // Modified logo aesthetic
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.1))
+                        .frame(width: 100, height: 100)
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 48))
+                        .foregroundColor(.green)
+                }
+                
+                Text("Welcome to\nMacrode")
+                    .font(.system(size: 38, weight: .heavy, design: .rounded))
+                    .multilineTextAlignment(.center)
+            }
+            
+            VStack(alignment: .leading, spacing: 20) {
+                FeatureRow(icon: "lock.shield.fill", color: .green, title: "100% Offline & Private", description: "Your data never leaves this device.")
+                FeatureRow(icon: "banknote.fill", color: .green, title: "Weekly Bank", description: "Balances your daily surplus or deficit over time.")
+                FeatureRow(icon: "sparkles", color: .yellow, title: "Quick Logging", description: "Easily add meals and track your daily macros.")
+                FeatureRow(icon: "waveform.path.ecg", color: .purple, title: "Calorie Adaptation", description: "Helps you understand your metabolism over time.")
+            }
+            .padding(24)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            nextButton(title: "Let's Build Your Profile")
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+        }
+    }
+    
+    private var bodyStatsScreen: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            VStack(spacing: 8) {
+                Text("About You")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                Text("We use these values to calculate base energy usage.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            VStack(spacing: 18) {
+                // Styled Gender Selection Cards
+                HStack(spacing: 12) {
+                    Button(action: {
+                        playHaptic()
+                        isMale = true
+                    }) {
+                        HStack {
+                            Image(systemName: "figure.male")
+                            Text("Male")
+                        }
+                        .font(.headline)
+                        .foregroundColor(isMale ? .white : .primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(isMale ? Color.green : Color.secondary.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    
+                    Button(action: {
+                        playHaptic()
+                        isMale = false
+                    }) {
+                        HStack {
+                            Image(systemName: "figure.female")
+                            Text("Female")
+                        }
+                        .font(.headline)
+                        .foregroundColor(!isMale ? .white : .primary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(!isMale ? Color.green : Color.secondary.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                }
+                
+                // Input Fields with inline icons
+                InputField(icon: "calendar", placeholder: "Age (Years)", text: $age)
+                    .keyboardType(.numberPad)
+                    .focused($isInputActive)
+                
+                InputField(icon: "ruler", placeholder: "Height (cm)", text: $heightCM)
+                    .keyboardType(.numberPad)
+                    .focused($isInputActive)
+                
+                InputField(icon: "scalemass", placeholder: "Current Weight (kg)", text: $weightKG)
+                    .keyboardType(.decimalPad)
+                    .focused($isInputActive)
+            }
+            .padding(24)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            nextButton(title: "Continue")
+                .disabled(age.isEmpty || heightCM.isEmpty || weightKG.isEmpty)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+        }
+        .onTapGesture { isInputActive = false }
+    }
+    
+    private var goalsScreen: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            VStack(spacing: 8) {
+                Text("Your Goals")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
+                Text("Tell us what you want to achieve.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+            }
+            
+            VStack(alignment: .leading, spacing: 18) {
+                Text("Primary Goal").font(.headline)
+                
+                // Custom style for Goal selector
+                HStack(spacing: 10) {
+                    ForEach(GoalType.allCases, id: \.self) { type in
+                        Button(action: {
+                            playHaptic()
+                            goal = type
+                        }) {
+                            VStack(spacing: 8) {
+                                Image(systemName: type.icon)
+                                    .font(.title3)
+                                Text(LocalizedStringKey(type.rawValue))
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .foregroundColor(goal == type ? .green : .secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(goal == type ? Color.green.opacity(0.12) : Color.secondary.opacity(0.06))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(goal == type ? Color.green : Color.clear, lineWidth: 1.5)
+                            )
+                        }
+                    }
+                }
+                
+                Text("Activity Level").font(.headline).padding(.top, 8)
+                
+                VStack(spacing: 10) {
+                    ForEach(ActivityLevel.allCases, id: \.self) { level in
+                        Button(action: {
+                            playHaptic()
+                            activityLevel = level
+                        }) {
+                            HStack {
+                                Text(LocalizedStringKey(level.rawValue))
+                                    .font(.subheadline)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                if activityLevel == level {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundColor(.green)
+                                }
+                            }
+                            .padding()
+                            .background(activityLevel == level ? Color.green.opacity(0.1) : Color.secondary.opacity(0.06))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(activityLevel == level ? Color.green.opacity(0.3) : Color.clear, lineWidth: 1)
+                            )
+                        }
+                    }
+                }
+            }
+            .padding(24)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            nextButton(title: "Calculate My Macros")
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+        }
+    }
+    
+    private var resultScreen: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            VStack(spacing: 12) {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 48))
+                    .foregroundColor(.green)
+                
+                Text("Your Recommended Plan")
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                
+                Text("These targets serve as an initial estimate, and adapt to your log updates.")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+            }
+            
+            // Interactive Target Preview
+            VStack(spacing: 16) {
+                VStack(spacing: 4) {
+                    Text("\(Int(computedMacros.calories))")
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundColor(.green)
+                    Text("Daily Calories (kcal)")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                }
+                
+                Divider()
+                
+                HStack(spacing: 20) {
+                    MacroPreviewCol(name: "Protein", amount: "\(Int(computedMacros.protein))g", color: .purple)
+                    MacroPreviewCol(name: "Carbs", amount: "\(Int(computedMacros.carbs))g", color: .orange)
+                    MacroPreviewCol(name: "Fats", amount: "\(Int(computedMacros.fat))g", color: .blue)
+                }
+            }
+            .padding(24)
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(24)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .padding(.horizontal, 24)
+            
+            Spacer()
+            
+            Button(action: {
+                saveAndFinish()
+            }) {
+                Text("Start Tracking")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .cornerRadius(16)
+                    .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+        }
+    }
+    
+    // MARK: - LOGIC
+    
+    private func nextButton(title: String) -> some View {
+        Button(action: {
+            playHaptic()
+            isInputActive = false
+            withAnimation(.spring()) { currentStep += 1 }
+        }) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                .cornerRadius(16)
+                .shadow(color: .green.opacity(0.3), radius: 6, x: 0, y: 3)
+        }
+    }
+    
+    private func saveAndFinish() {
+        playHaptic()
+        
+        let macros = computedMacros
+        let w = Double(weightKG.replacingOccurrences(of: ",", with: ".")) ?? 70.0
+        let water = Int((w / 20.0) * 1000)
+        
+        let startOfToday = Calendar.current.startOfDay(for: Date())
+        
+        let descriptor = FetchDescriptor<DailyLog>()
+        let allLogs = (try? context.fetch(descriptor)) ?? []
+        
+        if let existingTodayLog = allLogs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfToday) }) {
+            existingTodayLog.calorieTarget = macros.calories
+            existingTodayLog.proteinTarget = macros.protein
+            existingTodayLog.carbsTarget = macros.carbs
+            existingTodayLog.fatTarget = macros.fat
+            existingTodayLog.bodyWeight = w
+            existingTodayLog.waterTargetML = water
+        } else {
+            let newLog = DailyLog(
+                date: startOfToday,
+                calorieTarget: macros.calories,
+                proteinTarget: macros.protein,
+                carbsTarget: macros.carbs,
+                fatTarget: macros.fat,
+                waterTargetML: water,
+                bodyWeight: w
+            )
+            context.insert(newLog)
+        }
+        
+        try? context.save()
+        WidgetCenter.shared.reloadAllTimelines()
+        
+        withAnimation(.spring()) { hasSeenOnboarding = true }
+    }
+    
+    private func playHaptic() {
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+    }
+}
+
+// MARK: - REUSABLE SUBVIEWS
+
+struct InputField: View {
+    let icon: String
+    let placeholder: String
+    @Binding var text: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(.secondary)
+                .frame(width: 20)
+            TextField(LocalizedStringKey(placeholder), text: $text)
+        }
+        .padding()
+        .background(Color.secondary.opacity(0.08))
+        .cornerRadius(12)
+    }
+}
+
+struct MacroPreviewCol: View {
+    let name: String
+    let amount: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(amount)
+                .font(.headline)
+                .foregroundColor(.primary)
+            Text(LocalizedStringKey(name))
+                .font(.caption2)
+                .foregroundColor(color)
+                .fontWeight(.bold)
+                .textCase(.uppercase)
+        }
+        .frame(maxWidth: .infinity)
+    }
+};struct FeatureRow: View {
+    let icon: String
+    let color: Color
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 16) {
+            Image(systemName: icon)
+                .font(.system(size: 30))
+                .foregroundColor(color)
+                .frame(width: 40)
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(LocalizedStringKey(title))
+                    .font(.headline)
+                Text(LocalizedStringKey(description))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+}
