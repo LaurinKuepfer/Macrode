@@ -6,17 +6,14 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var context
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding: Bool = false
     
-    // UI State
     @State private var currentStep = 0
     @FocusState private var isInputActive: Bool
     
-    // User Data
     @State private var isMale: Bool = true
     @State private var age: String = ""
     @State private var heightCM: String = ""
     @State private var weightKG: String = ""
     
-    // Goals & Activity
     @State private var goal: GoalType = .maintain
     @State private var activityLevel: ActivityLevel = .sedentary
     
@@ -50,7 +47,6 @@ struct OnboardingView: View {
         }
     }
     
-    // Computed values for previewing results on step 3
     private var computedMacros: (calories: Double, protein: Double, carbs: Double, fat: Double) {
         let w = Double(weightKG.replacingOccurrences(of: ",", with: ".")) ?? 70.0
         let h = Double(heightCM) ?? 170.0
@@ -78,7 +74,6 @@ struct OnboardingView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Top Progress Indicator
                 progressHeader
                     .padding(.horizontal, 24)
                     .padding(.top, 16)
@@ -93,7 +88,6 @@ struct OnboardingView: View {
                 .animation(.easeInOut, value: currentStep)
             }
             
-            // Back Button
             if currentStep > 0 {
                 VStack {
                     HStack {
@@ -114,12 +108,12 @@ struct OnboardingView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 70) // Keeps button below progress indicator
+                .padding(.top, 70)
             }
         }
     }
     
-    // MARK: - PROGRESS HEADER
+   
     private var progressHeader: some View {
         HStack(spacing: 8) {
             ForEach(0..<4) { index in
@@ -131,14 +125,13 @@ struct OnboardingView: View {
         }
     }
     
-    // MARK: - SCREENS
+   
     
     private var welcomeScreen: some View {
         VStack(spacing: 32) {
             Spacer()
             
             VStack(spacing: 16) {
-                // Modified logo aesthetic
                 ZStack {
                     Circle()
                         .fill(Color.green.opacity(0.1))
@@ -186,7 +179,6 @@ struct OnboardingView: View {
             }
             
             VStack(spacing: 18) {
-                // Styled Gender Selection Cards
                 HStack(spacing: 12) {
                     Button(action: {
                         playHaptic()
@@ -221,7 +213,6 @@ struct OnboardingView: View {
                     }
                 }
                 
-                // Input Fields with inline icons
                 InputField(icon: "calendar", placeholder: "Age (Years)", text: $age)
                     .keyboardType(.numberPad)
                     .focused($isInputActive)
@@ -265,7 +256,6 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Primary Goal").font(.headline)
                 
-                // Custom style for Goal selector
                 HStack(spacing: 10) {
                     ForEach(GoalType.allCases, id: \.self) { type in
                         Button(action: {
@@ -355,7 +345,6 @@ struct OnboardingView: View {
                     .padding(.horizontal, 24)
             }
             
-            // Interactive Target Preview
             VStack(spacing: 16) {
                 VStack(spacing: 4) {
                     Text("\(Int(computedMacros.calories))")
@@ -400,7 +389,7 @@ struct OnboardingView: View {
         }
     }
     
-    // MARK: - LOGIC
+   
     
     private func nextButton(title: String) -> some View {
         Button(action: {

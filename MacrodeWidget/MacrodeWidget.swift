@@ -2,14 +2,12 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
-// 1. THE TIMELINE PROVIDER
 struct Provider: TimelineProvider {
     let modelContainer: ModelContainer
     
     init() {
         do {
             let schema = Schema([FoodItem.self, DailyLog.self, ConsumedMeal.self, RecipeItem.self, Supplement.self])
-            // HIER DEINE EIGENE APP GROUP (exakt wie in MacrodeApp.swift):
             let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, groupContainer: .identifier("group.com.kuepferlaurin.macrode"))
             
             modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -48,7 +46,6 @@ struct Provider: TimelineProvider {
             
             var dynamicTarget: Double = todayLog?.calorieTarget ?? 2200
             
-            // 1. Calculate TDEE
             var trueTDEE: Double? = nil
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: Date())
@@ -69,7 +66,6 @@ struct Provider: TimelineProvider {
                 }
             }
             
-            // 2. Base Target
             var baseTarget = dynamicTarget
             if let tdee = trueTDEE {
                 if userGoalStr == "Lose Weight" { baseTarget = tdee - 500 }
@@ -77,7 +73,6 @@ struct Provider: TimelineProvider {
                 else { baseTarget = tdee }
             }
             
-            // 3. Forgiveness (Weekly Bank)
             var forgivenessCalorieAdjustment: Double = 0
             var calendarWithMonday = calendar
             calendarWithMonday.firstWeekday = 2
@@ -99,7 +94,7 @@ struct Provider: TimelineProvider {
                         var daysBaseTarget: Double = 2200
                         if let log = logs.first(where: { calendarWithMonday.isDate($0.date, inSameDayAs: currentDate) }) {
                             daysBaseTarget = log.calorieTarget
-                            if let tdee = trueTDEE { // Approximation using current TDEE
+                            if let tdee = trueTDEE {
                                 if userGoalStr == "Lose Weight" { daysBaseTarget = tdee - 500 }
                                 else if userGoalStr == "Build Muscle" { daysBaseTarget = tdee + 300 }
                                 else { daysBaseTarget = tdee }
@@ -139,7 +134,6 @@ struct Provider: TimelineProvider {
     }
 }
 
-// 2. DAS DATENMODELL FÜR DAS WIDGET
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let consumed: Double
@@ -152,7 +146,6 @@ struct SimpleEntry: TimelineEntry {
     let fTarget: Double
 }
 
-// 3. DAS WIDGET UI
 struct MacrodeWidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
@@ -160,7 +153,6 @@ struct MacrodeWidgetEntryView : View {
     var body: some View {
         ZStack {
             if family == .systemSmall {
-                // SMALL WIDGET: Kalorien-Ring + Plus Button
                 VStack(spacing: 8) {
                     ZStack {
                         Circle().stroke(Color.secondary.opacity(0.2), lineWidth: 10)
@@ -195,7 +187,6 @@ struct MacrodeWidgetEntryView : View {
                 .padding(8)
                 .widgetURL(URL(string: "macrode://addMeal")!)
             } else if family == .systemMedium {
-                // MEDIUM WIDGET: Ring + Makro-Balken
                 HStack(spacing: 16) {
                     ZStack {
                         Circle().stroke(Color.secondary.opacity(0.2), lineWidth: 12)
@@ -241,7 +232,6 @@ struct MacrodeWidgetEntryView : View {
                 }
                 .padding(12)
             } else if family == .accessoryCircular {
-                // LOCKSCREEN CIRCULAR: Aesthetic Gauge
                 Gauge(value: entry.consumed, in: 0...entry.target) {
                     Image(systemName: "flame.fill")
                 } currentValueLabel: {
@@ -252,7 +242,6 @@ struct MacrodeWidgetEntryView : View {
                 .gaugeStyle(.accessoryCircular)
                 .tint(entry.consumed > entry.target ? .red : .green)
             } else if family == .accessoryRectangular {
-                // LOCKSCREEN RECTANGULAR: Clean and Compact
                 HStack(alignment: .center, spacing: 12) {
                     VStack(alignment: .leading, spacing: 0) {
                         Text("\(abs(Int(entry.target - entry.consumed)))")
@@ -269,21 +258,18 @@ struct MacrodeWidgetEntryView : View {
                     }
                 }
             } else if family == .accessoryInline {
-                // LOCKSCREEN INLINE
                 ViewThatFits {
                     Text("\(Image(systemName: "flame.fill")) \(abs(Int(entry.target - entry.consumed))) kcal \(entry.consumed > entry.target ? "over" : "left")")
                     Text("\(abs(Int(entry.target - entry.consumed))) kcal")
                 }
             }
         }
-        // Magischer Befehl für iOS 17+ (Löst den Background-Error)
         .containerBackground(for: .widget) {
             Color(UIColor.systemBackground)
         }
     }
 }
 
-// 4. HILFS-UI FÜR DIE BALKEN
 struct WidgetMacroBar: View {
     let title: String
     let consumed: Double
@@ -317,7 +303,6 @@ struct WidgetMacroBar: View {
     }
 }
 
-// 5. WIDGET KONFIGURATION
 struct MacrodeWidget: Widget {
     let kind: String = "MacrodeWidget"
 

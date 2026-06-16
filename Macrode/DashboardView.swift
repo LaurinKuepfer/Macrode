@@ -41,7 +41,7 @@ struct DashboardView: View {
         return dict
     }
 
-    // MARK: - Main Body
+   
     var body: some View {
         NavigationStack {
             ZStack {
@@ -200,7 +200,7 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - UI Components
+   
     private var weeklyCalendarView: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -241,7 +241,7 @@ struct DashboardView: View {
         }
     }
     
-    // MARK: - Helper Functions
+   
     private func checkIfGoalMet(for date: Date) -> Bool {
         let calendar = Calendar.current
         guard let log = logsDictionary[calendar.startOfDay(for: date)] else { return false }
@@ -350,7 +350,6 @@ struct DailyDashboardContent: View {
     
     private var dynamicProteinTarget: Double {
         if activeAdjustment > 0 {
-            // Give 60% of extra calories to protein
             let proteinAdjustment = (activeAdjustment * 0.60) / 4.0
             return currentLog.proteinTarget + proteinAdjustment
         }
@@ -359,7 +358,6 @@ struct DailyDashboardContent: View {
 
     private var dynamicCarbsTarget: Double {
         if activeAdjustment > 0 {
-            // Give 20% of extra calories to carbs
             let carbAdjustment = (activeAdjustment * 0.20) / 4.0
             return max(30, currentLog.carbsTarget + carbAdjustment)
         } else if activeAdjustment < 0 {
@@ -371,7 +369,6 @@ struct DailyDashboardContent: View {
     
     private var dynamicFatTarget: Double {
         if activeAdjustment > 0 {
-            // Give 20% of extra calories to fat
             let fatAdjustment = (activeAdjustment * 0.20) / 9.0
             return max(20, currentLog.fatTarget + fatAdjustment)
         } else if activeAdjustment < 0 {
@@ -383,9 +380,8 @@ struct DailyDashboardContent: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // MARK: Hero Section — Calorie Ring + Smart Badges
+           
             VStack(spacing: 6) {
-                // Compact inline badges (TDEE + Bank adjustment)
                 HStack(spacing: 8) {
                     if let tdee = trueTDEE {
                         Label("TDEE: \(Int(tdee))", systemImage: "bolt.fill")
@@ -410,7 +406,7 @@ struct DailyDashboardContent: View {
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: dynamicTarget)
             }
             
-            // MARK: Macro Bars
+           
             VStack(spacing: 12) {
                 MacroBar(title: "Protein", consumed: consumedProtein, target: dynamicProteinTarget, baseColor: .red)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedProtein)
@@ -421,7 +417,7 @@ struct DailyDashboardContent: View {
             }
             .padding(.horizontal, 24)
             
-            // MARK: Compact Action Row
+           
             HStack(spacing: 10) {
                 Button(action: { playHaptic(); showingMacroTetris = true }) {
                     Label("Macro Tetris", systemImage: "puzzlepiece.extension.fill")
@@ -444,9 +440,8 @@ struct DailyDashboardContent: View {
             }
             .padding(.horizontal, 24)
             
-            // MARK: Quick Glance Row — Water + Fasting side by side
+           
             HStack(spacing: 12) {
-                // Water compact
                 HStack(spacing: 8) {
                     Image(systemName: "drop.fill").foregroundColor(.cyan).font(.title3)
                     VStack(alignment: .leading, spacing: 2) {
@@ -468,16 +463,15 @@ struct DailyDashboardContent: View {
                 .cornerRadius(14)
                 .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
                 
-                // Fasting compact
                 fastingCompactCard
             }
             .padding(.horizontal, 24)
             
-            // MARK: Contextual Cards (only shown when relevant)
+           
             frequentMealsCard
             supplementTrackerCard
             
-            // MARK: Meal Timeline
+           
             mealTimeline
         }
         .onAppear {
@@ -508,11 +502,9 @@ struct DailyDashboardContent: View {
         let currentHour = calendar.component(.hour, from: now)
         let startOfToday = calendar.startOfDay(for: now)
         
-        // Find names of meals already consumed today so we don't suggest them again
         let todayMealNames = Set(allConsumedMeals.filter { $0.consumedAt >= startOfToday }.map { $0.name })
         
         let recentMeals = allConsumedMeals.filter {
-            // Exclude anything logged today
             guard $0.consumedAt < startOfToday else { return false }
             
             let daysAgo = calendar.dateComponents([.day], from: $0.consumedAt, to: now).day ?? 0
@@ -524,7 +516,6 @@ struct DailyDashboardContent: View {
         }
         
         let grouped = Dictionary(grouping: recentMeals, by: { $0.name })
-        // Only consider it a habit if they ate it at least twice, and haven't eaten it yet today
         let frequent = grouped.filter { !todayMealNames.contains($0.key) && $0.value.count >= 2 }
         
         let sorted = frequent.sorted { $0.value.count > $1.value.count }
@@ -656,7 +647,6 @@ struct DailyDashboardContent: View {
                 ForEach(categoryOrder, id: \.self) { category in
                     if let meals = grouped[category], !meals.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
-                            // Category header
                             HStack(spacing: 6) {
                                 Image(systemName: categoryIcons[category] ?? "fork.knife")
                                     .foregroundColor(.secondary)
@@ -679,7 +669,6 @@ struct DailyDashboardContent: View {
                                     
                                     Spacer()
                                     
-                                    // Re-log button
                                     Button(action: { relogMeal(meal) }) { 
                                         Image(systemName: "arrow.counterclockwise.circle.fill").font(.title3).foregroundColor(.blue.opacity(0.7)) 
                                     }

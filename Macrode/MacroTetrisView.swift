@@ -143,14 +143,11 @@ struct MacroTetrisView: View {
         dismiss()
     }
     
-    // Core Algorithm
     private func calculateSuggestion() {
         isCalculating = true
         suggestion = []
         
-        // Run in background to avoid freezing the UI
         DispatchQueue.global(qos: .userInitiated).async {
-            // Filter foods that have some macros
             let validFoods = self.foodLibrary.filter { $0.protein > 0 || $0.carbs > 0 || $0.fat > 0 }
             guard !validFoods.isEmpty else {
                 DispatchQueue.main.async { self.isCalculating = false }
@@ -160,8 +157,6 @@ struct MacroTetrisView: View {
             var bestCombo: [FoodPortion] = []
             var bestScore: Double = Double.infinity
             
-            // Try random combinations to find a good fit quickly
-            // This is a naive random search, but fast and fun
             for _ in 0..<2000 {
                 let numItems = Int.random(in: 1...3)
                 var currentCombo: [FoodPortion] = []
@@ -171,7 +166,6 @@ struct MacroTetrisView: View {
                 
                 for _ in 0..<numItems {
                     guard let randomFood = validFoods.randomElement() else { continue }
-                    // Random portion between 10g and 300g
                     let randomGrams = Double(Int.random(in: 1...30) * 10)
                     let portion = FoodPortion(food: randomFood, grams: randomGrams)
                     currentCombo.append(portion)
@@ -181,7 +175,6 @@ struct MacroTetrisView: View {
                     f += portion.fat
                 }
                 
-                // Calculate distance to target (score, lower is better)
                 let pDiff = abs(self.remProtein - p)
                 let cDiff = abs(self.remCarbs - c)
                 let fDiff = abs(self.remFat - f)
@@ -194,7 +187,6 @@ struct MacroTetrisView: View {
             }
             
             DispatchQueue.main.async {
-                // If the best score is acceptable (within ~20g total off)
                 if bestScore < 30 {
                     self.suggestion = bestCombo
                 }

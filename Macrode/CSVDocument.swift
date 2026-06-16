@@ -1,7 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-// This tells iOS how to handle our exported text as a .csv file
 struct CSVDocument: FileDocument {
     static var readableContentTypes: [UTType] { [.commaSeparatedText] }
     var text: String

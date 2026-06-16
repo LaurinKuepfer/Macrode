@@ -33,22 +33,18 @@ struct MainTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             
-            // TAB 1: TODAY
             DashboardView(selectedDate: $globalSelectedDate, selectedTab: $selectedTab)
                 .tabItem { Label("Today", systemImage: "sun.max.fill") }
                 .tag(0)
             
-            // TAB 2: INSIGHTS
             InsightsView(selectedDate: $globalSelectedDate)
                 .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
                 .tag(1)
             
-            // TAB 3: LIBRARY
             AddMealView(selectedDate: $globalSelectedDate)
                 .tabItem { Label("Library", systemImage: "book.pages.fill") }
                 .tag(2)
             
-            // TAB 4: SETTINGS
             NavigationStack {
                 SettingsView(dailyLog: todayLog)
             }
@@ -66,7 +62,7 @@ struct MainTabView: View {
             let calendar = Calendar.current
             if !calendar.isDate(globalSelectedDate, inSameDayAs: Date()) {
                 globalSelectedDate = Date()
-                _ = todayLog // Force creation if it doesn't exist
+                _ = todayLog
             }
             syncToWidget()
         }

@@ -15,7 +15,6 @@ class HealthKitManager {
         return [weightType, energyType, proteinType, carbsType, fatType, waterType]
     }
     
-    // 2. Types we want to READ (Steps and Weight)
     private var typesToRead: Set<HKObjectType> {
         guard let stepsType = HKObjectType.quantityType(forIdentifier: .stepCount),
               let weightType = HKObjectType.quantityType(forIdentifier: .bodyMass),
@@ -23,7 +22,6 @@ class HealthKitManager {
         return [stepsType, weightType, energyType]
     }
     
-    // Request permission from the user
     func requestAuthorization(completion: @escaping (Bool, Error?) -> Void) {
         guard HKHealthStore.isHealthDataAvailable() else {
             completion(false, NSError(domain: "Macrode", code: 1, userInfo: [NSLocalizedDescriptionKey: "HealthKit is not available on this device."]))
@@ -37,9 +35,8 @@ class HealthKitManager {
         }
     }
     
-    // MARK: - Steps (Health -> App)
+   
     
-    /// Fetches the cumulative step count for the current day.
     func fetchTodaySteps(completion: @escaping (Double, Error?) -> Void) {
         guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else {
             completion(0, NSError(domain: "HealthKitManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Step Count type is unavailable."]))
@@ -68,9 +65,8 @@ class HealthKitManager {
         healthStore.execute(query)
     }
     
-    // MARK: - Active Energy (Health -> App)
+   
     
-    /// Fetches the cumulative active energy burned for the current day.
     func fetchActiveEnergy(completion: @escaping (Double, Error?) -> Void) {
         guard let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) else {
             completion(0, NSError(domain: "HealthKitManager", code: 4, userInfo: [NSLocalizedDescriptionKey: "Active Energy type is unavailable."]))
@@ -99,9 +95,8 @@ class HealthKitManager {
         healthStore.execute(query)
     }
     
-    // MARK: - Weight (Health <-> App)
+   
     
-    /// Saves weight to Apple Health (App -> Health)
     func saveWeight(weightInKg: Double, date: Date, completion: @escaping (Bool, Error?) -> Void) {
         guard HKHealthStore.isHealthDataAvailable(),
               let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
@@ -119,7 +114,6 @@ class HealthKitManager {
         }
     }
     
-    /// Fetches the most recent weight entry from Apple Health (Health -> App)
     func fetchLatestWeight(completion: @escaping (Double?, Date?, Error?) -> Void) {
         guard let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
             completion(nil, nil, NSError(domain: "HealthKitManager", code: 3, userInfo: [NSLocalizedDescriptionKey: "Body mass type is unavailable."]))
@@ -144,7 +138,7 @@ class HealthKitManager {
         healthStore.execute(query)
     }
     
-    // MARK: - Nutrition (App -> Health)
+   
     
     func saveMeal(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, date: Date) {
         guard HKHealthStore.isHealthDataAvailable() else { return }

@@ -6,7 +6,6 @@ class NotificationManager {
     
     private init() {}
     
-    // 1. Request permission from the user
     func requestPermission(completion: @escaping (Bool) -> Void) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
             DispatchQueue.main.async {
@@ -15,12 +14,9 @@ class NotificationManager {
         }
     }
     
-    // 2. Schedule ALL Daily Coach messages (with optional parameters for dynamic progress tracking)
     func scheduleDailyNotifications(meals: [ConsumedMeal] = [], log: DailyLog? = nil) {
-        // Clear any old notifications first to avoid overlaps
         cancelNotifications()
         
-        // MORNING REMINDER (7:00 AM) - Repeats daily
         scheduleNotification(
             id: "morning_motivation",
             title: String(localized: "💊 Don't forget your breakfast and supplements! 🍳"),
@@ -30,7 +26,6 @@ class NotificationManager {
             repeats: true
         )
         
-        // WATER REMINDERS (Every 2 hours) - Repeats daily
         let waterHours = [10, 12, 14, 16, 18]
         let waterMessages = [
             String(localized: "Hydration Check 💧 Grab a glass of water!"),
@@ -51,32 +46,26 @@ class NotificationManager {
             )
         }
         
-        // EVENING CHECK-IN (8:00 PM) - Dynamic scheduling
         scheduleEveningCheckIns(meals: meals, log: log)
     }
     
-    // Dynamic scheduler for the evening check-ins
     private func scheduleEveningCheckIns(meals: [ConsumedMeal], log: DailyLog?) {
         let center = UNUserNotificationCenter.current()
         let calendar = Calendar.current
         let now = Date()
         
-        // Schedules rolling check-ins for the next 7 days.
-        // Today (day 0) is dynamic; future days (1 to 6) serve as fallbacks.
         for dayOffset in 0..<7 {
             guard let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: now),
                   let eveningDate = calendar.date(bySettingHour: 20, minute: 0, second: 0, of: targetDate) else {
                 continue
             }
             
-            // If 8:00 PM today has already passed, skip scheduling day 0
             guard eveningDate > now else { continue }
             
             let content = UNMutableNotificationContent()
             content.sound = .default
             
             if dayOffset == 0, let log = log {
-                // Determine today's current metrics
                 let todayMeals = meals.filter { calendar.isDate($0.consumedAt, inSameDayAs: now) }
                 let totalCals = todayMeals.reduce(0) { $0 + $1.calories }
                 let totalProtein = todayMeals.reduce(0) { $0 + $1.protein }
@@ -92,7 +81,6 @@ class NotificationManager {
                     content.body = String(localized: "Have you hit your protein goal for today? Log your dinner to keep your streak alive!")
                 }
             } else {
-                // Future fallback reminders
                 content.title = String(localized: "Evening Check-in 🌙")
                 content.body = String(localized: "Have you hit your protein goal for today? Log your dinner to keep your streak alive!")
             }
@@ -109,7 +97,6 @@ class NotificationManager {
         }
     }
     
-    // Helper function to build repeating/non-repeating daily notifications
     private func scheduleNotification(id: String, title: String, body: String, hour: Int, minute: Int, repeats: Bool = true) {
         let content = UNMutableNotificationContent()
         content.title = title
@@ -130,7 +117,6 @@ class NotificationManager {
         }
     }
     
-    // 3. Turn off the coach
     func cancelNotifications() {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
     }

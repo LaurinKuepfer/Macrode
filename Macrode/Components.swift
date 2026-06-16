@@ -15,11 +15,9 @@ struct CalorieHUD: View {
     
     var body: some View {
         ZStack {
-            // Background Circle
             Circle()
                 .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
             
-            // Progress Circle
             Circle()
                 .trim(from: 0, to: progress)
                 .stroke(
@@ -53,7 +51,6 @@ struct MacroBar: View {
     let target: Double
     let baseColor: Color
     
-    // NEW: If they hit the goal, turn it Gold!
     private var displayColor: Color {
         consumed >= target ? Color.yellow : baseColor
     }

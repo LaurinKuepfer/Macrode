@@ -6,7 +6,6 @@ import SwiftUI
 struct MacrodeLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: MacrodeAttributes.self) { context in
-            // Lock screen / banner UI
             HStack {
                 VStack(alignment: .leading) {
                     Text("Macrode").font(.headline)
@@ -24,7 +23,6 @@ struct MacrodeLiveActivity: Widget {
 
         } dynamicIsland: { context in
             DynamicIsland {
-                // Expanded UI
                 DynamicIslandExpandedRegion(.leading) {
                     VStack(alignment: .leading) {
                         Text("Left").font(.caption).foregroundColor(.secondary)
@@ -40,7 +38,6 @@ struct MacrodeLiveActivity: Widget {
                     .padding(.trailing, 8)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    // Empty bottom region
                 }
             } compactLeading: {
                 HStack(spacing: 4) {

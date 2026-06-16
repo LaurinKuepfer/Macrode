@@ -7,7 +7,6 @@ struct InsightsView: View {
     @Query(sort: \ConsumedMeal.consumedAt, order: .reverse) private var allMeals: [ConsumedMeal]
     @Query private var dailyLogs: [DailyLog]
     
-    // Das Datum, das mit dem Rest der App geteilt wird
     @Binding var selectedDate: Date
     
     @State private var showingWeightAlert = false
@@ -24,14 +23,13 @@ struct InsightsView: View {
         return dict
     }
     
-    // MARK: - THE ALGORITHMS
+   
     
     private var currentStreak: Int {
         var streak = 0
         let calendar = Calendar.current
         var checkDate = calendar.startOfDay(for: Date())
         
-        // Pre-compute dictionaries to avoid O(N^2) evaluation
         var dict = [Date: DailyLog]()
         for log in dailyLogs { dict[calendar.startOfDay(for: log.date)] = log }
         
@@ -88,7 +86,7 @@ struct InsightsView: View {
         }
     }
     
-    // MARK: - UI Components
+   
     private var streakBanner: some View {
         HStack {
             Image(systemName: "flame.fill").foregroundColor(.orange)
@@ -130,7 +128,6 @@ struct InsightsView: View {
                     )
                     .foregroundStyle(cals > target ? Color.red.gradient : Color.green.gradient)
                     
-                    // Nur zeichnen, wenn es wirklich ein Target gibt, ansonsten als 2000er Linie
                     RuleMark(y: .value("Target", target))
                         .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
                         .foregroundStyle(.secondary)

@@ -1,8 +1,7 @@
 import SwiftUI
 import SwiftData
-import VisionKit // Needed for the scanner!
+import VisionKit
 
-// Temporary struct to hold items while building a recipe
 struct RecipeIngredientTemp: Identifiable {
     let id = UUID()
     let food: FoodItem
@@ -17,13 +16,11 @@ struct CreateRecipeView: View {
     @State private var recipeName: String = ""
     @State private var ingredients: [RecipeIngredientTemp] = []
     
-    // UI States
     @State private var showingAddIngredient = false
     @State private var selectedFood: FoodItem?
     @State private var ingredientWeight: Double = 100
     @FocusState private var isNameFocused: Bool
     
-    // Auto-calculating the totals!
     private var totalCalories: Double { ingredients.reduce(0) { $0 + ($1.food.calories * ($1.weightGrams / 100)) } }
     private var totalProtein: Double { ingredients.reduce(0) { $0 + ($1.food.protein * ($1.weightGrams / 100)) } }
     private var totalCarbs: Double { ingredients.reduce(0) { $0 + ($1.food.carbs * ($1.weightGrams / 100)) } }
@@ -44,7 +41,6 @@ struct CreateRecipeView: View {
                             Text("\(Int(ingredient.weightGrams))g").font(.subheadline).foregroundColor(.secondary)
                         }
                         Spacer()
-                        // Mini macro preview per ingredient
                         Text("\(Int(ingredient.food.calories * (ingredient.weightGrams / 100))) kcal")
                             .font(.subheadline)
                             .foregroundColor(.green)
@@ -78,7 +74,6 @@ struct CreateRecipeView: View {
                 .disabled(recipeName.isEmpty || ingredients.isEmpty)
             }
         }
-        // Sub-sheet to search library & scan foods!
         .sheet(isPresented: $showingAddIngredient) {
             IngredientPickerSheet(
                 foodLibrary: foodLibrary,
@@ -87,7 +82,6 @@ struct CreateRecipeView: View {
                 }
             )
         }
-        // Sub-sheet to ask for grams after picking a food
         .alert("How many grams?", isPresented: Binding(
             get: { selectedFood != nil },
             set: { if !$0 { selectedFood = nil } }
@@ -97,7 +91,7 @@ struct CreateRecipeView: View {
                 if let food = selectedFood {
                     ingredients.append(RecipeIngredientTemp(food: food, weightGrams: ingredientWeight))
                     selectedFood = nil
-                    ingredientWeight = 100 // reset for next time
+                    ingredientWeight = 100
                 }
             }
             Button("Cancel", role: .cancel) { selectedFood = nil }
@@ -114,7 +108,6 @@ struct CreateRecipeView: View {
 }
 
 // MARK: - THE INGREDIENT PICKER SHEET
-// This handles the Search Bar and Barcode Scanner!
 struct IngredientPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     var foodLibrary: [FoodItem]
@@ -199,7 +192,6 @@ struct IngredientPickerSheet: View {
                     }
                 }
             }
-            // Scanner Sheet
             .sheet(isPresented: $isShowingScanner) {
                 ScannerView(scannedBarcode: $scannedBarcode).ignoresSafeArea()
             }
@@ -367,7 +359,6 @@ struct EditRecipeView: View {
             }
         }
         .onAppear {
-            // Optional: isInputActive = true
         }
     }
 }

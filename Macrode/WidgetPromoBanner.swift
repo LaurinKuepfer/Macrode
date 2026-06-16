@@ -28,7 +28,6 @@ struct WidgetPromoBanner: View {
                     }
                 }
                 
-                // Mini preview of what it looks like
                 HStack(spacing: 16) {
                     Circle()
                         .stroke(Color.green, lineWidth: 6)

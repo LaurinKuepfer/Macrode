@@ -54,7 +54,7 @@ struct StarterDatabase {
         return Set(all.map { $0.name })
     }
     
-    // MARK: - ENGLISH DATABASE
+   
     private static let foodsEN: [StarterFood] = [
         StarterFood(name: "Quinoa (Cooked)", calories: 120, protein: 4.4, carbs: 21.3, fat: 1.9, category: "Carbs"),
         StarterFood(name: "Brown Rice (Cooked)", calories: 112, protein: 2.6, carbs: 23.5, fat: 0.9, category: "Carbs"),
@@ -125,7 +125,7 @@ struct StarterDatabase {
         StarterRecipe(name: "Quick Protein Shake", calories: 150, protein: 25.0, carbs: 5.0, fat: 2.0, instructions: ["Add 300ml of cold water or milk to a shaker.", "Add 1 scoop (30g) of whey protein powder.", "Shake vigorously for 15 seconds until smooth."], category: "Snack", prepTimeMinutes: 2, difficulty: "Easy", systemImage: "waterbottle")
     ]
     
-    // MARK: - GERMAN DATABASE
+   
     private static let foodsDE: [StarterFood] = [
         StarterFood(name: "Quinoa (Gekocht)", calories: 120, protein: 4.4, carbs: 21.3, fat: 1.9, category: "Carbs"),
         StarterFood(name: "Vollkornbrot", calories: 247, protein: 13.0, carbs: 41.0, fat: 3.4, category: "Carbs"),
@@ -174,7 +174,7 @@ struct StarterDatabase {
         StarterRecipe(name: "Quick Protein Shake", calories: 150, protein: 25.0, carbs: 5.0, fat: 2.0, instructions: ["300ml kaltes Wasser oder Milch in einen Shaker füllen.", "1 Scoop (30g) Whey Protein Pulver hinzufügen.", "Für 15 Sekunden kräftig schütteln."], category: "Snack", prepTimeMinutes: 2, difficulty: "Leicht", systemImage: "waterbottle")
     ]
     
-    // MARK: - SPANISH DATABASE
+   
     private static let foodsES: [StarterFood] = [
         StarterFood(name: "Pechuga de Pollo (Cruda)", calories: 120, protein: 22.5, carbs: 0.0, fat: 2.6, category: "Meat"),
         StarterFood(name: "Carne Picada (Magra, Cruda)", calories: 137, protein: 21.4, carbs: 0.0, fat: 5.0, category: "Meat"),
@@ -206,7 +206,7 @@ struct StarterDatabase {
         StarterRecipe(name: "Batido de Proteína Rápido", calories: 150, protein: 25.0, carbs: 5.0, fat: 2.0, instructions: ["Añade 300ml de agua fría o leche a un mezclador.", "Añade 1 cazo (30g) de proteína whey.", "Agita vigorosamente 15 segundos."], category: "Snack", prepTimeMinutes: 2, difficulty: "Fácil", systemImage: "waterbottle")
     ]
     
-    // MARK: - FRENCH DATABASE
+   
     private static let foodsFR: [StarterFood] = [
         StarterFood(name: "Blanc de Poulet (Cru)", calories: 120, protein: 22.5, carbs: 0.0, fat: 2.6, category: "Meat"),
         StarterFood(name: "Viande Hachée (Maigre, Crue)", calories: 137, protein: 21.4, carbs: 0.0, fat: 5.0, category: "Meat"),

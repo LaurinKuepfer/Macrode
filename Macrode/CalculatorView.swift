@@ -15,13 +15,11 @@ struct CalculatorView: View {
     
     var dailyLog: DailyLog
     
-    // User Data
     @State private var isMale: Bool = true
     @State private var age: String = ""
     @State private var heightCM: String = ""
     @State private var weightKG: String = ""
     
-    // Goals & Activity
     @AppStorage("userGoal") private var goal: GoalType = .maintain
     @State private var activityLevel: ActivityLevel = .sedentary
     
@@ -101,18 +99,14 @@ struct CalculatorView: View {
         let h = Double(heightCM) ?? 170.0
         let a = Double(age) ?? 30.0
         
-        // 1. Calculate BMR
         var bmr = (10.0 * w) + (6.25 * h) - (5.0 * a)
         bmr += isMale ? 5.0 : -161.0
         
-        // 2. Multiply by Activity Level (TDEE)
         var tdee = bmr * activityLevel.multiplier
         
-        // 3. Adjust for Goal
         if goal == .lose { tdee -= 500 }
         if goal == .gain { tdee += 300 }
         
-        // 4. Calculate Macros
         let roundedTdee = round(tdee)
         let proteinPerKg = (activityLevel == .active || activityLevel == .athlete || goal == .gain) ? 2.0 : 1.6
         let proteinTarget = round(w * proteinPerKg)
@@ -120,7 +114,6 @@ struct CalculatorView: View {
         let remainingCals = tdee - (proteinTarget * 4.0) - (fatTarget * 9.0)
         let carbsTarget = round(max(0, remainingCals / 4.0))
         
-        // 5. Save to current Log
         dailyLog.calorieTarget = roundedTdee
         dailyLog.proteinTarget = proteinTarget
         dailyLog.carbsTarget = carbsTarget

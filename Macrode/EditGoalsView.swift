@@ -7,7 +7,6 @@ struct EditGoalsView: View {
     @Environment(\.dismiss) private var dismiss
     var dailyLog: DailyLog
     
-    // NEU: Zieht sich unendlich viele Supplements aus der DB
     @Query private var allSupplements: [Supplement]
     
     @State private var calories: Double = 0
@@ -57,7 +56,6 @@ struct EditGoalsView: View {
                     HStack { Text("Water Target (ml)"); Spacer(); TextField("2500", value: $waterTarget, format: .number).keyboardType(.numberPad).focused($isInputActive).multilineTextAlignment(.trailing).foregroundColor(.cyan) }
                 }
                 
-                // NEU: Unendlicher Supplement Manager
                 Section(header: Text("Supplements"), footer: Text("Add your daily vitamins or supplements and assign them to specific days.")) {
                     ForEach(allSupplements) { supp in
                         SupplementEditRow(supplement: supp)
@@ -123,7 +121,6 @@ struct EditGoalsView: View {
     }
 }
 
-// Hilfs-UI: Jedes Supplement bekommt seine eigene dynamische Reihe
 struct SupplementEditRow: View {
     @Bindable var supplement: Supplement
     let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
@@ -138,7 +135,6 @@ struct SupplementEditRow: View {
                 ForEach(0..<7) { index in
                     let dayNumber = index + 1
                     
-                    // Wir konvertieren den "1,2,3" String aus der Datenbank
                     let currentDays = supplement.scheduledDays.split(separator: ",").compactMap { Int($0) }
                     let isSelected = currentDays.contains(dayNumber)
                     

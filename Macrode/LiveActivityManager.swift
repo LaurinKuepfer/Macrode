@@ -7,16 +7,13 @@ class LiveActivityManager {
     private init() {}
     
     func startFastingActivity(caloriesLeft: Int, fastingHours: Double) {
-        // Only start if supported
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         
-        // End existing activities first
         endAllActivities()
         
         let attributes = MacrodeAttributes(name: "Fasting & Calories")
         let contentState = MacrodeAttributes.ContentState(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
         
-        // Swift 5.9 / iOS 16.2+ Activity Content API
         if #available(iOS 16.2, *) {
             let activityContent = ActivityContent(state: contentState, staleDate: Calendar.current.date(byAdding: .minute, value: 30, to: Date()))
             

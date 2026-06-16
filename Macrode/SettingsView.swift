@@ -27,9 +27,7 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: 🎯 Your Goal
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Picker(selection: $userGoal) {
                         ForEach(GoalType.allCases, id: \.self) { type in
@@ -53,9 +51,7 @@ struct SettingsView: View {
                     Text("The Weekly Bank will never drop your daily target below the safety floor, even after a large surplus.")
                 }
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: 🌍 General
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Picker(selection: $appLanguage) {
                         Text("System").tag("system")
@@ -70,9 +66,7 @@ struct SettingsView: View {
                     Label("General", systemImage: "gearshape.fill")
                 }
 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: 🔔 Notifications & Coaching
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Toggle(isOn: $isProactiveCoachEnabled) {
                         Label("Daily Coach", systemImage: "bell.badge.fill")
@@ -98,13 +92,10 @@ struct SettingsView: View {
                     Text("Receive offline daily reminders to take your supplements and hit your protein goals.")
                 }
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: 📱 Widgets
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Button(action: {
                         HapticManager.shared.impact(.light)
-                        // Deep link to widget gallery
                         if let url = URL(string: "x-apple-widgetkit-gallery://") {
                             UIApplication.shared.open(url)
                         }
@@ -135,9 +126,7 @@ struct SettingsView: View {
                     Label("Widgets", systemImage: "rectangle.on.rectangle")
                 }
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: ❤️ Health & Integrations
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Button(action: {
                         HapticManager.shared.impact(.light)
@@ -155,9 +144,7 @@ struct SettingsView: View {
                     Text("Sync meals, water, and weight to Apple Health automatically.")
                 }
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: 💾 Data & Backup
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Button(action: { prepareExport(); showingExporter = true }) {
                         Label("Export Backup (.csv)", systemImage: "square.and.arrow.up")
@@ -173,9 +160,7 @@ struct SettingsView: View {
                     Text("Macrode is 100% offline. Use backups to transfer your data to a new device.")
                 }
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: ℹ️ About & Help
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Button(action: {
                         HapticManager.shared.impact(.light)
@@ -198,9 +183,7 @@ struct SettingsView: View {
                     Label("About & Help", systemImage: "info.circle.fill")
                 }
                 
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                // MARK: ⚠️ Danger Zone
-                // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               
                 Section {
                     Button(role: .destructive, action: {
                         HapticManager.shared.impact(.light)
@@ -244,7 +227,7 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - Widget Preview Card
+   
     private func widgetPreviewCard(icon: String, title: String, subtitle: String, color: Color) -> some View {
         VStack(spacing: 6) {
             Image(systemName: icon)
@@ -262,7 +245,7 @@ struct SettingsView: View {
         .cornerRadius(12)
     }
     
-    // MARK: - Helpers
+   
     private func showAlert(_ title: String, _ message: String = "") {
         alertMessage = title + (message.isEmpty ? "" : "\n\(message)")
         showingAlert = true
@@ -284,7 +267,6 @@ struct SettingsView: View {
             
             try context.save()
             
-            // Reset AppStorage flags
             UserDefaults.standard.set(false, forKey: "hasLoadedStarterData")
             
             HapticManager.shared.notification(.success)
@@ -323,7 +305,7 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - CSV Logic
+   
     private func prepareExport() {
         var rows: [String] = ["Date,Meal Name,Calories,Protein,Carbs,Fat,Weight (g)"]
         let formatter = ISO8601DateFormatter()

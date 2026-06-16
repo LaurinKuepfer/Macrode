@@ -14,13 +14,11 @@ final class FoodItem {
     var category: String
     var createdAt: Date
     
-    // Extended nutrients (optional, only shown when available)
     var fiber: Double?
     var sugar: Double?
     var saturatedFat: Double?
     var sodium: Double?
     
-    // Rich Metadata from API
     var imageUrl: String?
     var nutriscore: String?
     var ecoscore: String?
@@ -62,7 +60,6 @@ final class RecipeItem {
     var carbs: Double
     var fat: Double
     
-    // NEW High-End Fields
     var instructions: [String]
     var category: String
     var prepTimeMinutes: Int
@@ -84,15 +81,12 @@ final class RecipeItem {
     }
 }
 
-// NEU: Das unendliche Supplement Model!
 @Model
 final class Supplement {
     @Attribute(.unique) var id: UUID
     var name: String
-    var scheduledDays: String // "1,2,3,4,5,6,7"
+    var scheduledDays: String
     
-    // Die Verbindung zur DailyLog: An welchen Tagen wurde es WIRKLICH genommen?
-    // Wir speichern die Dates als String-Array, um es simpel zu halten
     var datesTaken: [String]
     
     init(id: UUID = UUID(), name: String, scheduledDays: String = "1,2,3,4,5,6,7", datesTaken: [String] = []) {
@@ -115,7 +109,6 @@ final class DailyLog {
     var bodyWeight: Double?
     var isSocialDay: Bool
     
-    // FIX: Die alten Supplement-Variablen wurden hier komplett GELÖSCHT!
     
     init(date: Date = Calendar.current.startOfDay(for: Date()), calorieTarget: Double = 2200, proteinTarget: Double = 150, carbsTarget: Double = 250, fatTarget: Double = 70, waterML: Int = 0, waterTargetML: Int = 2500, bodyWeight: Double? = nil, isSocialDay: Bool = false) {
         self.date = date
@@ -142,7 +135,6 @@ final class ConsumedMeal {
     var consumedAt: Date
     var mealCategory: String
     
-    // Extended nutrients (optional, dynamic)
     var fiber: Double?
     var sugar: Double?
     var saturatedFat: Double?

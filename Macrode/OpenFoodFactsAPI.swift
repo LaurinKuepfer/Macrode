@@ -1,6 +1,5 @@
 import Foundation
 
-// The JSON Structure from Open Food Facts
 struct OFFResponse: Codable {
     let status: Int
     let product: OFFProduct?
@@ -16,7 +15,6 @@ struct OFFProduct: Codable {
     let categoriesTags: [String]?
     let nutriments: OFFNutriments?
     
-    // Rich Metadata
     let imageFrontUrl: String?
     let nutriscoreGrade: String?
     let ecoscoreGrade: String?
@@ -61,7 +59,6 @@ struct OFFNutriments: Codable {
     }
 }
 
-// The Network Client
 class OpenFoodFactsAPI {
     static func fetchProduct(barcode: String) async throws -> (name: String, calories: Double, protein: Double, carbs: Double, fat: Double, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)? {
         let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json"

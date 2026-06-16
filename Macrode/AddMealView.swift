@@ -3,7 +3,6 @@ import SwiftData
 import VisionKit
 import WidgetKit
 
-// Auto-detect meal category based on time of day
 func autoMealCategory(for date: Date = Date()) -> String {
     let hour = Calendar.current.component(.hour, from: date)
     if hour < 10 { return "Breakfast" }
@@ -262,7 +261,6 @@ struct AddMealView: View {
     }
     
     private func fetchFromOpenFoodFacts(barcode: String) {
-        // Prevent duplicate barcodes
         if let existingFood = foodLibrary.first(where: { $0.barcode == barcode }) {
             selectedExistingFood = existingFood
             return
@@ -382,7 +380,7 @@ struct QuickEstimateView: View {
                         mealCategory: autoMealCategory(for: selectedDate)
                     )
                     context.insert(meal)
-                    try? context.save() // Force save to persist before widget update
+                    try? context.save()
                     
                     HapticManager.shared.notification(.success)
                     HealthKitManager.shared.saveMeal(
@@ -416,7 +414,6 @@ struct LogRecipeView: View {
     @FocusState private var isInputActive: Bool
     @State private var showingEditSheet = false
     
-    // Prevent multiplication issues with negative serving sizes
     private var validServings: Double {
         max(0, servings)
     }
@@ -429,7 +426,6 @@ struct LogRecipeView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                // Hero Header
                 ZStack(alignment: .bottomLeading) {
                     LinearGradient(gradient: Gradient(colors: [.green.opacity(0.8), .green]), startPoint: .topLeading, endPoint: .bottomTrailing)
                         .frame(height: 250)
@@ -448,7 +444,6 @@ struct LogRecipeView: View {
                     .padding()
                 }
                 
-                // Stats Bar
                 HStack(spacing: 16) {
                     StatBadge(icon: "clock", text: "\(recipe.prepTimeMinutes) min")
                     StatBadge(icon: "flame.fill", text: "\(Int(recipe.calories)) kcal")
@@ -459,7 +454,6 @@ struct LogRecipeView: View {
                 .background(Color(UIColor.secondarySystemGroupedBackground))
                 
                 VStack(spacing: 24) {
-                    // Nutrition Facts
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Nutrition (per serving)")
                             .font(.title3.weight(.bold))
@@ -474,7 +468,6 @@ struct LogRecipeView: View {
                     .background(Color(UIColor.secondarySystemGroupedBackground))
                     .cornerRadius(16)
                     
-                    // Instructions
                     if !recipe.instructions.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Instructions")
@@ -498,7 +491,6 @@ struct LogRecipeView: View {
                         .cornerRadius(16)
                     }
                     
-                    // Logging Section
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Log Meal")
                             .font(.title3.weight(.bold))
@@ -795,7 +787,6 @@ struct CreateFoodView: View {
                     }
                     .padding(.top, 8)
             }
-            // Dynamic extended nutrients section — only shown when data exists
             if fiber != nil || sugar != nil || saturatedFat != nil || sodium != nil {
                 Section(header: Text("Extended Nutrition")) {
                     if fiber != nil {
