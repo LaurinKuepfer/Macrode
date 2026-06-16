@@ -17,7 +17,6 @@ struct DashboardView: View {
     
     @State private var showingGoalsSheet = false
     @State private var showingHistorySheet = false
-    @State private var showingQuickAddSheet = false
     
     private var currentLog: DailyLog {
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
@@ -131,9 +130,6 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showingGoalsSheet) { 
                 EditGoalsView(dailyLog: currentLog).presentationDetents([.fraction(0.8)]) 
-            }
-            .sheet(isPresented: $showingQuickAddSheet) { 
-                QuickEstimateView(selectedDate: selectedDate, isRootPresented: $showingQuickAddSheet).presentationDetents([.fraction(0.5), .large]) 
             }
             .sheet(isPresented: $showingHistorySheet) {
                 NavigationStack {
@@ -291,6 +287,7 @@ struct DailyDashboardContent: View {
     @AppStorage("userGoal") private var userGoal: GoalType = .maintain
     @State private var showingMacroTetris = false
     @State private var editingMeal: ConsumedMeal? = nil
+    @State private var showingQuickAddSheet = false
     
     var selectedDate: Date
     var currentLog: DailyLog
@@ -492,6 +489,9 @@ struct DailyDashboardContent: View {
         .sheet(item: $editingMeal) { meal in
             EditMealView(meal: meal)
                 .presentationDetents([.fraction(0.8), .large])
+        }
+        .sheet(isPresented: $showingQuickAddSheet) { 
+            QuickEstimateView(selectedDate: selectedDate, isRootPresented: $showingQuickAddSheet).presentationDetents([.fraction(0.5), .large]) 
         }
     }
 

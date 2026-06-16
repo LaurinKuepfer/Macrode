@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct MainTabView: View {
     @Environment(\.modelContext) private var context

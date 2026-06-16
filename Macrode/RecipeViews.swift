@@ -119,7 +119,7 @@ struct IngredientPickerSheet: View {
     
     @State private var isFetchingAPI = false
     @State private var navigateToCreateFood = false
-    @State private var prefilledAPIResult: (name: String, calories: Double, protein: Double, carbs: Double, fat: Double, barcode: String, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?)? = nil
+    @State private var prefilledAPIResult: (name: String, calories: Double, protein: Double, carbs: Double, fat: Double, barcode: String, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)? = nil
     @State private var onlineSearchQuery: String? = nil
     
     var filteredFoods: [FoodItem] {
@@ -224,7 +224,7 @@ struct IngredientPickerSheet: View {
         Task {
             if let result = try? await OpenFoodFactsAPI.fetchProduct(barcode: barcode) {
                 await MainActor.run { 
-                    prefilledAPIResult = (name: result.name, calories: result.calories, protein: result.protein, carbs: result.carbs, fat: result.fat, barcode: barcode, category: result.category, fiber: result.fiber, sugar: result.sugar, saturatedFat: result.saturatedFat, sodium: result.sodium)
+                    prefilledAPIResult = (name: result.name, calories: result.calories, protein: result.protein, carbs: result.carbs, fat: result.fat, barcode: barcode, category: result.category, fiber: result.fiber, sugar: result.sugar, saturatedFat: result.saturatedFat, sodium: result.sodium, imageUrl: result.imageUrl, nutriscore: result.nutriscore, ecoscore: result.ecoscore, novaGroup: result.novaGroup, ingredients: result.ingredients, allergens: result.allergens, brand: result.brand)
                     isFetchingAPI = false
                     navigateToCreateFood = true 
                 }

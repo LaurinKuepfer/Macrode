@@ -143,7 +143,7 @@ struct AddMealView: View {
                 OnlineSearchResultsView(query: query)
             }
             .sheet(isPresented: $isShowingScanner) { ScannerView(scannedBarcode: $scannedBarcode).ignoresSafeArea() }
-            .onChange(of: scannedBarcode) { _, newValue in if let barcode = newValue { fetchFromOpenFoodFacts(barcode: barcode) } 
+            .onChange(of: scannedBarcode) { _, newValue in if let barcode = newValue { fetchFromOpenFoodFacts(barcode: barcode) } }
         }
     }
     
@@ -182,7 +182,7 @@ struct AddMealView: View {
                         }
                         .padding(.vertical, 4)
                     }
-                    .swipeActions { Button(role: .destructive) { context.delete(food) } label: { Label("Delete", systemImage: "trash") } 
+                    .swipeActions { Button(role: .destructive) { context.delete(food) } label: { Label("Delete", systemImage: "trash") } }
                 }
             }
         }
@@ -1057,7 +1057,7 @@ struct EditMealView: View {
 }
 
 // MARK: - Online Search Results View
-extension String: Identifiable {
+extension String: @retroactive Identifiable {
     public var id: String { self }
 }
 
