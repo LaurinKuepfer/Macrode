@@ -27,11 +27,15 @@ struct Provider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         Task { @MainActor in
-            let descriptor = FetchDescriptor<DailyLog>()
+            let calendar = Calendar.current
+            let today = calendar.startOfDay(for: Date())
+            let cutoffDate = calendar.date(byAdding: .day, value: -22, to: today)!
+            
+            let descriptor = FetchDescriptor<DailyLog>(predicate: #Predicate { $0.date >= cutoffDate })
             let logs = (try? modelContainer.mainContext.fetch(descriptor)) ?? []
             let todayLog = logs.first(where: { Calendar.current.isDateInToday($0.date) })
             
-            let mealDescriptor = FetchDescriptor<ConsumedMeal>()
+            let mealDescriptor = FetchDescriptor<ConsumedMeal>(predicate: #Predicate { $0.consumedAt >= cutoffDate })
             let meals = (try? modelContainer.mainContext.fetch(mealDescriptor)) ?? []
             let todayMeals = meals.filter { Calendar.current.isDateInToday($0.consumedAt) }
             

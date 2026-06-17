@@ -26,24 +26,14 @@ struct LogRecipeView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                ZStack(alignment: .bottomLeading) {
-                    LinearGradient(gradient: Gradient(colors: [.green.opacity(0.8), .green]), startPoint: .topLeading, endPoint: .bottomTrailing)
-                        .frame(height: 250)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Image(systemName: recipe.systemImage)
-                            .font(.system(size: 60))
-                            .foregroundColor(.white)
-                            .padding(.bottom, 8)
-                        
-                        Text(recipe.name)
-                            .font(.largeTitle.weight(.heavy))
-                            .foregroundColor(.white)
-                            .shadow(radius: 2)
-                    }
-                    .padding()
-                }
+            VStack(spacing: 20) {
+                Image(systemName: recipe.systemImage)
+                    .font(.system(size: 50))
+                    .foregroundColor(.green)
+                    .frame(width: 100, height: 100)
+                    .background(Color.green.opacity(0.1))
+                    .clipShape(Circle())
+                    .padding(.top, 24)
                 
                 HStack(spacing: 16) {
                     StatBadge(icon: "clock", text: "\(recipe.prepTimeMinutes) min")
@@ -52,7 +42,7 @@ struct LogRecipeView: View {
                     Spacer()
                 }
                 .padding()
-                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .background(.ultraThinMaterial)
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -66,7 +56,7 @@ struct LogRecipeView: View {
                         }
                     }
                     .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .background(.ultraThinMaterial)
                     .cornerRadius(16)
                     
                     if !recipe.instructions.isEmpty {
@@ -88,7 +78,7 @@ struct LogRecipeView: View {
                             }
                         }
                         .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .background(.ultraThinMaterial)
                         .cornerRadius(16)
                     }
                     
@@ -127,14 +117,15 @@ struct LogRecipeView: View {
                         .disabled((servings ?? 0) <= 0)
                     }
                     .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .background(.ultraThinMaterial)
                     .cornerRadius(16)
                 }
                 .padding()
             }
         }
         .background(Color(UIColor.systemGroupedBackground))
-        .edgesIgnoringSafeArea(.top)
+        .navigationTitle(recipe.name)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("Edit") { showingEditSheet = true }

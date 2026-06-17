@@ -6,7 +6,7 @@ struct MetabolismEngine {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
-        let lookbackPeriod = calendar.date(byAdding: .day, value: -21, to: today)!
+        guard let lookbackPeriod = calendar.date(byAdding: .day, value: -21, to: today) else { return nil }
         
         let recentLogs = dailyLogs
             .filter { $0.date >= lookbackPeriod && $0.date <= today && ($0.bodyWeight ?? 0) > 0 }
@@ -28,11 +28,15 @@ struct MetabolismEngine {
         let weightDifferenceKG = lastWeight - firstWeight
         let dailyDeficitOrSurplus = (weightDifferenceKG * 7700.0) / Double(daysBetween)
         
-        let endOfPeriod = calendar.date(byAdding: .day, value: 1, to: endDate)!
-        let mealsInPeriod = allMeals.filter { $0.consumedAt >= startDate && $0.consumedAt < endOfPeriod }
+        let mealsInPeriod = allMeals.filter { $0.consumedAt >= startDate && $0.consumedAt < endDate }
+        
+        let mealsByDay = Dictionary(grouping: mealsInPeriod) { calendar.startOfDay(for: $0.consumedAt) }
+        let trackedDaysCount = mealsByDay.filter { $0.value.reduce(0, { sum, meal in sum + meal.calories }) > 500 }.count
+        
+        guard trackedDaysCount >= 2 else { return nil }
         
         let totalCaloriesEaten = mealsInPeriod.reduce(0) { $0 + $1.calories }
-        let averageDailyCaloriesEaten = totalCaloriesEaten / Double(daysBetween)
+        let averageDailyCaloriesEaten = totalCaloriesEaten / Double(trackedDaysCount)
         
         let calculatedTDEE = averageDailyCaloriesEaten - dailyDeficitOrSurplus
         

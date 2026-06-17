@@ -34,40 +34,22 @@ struct LogFoodView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                ZStack(alignment: .bottomLeading) {
-                    if let urlString = food.imageUrl, let url = URL(string: urlString) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image.resizable().scaledToFill().frame(height: 250).clipped()
-                            case .empty, .failure:
-                                LinearGradient(gradient: Gradient(colors: [.blue.opacity(0.8), .blue]), startPoint: .topLeading, endPoint: .bottomTrailing).frame(height: 250)
-                            @unknown default:
-                                EmptyView()
-                            }
-                        }
-                    } else {
-                        LinearGradient(gradient: Gradient(colors: [.blue.opacity(0.8), .blue]), startPoint: .topLeading, endPoint: .bottomTrailing).frame(height: 250)
-                    }
-                    
-                    LinearGradient(gradient: Gradient(colors: [.clear, .black.opacity(0.7)]), startPoint: .top, endPoint: .bottom)
-                        .frame(height: 250)
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        if food.imageUrl == nil {
+            VStack(spacing: 20) {
+                if let urlString = food.imageUrl, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable().scaledToFill().frame(width: 120, height: 120).clipShape(Circle())
+                        case .empty, .failure:
                             Image(systemName: isDrink ? "cup.and.saucer.fill" : "leaf.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(.white)
-                                .padding(.bottom, 8)
+                                .font(.system(size: 60)).foregroundColor(.blue).frame(width: 120, height: 120).background(Color.blue.opacity(0.1)).clipShape(Circle())
+                        @unknown default:
+                            EmptyView()
                         }
-                        
-                        Text(food.name)
-                            .font(.largeTitle.weight(.heavy))
-                            .foregroundColor(.white)
-                            .shadow(radius: 2)
                     }
-                    .padding()
+                } else {
+                    Image(systemName: isDrink ? "cup.and.saucer.fill" : "leaf.fill")
+                        .font(.system(size: 60)).foregroundColor(.blue).frame(width: 120, height: 120).background(Color.blue.opacity(0.1)).clipShape(Circle())
                 }
                 
                 HStack(spacing: 16) {
@@ -79,7 +61,7 @@ struct LogFoodView: View {
                     Spacer()
                 }
                 .padding()
-                .background(Color(UIColor.secondarySystemGroupedBackground))
+                .background(.ultraThinMaterial)
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -93,7 +75,7 @@ struct LogFoodView: View {
                         }
                     }
                     .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .background(.ultraThinMaterial)
                     .cornerRadius(16)
                     
                     if food.fiber != nil || food.sugar != nil || food.saturatedFat != nil || food.sodium != nil {
@@ -109,11 +91,11 @@ struct LogFoodView: View {
                             }
                         }
                         .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .background(.ultraThinMaterial)
                         .cornerRadius(16)
                     }
                     
-                    if food.nutriscore != nil || food.ecoscore != nil || food.novaGroup != nil || (food.ingredients != nil && !food.ingredients!.isEmpty) || (food.allergens != nil && !food.allergens!.isEmpty) {
+                    if food.nutriscore != nil || food.ecoscore != nil || food.novaGroup != nil || food.ingredients?.isEmpty == false || food.allergens?.isEmpty == false {
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Open Food Facts Data")
                                 .font(.title3.weight(.bold))
@@ -141,7 +123,7 @@ struct LogFoodView: View {
                             }
                         }
                         .padding()
-                        .background(Color(UIColor.secondarySystemGroupedBackground))
+                        .background(.ultraThinMaterial)
                         .cornerRadius(16)
                     }
                     
@@ -180,14 +162,15 @@ struct LogFoodView: View {
                         .disabled(validWeight <= 0)
                     }
                     .padding()
-                    .background(Color(UIColor.secondarySystemGroupedBackground))
+                    .background(.ultraThinMaterial)
                     .cornerRadius(16)
                 }
                 .padding()
             }
         }
         .background(Color(UIColor.systemGroupedBackground))
-        .edgesIgnoringSafeArea(.top)
+        .navigationTitle(food.name)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
             ToolbarItem(placement: .keyboard) {
                 Button("Done") { isInputActive = false }

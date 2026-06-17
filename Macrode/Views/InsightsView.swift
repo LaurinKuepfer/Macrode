@@ -43,17 +43,17 @@ struct InsightsView: View {
         
         func goalMet(on date: Date) -> Bool {
             let start = calendar.startOfDay(for: date)
-            guard let log = dict[start], let calories = dailyCalories[start] else { return false }
-            return calories > 0 && calories <= log.calorieTarget
+            guard let calories = dailyCalories[start] else { return false }
+            return calories > 500
         }
         
         if goalMet(on: checkDate) { streak += 1 }
         
-        checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+        checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate.addingTimeInterval(-86400)
         for _ in 0..<100 {
             if goalMet(on: checkDate) {
                 streak += 1
-                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate)!
+                checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate.addingTimeInterval(-86400)
             } else { break }
         }
         return streak
@@ -170,7 +170,7 @@ struct InsightsView: View {
             Chart {
                 ForEach(past7Days, id: \.self) { date in
                     let dayStart = calendar.startOfDay(for: date)
-                    let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+                    let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart.addingTimeInterval(86400)
                     let meals = allMeals.filter { $0.consumedAt >= dayStart && $0.consumedAt < dayEnd }
                     let cals = meals.reduce(0) { $0 + $1.calories }
                     let target = logsDictionary[dayStart]?.calorieTarget ?? 2000
@@ -204,7 +204,7 @@ struct InsightsView: View {
             
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: selectedDate)
-            let past7DaysStart = calendar.date(byAdding: .day, value: -6, to: today)!
+            let past7DaysStart = calendar.date(byAdding: .day, value: -6, to: today) ?? today.addingTimeInterval(-6 * 86400)
             
             let recentMeals = allMeals.filter { $0.consumedAt >= past7DaysStart }
             let totalPro = recentMeals.reduce(0) { $0 + $1.protein }

@@ -33,18 +33,21 @@ struct DashboardView: View {
         }
     }
     
+    @State private var viewModel = DashboardViewModel()
+    
     private var isToday: Bool { Calendar.current.isDateInToday(selectedDate) }
     
-    private var logsDictionary: [Date: DailyLog] {
-        var dict = [Date: DailyLog]()
-        for log in dailyLogs { dict[Calendar.current.startOfDay(for: log.date)] = log }
-        return dict
+    private func updateLogsDictionary() {
+        viewModel.updateLogsDictionary(dailyLogs: dailyLogs)
     }
 
    
     var body: some View {
         NavigationStack {
             ZStack {
+                LinearGradient(colors: [Color.blue.opacity(0.1), Color.purple.opacity(0.1), Color.green.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .ignoresSafeArea()
+                
                 ScrollView {
                     VStack(spacing: 16) {
                         weeklyCalendarView.padding(.top, 6)
@@ -53,7 +56,6 @@ struct DashboardView: View {
                     }
                     .padding(.bottom, 30)
                 }
-                .background(Color(UIColor.systemGroupedBackground))
             }
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.inline)
@@ -63,24 +65,20 @@ struct DashboardView: View {
                     hasLoadedStarterData = true 
                 }
                 ensureDailyLogExists(for: selectedDate)
+                updateLogsDictionary()
                 updateGoalsMetCache()
             }
             .onChange(of: selectedDate) { _, newDate in
                 ensureDailyLogExists(for: newDate)
             }
             .onChange(of: dailyLogs.count) { _, _ in
+                updateLogsDictionary()
                 updateGoalsMetCache()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 16) {
-                        Button(action: { 
-                            playHaptic()
-                            selectedTab = 2 
-                        }) {
-                            Image(systemName: "plus.circle.fill").foregroundColor(.green)
-                        }
-                        
+
                         Button(action: { 
                             playHaptic()
                             showingGoalsSheet = true 
@@ -111,7 +109,7 @@ struct DashboardView: View {
                         HStack(spacing: 16) {
                             Image(systemName: "banknote.fill").font(.largeTitle).foregroundColor(.orange).frame(width: 45)
                             VStack(alignment: .leading) { 
-                                Text("The Weekly Bank").font(.headline)
+                                Text("Energy Balance").font(.headline)
                                 Text("Your daily targets adapt automatically to smooth out calorie spikes.").font(.subheadline).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
                             }
                         }
@@ -233,7 +231,14 @@ struct DashboardView: View {
                                         Circle().fill(isSelected ? Color.primary : Color.clear).frame(width: 32, height: 32)
                                         Text(date.formatted(.dateTime.day())).font(.subheadline).fontWeight(isSelected ? .bold : .medium).foregroundColor(isSelected ? Color(UIColor.systemBackground) : (isCurrentDay ? .green : .primary))
                                     }
-                                }.id(date).onTapGesture { playHaptic(); withAnimation(.spring) { selectedDate = date } }
+                                }
+                                .frame(minWidth: 44, minHeight: 44)
+                                .contentShape(Rectangle())
+                                .accessibilityElement(children: .combine)
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityValue(isSelected ? "Selected" : "")
+                                .onTapGesture { playHaptic(); withAnimation(.spring) { selectedDate = date } }
+                                .id(date)
                             }
                         }
                     }.padding(.horizontal, 24).onAppear { proxy.scrollTo(Calendar.current.startOfDay(for: Date()), anchor: .trailing) }
@@ -303,10 +308,8 @@ struct DailyDashboardContent: View {
     @Query private var allConsumedMeals: [ConsumedMeal]
     
     @AppStorage("userGoal") private var userGoal: GoalType = .maintain
-    @State private var showingSmartSuggester = false
-    @State private var editingMeal: ConsumedMeal? = nil
-    @State private var showingQuickAddSheet = false
-    @State private var mealToDelete: ConsumedMeal? = nil
+    
+    @State private var viewModel = DashboardViewModel()
     
     var selectedDate: Date
     var currentLog: DailyLog
@@ -318,13 +321,13 @@ struct DailyDashboardContent: View {
         self.allSupplements = allSupplements
         
         let start = Calendar.current.startOfDay(for: selectedDate)
-        let end = Calendar.current.date(byAdding: .day, value: 1, to: start)!
+        let end = Calendar.current.date(byAdding: .day, value: 1, to: start) ?? start.addingTimeInterval(86400)
         self._selectedDateMeals = Query(
             filter: #Predicate<ConsumedMeal> { $0.consumedAt >= start && $0.consumedAt < end },
             sort: \.consumedAt, order: .reverse
         )
         
-        let lookback = Calendar.current.date(byAdding: .day, value: -60, to: start)!
+        let lookback = Calendar.current.date(byAdding: .day, value: -60, to: start) ?? start.addingTimeInterval(-60 * 86400)
         self._allConsumedMeals = Query(filter: #Predicate<ConsumedMeal> { $0.consumedAt >= lookback })
         self._allDailyLogs = Query(filter: #Predicate<DailyLog> { $0.date >= lookback })
     }
@@ -334,11 +337,8 @@ struct DailyDashboardContent: View {
     private var consumedCarbs: Double { selectedDateMeals.reduce(0) { $0 + $1.carbs } }
     private var consumedFat: Double { selectedDateMeals.reduce(0) { $0 + $1.fat } }
     
-    @State private var cachedTDEE: Double?
-    @State private var cachedForgiveness: ForgivenessEngine.ForgivenessResult?
-    
     private var baseTarget: Double {
-        if let tdee = cachedTDEE {
+        if let tdee = viewModel.cachedTDEE {
             switch userGoal {
             case .lose: return tdee - 500
             case .gain: return tdee + 300
@@ -350,13 +350,13 @@ struct DailyDashboardContent: View {
     
     @AppStorage("safetyFloorCalories") var safetyFloorCalories: Double = 1500
 
-    private var forgiveness: ForgivenessEngine.ForgivenessResult? {
-        cachedForgiveness
+    private var energyBalance: BalanceEngine.BalanceResult? {
+        viewModel.cachedBalance
     }
     
     private var dynamicTarget: Double {
         var target = baseTarget
-        if let f = forgiveness {
+        if let f = energyBalance {
             target += f.calorieAdjustment
         }
         
@@ -401,7 +401,7 @@ struct DailyDashboardContent: View {
         VStack(spacing: 20) {
            
             VStack(spacing: 6) {
-                if let tdee = cachedTDEE {
+                if let tdee = viewModel.cachedTDEE {
                     Label("TDEE: \(Int(tdee))", systemImage: "bolt.fill")
                         .font(.caption2).fontWeight(.bold)
                         .foregroundColor(.yellow)
@@ -414,7 +414,7 @@ struct DailyDashboardContent: View {
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedCalories)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: dynamicTarget)
                     .overlay(alignment: .topTrailing) {
-                        if let f = forgiveness, f.calorieAdjustment != 0 {
+                        if let f = energyBalance, f.calorieAdjustment != 0 {
                             Label("\(f.calorieAdjustment > 0 ? "+" : "")\(Int(f.calorieAdjustment))", systemImage: "banknote.fill")
                                 .font(.caption2).fontWeight(.bold)
                                 .foregroundColor(f.calorieAdjustment < 0 ? .red : .green)
@@ -439,24 +439,22 @@ struct DailyDashboardContent: View {
             
            
             HStack(spacing: 10) {
-                Button(action: { playHaptic(); showingSmartSuggester = true }) {
-                    HStack {
-                        Image(systemName: "wand.and.stars")
-                        Text("Smart Suggest").fontWeight(.bold)
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color.blue)
-                    .cornerRadius(12)
-                }
-                Button(action: { playHaptic(); showingQuickAddSheet = true }) {
-                    Label("Quick Add", systemImage: "bolt.fill")
-                        .font(.caption).fontWeight(.bold)
+                Button(action: { playHaptic(); viewModel.showingSmartSuggester = true }) {
+                    Label("Smart Suggest", systemImage: "wand.and.stars")
+                        .font(.subheadline).fontWeight(.bold)
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(LinearGradient(gradient: Gradient(colors: [.green, .mint]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .padding(.vertical, 12)
+                        .background(LinearGradient(colors: [.purple, .indigo], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        .cornerRadius(12)
+                }
+                Button(action: { playHaptic(); viewModel.showingQuickAddSheet = true }) {
+                    Label("Quick Add", systemImage: "bolt.fill")
+                        .font(.subheadline).fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .cornerRadius(12)
                 }
             }
@@ -472,14 +470,18 @@ struct DailyDashboardContent: View {
                     }
                     Spacer()
                     Button(action: { if currentLog.waterML >= 250 { playHaptic(); withAnimation { currentLog.waterML -= 250 } } else { withAnimation { currentLog.waterML = 0 } } }) {
-                        Image(systemName: "minus.circle").font(.body).foregroundColor(.secondary.opacity(0.5))
+                        Image(systemName: "minus.circle").font(.title3).foregroundColor(.secondary.opacity(0.8))
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }.buttonStyle(.plain)
                     Menu {
                         Button(action: { addWater(250) }) { Label("Glass (250 ml)", systemImage: "cup.and.saucer") }
                         Button(action: { addWater(500) }) { Label("Flask (500 ml)", systemImage: "waterbottle") }
                         Button(action: { addWater(1000) }) { Label("Large Bottle (1L)", systemImage: "drop.fill") }
                     } label: { 
-                        Image(systemName: "plus.circle.fill").font(.title3).foregroundColor(.blue) 
+                        Image(systemName: "plus.circle.fill").font(.title2).foregroundColor(.blue)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     } primaryAction: {
                         addWater(250)
                     }
@@ -512,7 +514,7 @@ struct DailyDashboardContent: View {
         .onChange(of: selectedDate) { _, _ in
             recalculateEngines()
         }
-        .sheet(isPresented: $showingSmartSuggester) {
+        .sheet(isPresented: $viewModel.showingSmartSuggester) {
             SmartSuggesterView(
                 remProtein: max(0, dynamicProteinTarget - consumedProtein),
                 remCarbs: max(0, dynamicCarbsTarget - consumedCarbs),
@@ -521,60 +523,22 @@ struct DailyDashboardContent: View {
             )
             .presentationDetents([.fraction(0.6), .large])
         }
-        .sheet(item: $editingMeal) { meal in
+        .sheet(item: $viewModel.editingMeal) { meal in
             EditMealView(meal: meal)
                 .presentationDetents([.fraction(0.8), .large])
         }
-        .sheet(isPresented: $showingQuickAddSheet) { 
-            QuickEstimateView(selectedDate: selectedDate, isRootPresented: $showingQuickAddSheet).presentationDetents([.fraction(0.5), .large]) 
+        .sheet(isPresented: $viewModel.showingQuickAddSheet) { 
+            QuickEstimateView(selectedDate: selectedDate, isRootPresented: $viewModel.showingQuickAddSheet).presentationDetents([.fraction(0.5), .large]) 
         }
     }
 
     private func recalculateEngines() {
-        let logsData = allDailyLogs.map { DailyLogData(from: $0) }
-        let mealsData = allConsumedMeals.map { ConsumedMealData(from: $0) }
-        let goal = userGoal
-        let date = selectedDate
-        
-        Task.detached {
-            let tdee = MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
-            let f = ForgivenessEngine.calculateForgiveness(for: date, allLogs: logsData, allMeals: mealsData, userGoal: goal)
-            
-            await MainActor.run {
-                self.cachedTDEE = tdee
-                self.cachedForgiveness = f
-            }
-        }
+        viewModel.recalculateEngines(allDailyLogs: allDailyLogs, allConsumedMeals: allConsumedMeals, userGoal: userGoal, selectedDate: selectedDate)
+        viewModel.updateFrequentMeals(allConsumedMeals: allConsumedMeals)
     }
 
-    private var frequentMeals: [ConsumedMeal] {
-        let calendar = Calendar.current
-        let now = Date()
-        let currentHour = calendar.component(.hour, from: now)
-        let startOfToday = calendar.startOfDay(for: now)
-        
-        let todayMealNames = Set(allConsumedMeals.filter { $0.consumedAt >= startOfToday }.map { $0.name })
-        
-        let recentMeals = allConsumedMeals.filter {
-            guard $0.consumedAt < startOfToday else { return false }
-            
-            let daysAgo = calendar.dateComponents([.day], from: $0.consumedAt, to: now).day ?? 0
-            guard daysAgo <= 30 else { return false }
-            
-            let mealHour = calendar.component(.hour, from: $0.consumedAt)
-            let diff = abs(mealHour - currentHour)
-            return diff <= 2 || diff >= 22
-        }
-        
-        let grouped = Dictionary(grouping: recentMeals, by: { $0.name })
-        let frequent = grouped.filter { !todayMealNames.contains($0.key) && $0.value.count >= 2 }
-        
-        let sorted = frequent.sorted { $0.value.count > $1.value.count }
-        return sorted.prefix(3).compactMap { $0.value.first }
-    }
-    
     private var frequentMealsCard: some View {
-        let meals = frequentMeals
+        let meals = viewModel.frequentMeals
         if meals.isEmpty { return AnyView(EmptyView()) }
         return AnyView(
             VStack(alignment: .leading, spacing: 16) {
@@ -608,17 +572,15 @@ struct DailyDashboardContent: View {
     }
     
     private var fastingCompactCard: some View {
-        let pastMeals = allConsumedMeals.filter { $0.consumedAt < Date() }.sorted { $0.consumedAt > $1.consumedAt }
-        let lastMeal = pastMeals.first
+        let lastMeal = allConsumedMeals.filter { $0.consumedAt < Date() }.max(by: { $0.consumedAt < $1.consumedAt })
         let hours = lastMeal.map { Date().timeIntervalSince($0.consumedAt) / 3600.0 } ?? 0
-        let isFasting = hours >= 12
         
         return HStack(spacing: 8) {
-            Image(systemName: isFasting ? "flame.fill" : "timer")
-                .foregroundColor(isFasting ? .orange : .blue)
+            Image(systemName: "timer")
+                .foregroundColor(.blue)
                 .font(.body)
             VStack(alignment: .leading, spacing: 0) {
-                Text(isFasting ? "Fasting" : "Last Meal")
+                Text("Time Since Last Meal")
                     .font(.caption2).foregroundColor(.secondary)
                 if lastMeal != nil {
                     Text(String(format: "%.1fh", hours))
@@ -630,7 +592,7 @@ struct DailyDashboardContent: View {
             Spacer()
         }
         .padding(8)
-        .background(isFasting ? AnyShapeStyle(Color.purple.opacity(0.1)) : AnyShapeStyle(.ultraThinMaterial))
+        .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
     }
@@ -689,7 +651,7 @@ struct DailyDashboardContent: View {
             HStack { Image(systemName: "clock.fill").foregroundColor(.blue); Text("Today's Timeline").font(.headline) }
             
             if selectedDateMeals.isEmpty {
-                VStack { Image(systemName: "fork.knife").font(.largeTitle).foregroundColor(.secondary.opacity(0.3)); Text("No meals logged yet.").font(.caption).foregroundColor(.secondary) }.frame(maxWidth: .infinity).padding(.vertical, 30)
+                VStack { Image(systemName: "fork.knife").font(.largeTitle).foregroundColor(.secondary.opacity(0.3)); Text("Ready to fuel your day? Log your first meal!").font(.caption).foregroundColor(.secondary) }.frame(maxWidth: .infinity).padding(.vertical, 30)
             } else {
                 let grouped = Dictionary(grouping: selectedDateMeals) { meal in
                     categoryOrder.contains(meal.mealCategory) ? meal.mealCategory : "Snack"
@@ -712,9 +674,9 @@ struct DailyDashboardContent: View {
                                 HStack(spacing: 8) { 
                                     Button(action: {
                                         playHaptic()
-                                        editingMeal = meal
+                                        viewModel.editingMeal = meal
                                     }) {
-                                        MealRow(meal: meal)
+                                        MealRow(meal: meal, isNested: true)
                                     }
                                     .buttonStyle(.plain)
                                     
@@ -789,6 +751,6 @@ struct DailyDashboardContent: View {
         let pastMeals = allConsumedMeals.filter { $0.consumedAt < Date() }.sorted { $0.consumedAt > $1.consumedAt }
         let hoursSinceLastMeal = pastMeals.first.map { Date().timeIntervalSince($0.consumedAt) / 3600.0 } ?? 0
         let calsLeft = max(0, Int(dynamicTarget - consumedCalories))
-        LiveActivityManager.shared.startFastingActivity(caloriesLeft: calsLeft, fastingHours: hoursSinceLastMeal)
+        LiveActivityManager.shared.updateOrStartFastingActivity(caloriesLeft: calsLeft, fastingHours: hoursSinceLastMeal)
     }
 }

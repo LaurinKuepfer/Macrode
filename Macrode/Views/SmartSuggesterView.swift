@@ -61,15 +61,15 @@ struct SmartSuggesterView: View {
                     Image(systemName: "face.dashed")
                         .font(.system(size: 60))
                         .foregroundColor(.secondary)
-                    Text("Couldn't find an exact match in your library.")
+                    Text("Let's add more variety to your library to unlock better combos!")
                         .font(.headline)
-                    Text("Try adding more diverse foods (pure protein, pure carbs, pure fats) to your library so the algorithm can combine them!")
+                    Text("Try adding single-macro foods like lean chicken, rice, or olive oil. We'll find the perfect combination for your remaining targets!")
                         .font(.subheadline)
-                        .multilineTextAlignment(.center)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                         .padding(.horizontal, 30)
                 } else {
-                    Text("To hit your remaining macros perfectly, eat this:")
+                    Text("Here's the perfect combination to hit your goals today:")
                         .font(.headline)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
@@ -170,27 +170,44 @@ struct SmartSuggesterView: View {
         var freqMap: [String: Int] = [:]
         for m in pastMeals { freqMap[m.name, default: 0] += 1 }
         
-        DispatchQueue.global(qos: .userInitiated).async {
-            var validFoods = foodsToAnalyze.filter { $0.protein > 0 || $0.carbs > 0 || $0.fat > 0 }
-            guard !validFoods.isEmpty else {
-                DispatchQueue.main.async { self.isCalculating = false }
-                return
-            }
+        let rP = remProtein
+        let rC = remCarbs
+        let rF = remFat
+        
+        Task {
+            let valid = foodsToAnalyze.filter { $0.protein > 0 || $0.carbs > 0 || $0.fat > 0 }
+            let bestComboData = await Self.runCalculation(validFoods: valid, freqMap: freqMap, rP: rP, rC: rC, rF: rF)
             
-            validFoods.sort { (freqMap[$0.name] ?? 0) > (freqMap[$1.name] ?? 0) }
+            if let combo = bestComboData {
+                var finalCombo: [FoodPortion] = []
+                for data in combo {
+                    if let food = self.foodLibrary.first(where: { $0.id == data.id }) {
+                        finalCombo.append(FoodPortion(food: food, grams: data.grams))
+                    }
+                }
+                self.suggestion = finalCombo
+            }
+            self.isCalculating = false
+        }
+    }
+    
+    private static func runCalculation(validFoods: [FoodData], freqMap: [String: Int], rP: Double, rC: Double, rF: Double) async -> [(id: UUID, grams: Double)]? {
+        return await Task.detached {
+            var valid = validFoods
+            valid.sort { (freqMap[$0.name] ?? 0) > (freqMap[$1.name] ?? 0) }
+            if valid.isEmpty { return nil }
             
             var bestComboData: [(id: UUID, grams: Double)] = []
             var bestScore: Double = Double.infinity
             
-            // 1. Check single foods
-            for food in validFoods.prefix(15) {
+            for food in valid.prefix(15) {
                 for g in stride(from: 10, through: 500, by: 10) {
                     let grams = Double(g)
                     let p = food.protein * (grams/100.0)
                     let c = food.carbs * (grams/100.0)
                     let f = food.fat * (grams/100.0)
                     
-                    let score = abs(self.remProtein - p) + abs(self.remCarbs - c) + abs(self.remFat - f)
+                    let score = abs(rP - p) + abs(rC - c) + abs(rF - f)
                     if score < bestScore {
                         bestScore = score
                         bestComboData = [(food.id, grams)]
@@ -198,9 +215,8 @@ struct SmartSuggesterView: View {
                 }
             }
             
-            // 2. Check pairs if score isn't perfect yet
-            if bestScore > 10 && validFoods.count > 1 {
-                let topFoods = Array(validFoods.prefix(10))
+            if bestScore > 10 && valid.count > 1 {
+                let topFoods = Array(valid.prefix(10))
                 for i in 0..<topFoods.count {
                     for j in (i+1)..<topFoods.count {
                         let f1 = topFoods[i]
@@ -213,7 +229,7 @@ struct SmartSuggesterView: View {
                                 let c = f1.carbs * (grams1/100.0) + f2.carbs * (grams2/100.0)
                                 let f = f1.fat * (grams1/100.0) + f2.fat * (grams2/100.0)
                                 
-                                let score = abs(self.remProtein - p) + abs(self.remCarbs - c) + abs(self.remFat - f)
+                                let score = abs(rP - p) + abs(rC - c) + abs(rF - f)
                                 if score < bestScore {
                                     bestScore = score
                                     bestComboData = [(f1.id, grams1), (f2.id, grams2)]
@@ -224,18 +240,8 @@ struct SmartSuggesterView: View {
                 }
             }
             
-            DispatchQueue.main.async {
-                if bestScore < 30 {
-                    var finalCombo: [FoodPortion] = []
-                    for data in bestComboData {
-                        if let food = self.foodLibrary.first(where: { $0.id == data.id }) {
-                            finalCombo.append(FoodPortion(food: food, grams: data.grams))
-                        }
-                    }
-                    self.suggestion = finalCombo
-                }
-                self.isCalculating = false
-            }
-        }
+            if bestScore < 30 { return bestComboData }
+            return nil
+        }.value
     }
 }

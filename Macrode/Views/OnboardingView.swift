@@ -71,7 +71,7 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color(UIColor.systemGroupedBackground)
+            LinearGradient(colors: [.green.opacity(0.2), .blue.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -107,7 +107,7 @@ struct OnboardingView: View {
                                 .font(.system(size: 16, weight: .bold))
                                 .foregroundColor(.primary)
                                 .padding(12)
-                                .background(Color(UIColor.secondarySystemBackground))
+                                .background(.ultraThinMaterial)
                                 .clipShape(Circle())
                                 .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                         }
@@ -116,7 +116,7 @@ struct OnboardingView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 70)
+                .padding(.top, 16)
             }
         }
     }
@@ -156,12 +156,12 @@ struct OnboardingView: View {
             
             VStack(alignment: .leading, spacing: 20) {
                 FeatureRow(icon: "lock.shield.fill", color: .green, title: "100% Offline & Private", description: "Your data never leaves this device.")
-                FeatureRow(icon: "banknote.fill", color: .green, title: "Weekly Bank", description: "Balances your daily surplus or deficit over time.")
+                FeatureRow(icon: "leaf.fill", color: .green, title: "Energy Balance", description: "Smoothly adjusts your daily targets based on your natural eating rhythm.")
                 FeatureRow(icon: "sparkles", color: .yellow, title: "Quick Logging", description: "Easily add meals and track your daily macros.")
                 FeatureRow(icon: "waveform.path.ecg", color: .purple, title: "Calorie Adaptation", description: "Helps you understand your metabolism over time.")
             }
             .padding(24)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(.ultraThinMaterial)
             .cornerRadius(24)
             .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             .padding(.horizontal, 24)
@@ -187,39 +187,11 @@ struct OnboardingView: View {
             }
             
             VStack(spacing: 18) {
-                HStack(spacing: 12) {
-                    Button(action: {
-                        playHaptic()
-                        isMale = true
-                    }) {
-                        HStack {
-                            Image(systemName: "figure.male")
-                            Text("Male")
-                        }
-                        .font(.headline)
-                        .foregroundColor(isMale ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(isMale ? Color.green : Color.secondary.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    
-                    Button(action: {
-                        playHaptic()
-                        isMale = false
-                    }) {
-                        HStack {
-                            Image(systemName: "figure.female")
-                            Text("Female")
-                        }
-                        .font(.headline)
-                        .foregroundColor(!isMale ? .white : .primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(!isMale ? Color.green : Color.secondary.opacity(0.1))
-                        .cornerRadius(12)
-                    }
+                Picker("Sex", selection: $isMale) {
+                    Text("Male").tag(true)
+                    Text("Female").tag(false)
                 }
+                .pickerStyle(.segmented)
                 
                 InputField(icon: "calendar", placeholder: "Age (Years)", text: $age)
                     .keyboardType(.numberPad)
@@ -234,7 +206,7 @@ struct OnboardingView: View {
                     .focused($isInputActive)
             }
             .padding(24)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(.ultraThinMaterial)
             .cornerRadius(24)
             .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             .padding(.horizontal, 24)
@@ -321,7 +293,7 @@ struct OnboardingView: View {
                 }
             }
             .padding(24)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(.ultraThinMaterial)
             .cornerRadius(24)
             .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             .padding(.horizontal, 24)
@@ -373,7 +345,7 @@ struct OnboardingView: View {
                 }
             }
             .padding(24)
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(.ultraThinMaterial)
             .cornerRadius(24)
             .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             .padding(.horizontal, 24)
@@ -403,7 +375,7 @@ struct OnboardingView: View {
                 MacroPreviewCol(name: "Fats", amount: hasLoggedDummy ? "0g" : "0g", color: .blue)
             }
             .padding()
-            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .background(.ultraThinMaterial)
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
             .padding(.horizontal, 24)
@@ -527,7 +499,7 @@ struct InputField: View {
             TextField(LocalizedStringKey(placeholder), text: $text)
         }
         .padding()
-        .background(Color.secondary.opacity(0.08))
+        .background(.ultraThinMaterial)
         .cornerRadius(12)
     }
 }

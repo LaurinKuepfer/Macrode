@@ -83,12 +83,21 @@ struct OFFProductResult: Sendable {
 }
 
 class OpenFoodFactsAPI {
+    private static let session: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 10.0
+        config.timeoutIntervalForResource = 30.0
+        config.urlCache = URLCache(memoryCapacity: 50_000_000, diskCapacity: 100_000_000, diskPath: "off_cache")
+        config.requestCachePolicy = .returnCacheDataElseLoad
+        return URLSession(configuration: config)
+    }()
+
     static func fetchProduct(barcode: String) async throws -> OFFProductResult? {
         let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands"
         let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json?fields=\(fields)"
         guard let url = URL(string: urlString) else { return nil }
         
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await session.data(from: url)
         let response = try JSONDecoder().decode(OFFResponse.self, from: data)
         
         guard response.status == 1, let product = response.product else { return nil }
@@ -130,7 +139,7 @@ class OpenFoodFactsAPI {
         
         guard let url = URL(string: urlString) else { return [] }
         
-        let (data, _) = try await URLSession.shared.data(from: url)
+        let (data, _) = try await session.data(from: url)
         let response = try JSONDecoder().decode(OFFSearchResponse.self, from: data)
         
         var results: [OFFProductResult] = []

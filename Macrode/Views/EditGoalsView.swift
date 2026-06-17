@@ -40,7 +40,7 @@ struct EditGoalsView: View {
                     .sheet(isPresented: $showingCalculator) { CalculatorView(dailyLog: dailyLog).presentationDetents([.large]) }
                 }
                 
-                Section(header: Text("Social Day / Guilt-Free Mode"), footer: Text("Mark this day as a social event. Overeating won't show red warnings, but the calories will still be balanced across the week.")) {
+                Section(header: Text("Flexible Day / Social Event"), footer: Text("Take a flexible day. High energy intake won't trigger warnings, but targets will gracefully adapt later.")) {
                     Toggle("Enable Social Day", isOn: $isSocialDay)
                         .tint(.orange)
                 }

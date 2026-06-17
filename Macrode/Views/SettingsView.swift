@@ -40,7 +40,7 @@ struct SettingsView: View {
                 } header: {
                     Label("Your Goal", systemImage: "flag.fill")
                 } footer: {
-                    Text("The Weekly Bank will never drop your daily target below the safety floor, even after a large surplus.")
+                    Text("Energy Balance will never drop your daily target below the safety floor, even after higher-calorie days.")
                 }
                 
                

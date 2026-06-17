@@ -32,7 +32,7 @@ struct CalorieHUD: View {
             
             VStack(spacing: 4) {
                 Text("\(abs(difference))")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
                     .foregroundColor(difference < 0 ? (isSocialDay ? .orange : .red) : .primary)
                     .contentTransition(.numericText())
                 
@@ -41,7 +41,7 @@ struct CalorieHUD: View {
                     .foregroundColor(difference < 0 ? (isSocialDay ? .orange : .red) : .secondary)
             }
         }
-        .frame(width: 220, height: 220)
+        .frame(minWidth: 220, minHeight: 220)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Calories")
         .accessibilityValue(difference < 0 ? "\(abs(difference)) calories over target" : "\(abs(difference)) calories left")
@@ -67,7 +67,7 @@ struct MacroBar: View {
                 Spacer()
                 Text("\(Int(consumed)) / \(Int(target))g")
                     .font(.system(.caption, design: .rounded))
-                    .foregroundColor(consumed >= target ? .yellow : .secondary)
+                    .foregroundColor(consumed >= target ? .orange : .secondary)
                     .fontWeight(consumed >= target ? .bold : .regular)
                     .contentTransition(.numericText())
             }
@@ -76,7 +76,7 @@ struct MacroBar: View {
                 ZStack(alignment: .leading) {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(Color.secondary.opacity(0.2))
-                        .frame(height: 12)
+                        .frame(minHeight: 12)
                     
                     RoundedRectangle(cornerRadius: 8)
                         .fill(
@@ -84,11 +84,12 @@ struct MacroBar: View {
                                 LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing) : 
                                 LinearGradient(gradient: Gradient(colors: [baseColor, baseColor.opacity(0.6)]), startPoint: .leading, endPoint: .trailing)
                         )
-                        .frame(width: min(geometry.size.width * CGFloat(consumed / target), geometry.size.width), height: 12)
+                        .frame(width: min(geometry.size.width * CGFloat(consumed / target), geometry.size.width))
+                        .frame(minHeight: 12)
                         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: consumed)
                 }
             }
-            .frame(height: 12)
+            .frame(minHeight: 12)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title) Macros")
@@ -98,6 +99,7 @@ struct MacroBar: View {
 
 struct MealRow: View {
     let meal: ConsumedMeal
+    var isNested: Bool = false
     
     var body: some View {
         HStack(spacing: 12) {
@@ -137,9 +139,17 @@ struct MealRow: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-        .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+        }
+        .padding(isNested ? 8 : 16)
+        .background(
+            Group {
+                if !isNested {
+                    RoundedRectangle(cornerRadius: 16).fill(.ultraThinMaterial)
+                }
+            }
+        )
+        .shadow(color: isNested ? .clear : Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+        .accessibilityElement(children: .combine)
     }
     
     private func iconForCategory(_ category: String) -> String {

@@ -20,76 +20,47 @@ struct AddMealView: View {
     @Query(sort: \FoodItem.name) private var foodLibrary: [FoodItem]
     @Query(sort: \RecipeItem.name) private var recipeLibrary: [RecipeItem]
     
-    @State private var searchText: String = ""
-    @State private var selectedTab: Int = 0
-    @State private var selectedCategory: String = "All"
-    
-    @State private var isShowingScanner = false
-    @State private var scannedBarcode: String? = nil
-    @State private var isFetchingAPI = false
-    @State private var prefilledAPIResult: (name: String, calories: Double, protein: Double, carbs: Double, fat: Double, barcode: String, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)? = nil
-    @State private var navigateToCreateFood = false
-    @State private var selectedExistingFood: FoodItem? = nil
-    
-    @State private var navigateToQuickEstimate = false
-    @State private var onlineSearchQuery: String?
-    @State private var foodToEdit: FoodItem? = nil
-    
-    let categories = ["All", "Drinks", "Fruits", "Vegetables", "Meat", "Carbs", "Dairy & Fats", "Fast Food", "Other"]
-    
-    var filteredFoods: [FoodItem] {
-        var result = foodLibrary
-        if selectedCategory != "All" {
-            result = result.filter { $0.category == selectedCategory }
-        }
-        if !searchText.isEmpty {
-            result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-        }
-        return result
-    }
-    
-    var filteredRecipes: [RecipeItem] {
-        if searchText.isEmpty { return recipeLibrary }
-        return recipeLibrary.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
-    }
+    @State private var viewModel = AddMealViewModel()
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 if !Calendar.current.isDateInToday(selectedDate) {
                     HStack {
-                        Image(systemName: "clock.arrow.circlepath")
-                        Text("Logging for: \(selectedDate.formatted(.dateTime.weekday(.wide).month().day()))")
-                            .fontWeight(.bold)
+                        Image(systemName: "clock.fill")
+                            .foregroundColor(.orange)
+                        Text("Logging for \(selectedDate.formatted(.dateTime.weekday(.wide).month().day()))")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
                     }
-                    .font(.subheadline)
-                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color.orange)
+                    .padding(.vertical, 12)
+                    .background(.ultraThinMaterial)
+                    .overlay(Rectangle().frame(height: 1).foregroundColor(.orange.opacity(0.3)), alignment: .bottom)
                 }
                 
-                Picker("Library", selection: $selectedTab) {
+                Picker("Library", selection: $viewModel.selectedTab) {
                     Text("Foods").tag(0)
                     Text("Recipes").tag(1)
                 }
                 .pickerStyle(.segmented)
                 .padding()
                 
-                if selectedTab == 0 {
+                if viewModel.selectedTab == 0 {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(categories, id: \.self) { cat in
+                            ForEach(viewModel.categories, id: \.self) { cat in
                                 Button(action: {
-                                    withAnimation { selectedCategory = cat }
+                                    withAnimation { viewModel.selectedCategory = cat }
                                 }) {
                                     Text(LocalizedStringKey(cat))
                                         .font(.subheadline)
                                         .fontWeight(.semibold)
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
-                                        .background(selectedCategory == cat ? Color.green : Color.secondary.opacity(0.15))
-                                        .foregroundColor(selectedCategory == cat ? .white : .primary)
+                                        .background(viewModel.selectedCategory == cat ? Color.green : Color.secondary.opacity(0.15))
+                                        .foregroundColor(viewModel.selectedCategory == cat ? .white : .primary)
                                         .cornerRadius(20)
                                 }
                             }
@@ -101,16 +72,16 @@ struct AddMealView: View {
                 
                 ZStack {
                     List {
-                        if selectedTab == 0 {
+                        if viewModel.selectedTab == 0 {
                             foodListContent
                         } else {
                             recipeListContent
                         }
                     }
                     .listStyle(.plain)
-                    .searchable(text: $searchText, prompt: "Search...")
+                    .searchable(text: $viewModel.searchText, prompt: "Search...")
                     
-                    if isFetchingAPI {
+                    if viewModel.isFetchingAPI {
                         Color.black.opacity(0.4).ignoresSafeArea()
                         VStack {
                             ProgressView().scaleEffect(1.5).padding()
@@ -119,49 +90,49 @@ struct AddMealView: View {
                     }
                 }
             }
-            .navigationTitle(selectedTab == 0 ? "Food Library" : "Recipe Library")
+            .navigationTitle(viewModel.selectedTab == 0 ? "Food Library" : "Recipe Library")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    if selectedTab == 0 {
+                    if viewModel.selectedTab == 0 {
                         HStack(spacing: 16) {
                             if DataScannerViewController.isSupported && DataScannerViewController.isAvailable {
-                                Button(action: { isShowingScanner = true }) { Image(systemName: "barcode.viewfinder") }
+                                Button(action: { viewModel.isShowingScanner = true }) { Image(systemName: "barcode.viewfinder").accessibilityLabel("Scan Barcode") }
                             }
-                            Button(action: { prefilledAPIResult = nil; navigateToCreateFood = true }) { Image(systemName: "plus") }
+                            Button(action: { viewModel.prefilledAPIResult = nil; viewModel.navigateToCreateFood = true }) { Image(systemName: "plus") }
                         }
                     } else {
                         NavigationLink(destination: CreateRecipeView()) { Image(systemName: "plus") }
                     }
                 }
             }
-            .navigationDestination(isPresented: $navigateToCreateFood) { 
-                CreateFoodView(prefilledData: prefilledAPIResult, editingFood: foodToEdit, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)
-                    .onDisappear { foodToEdit = nil; prefilledAPIResult = nil }
+            .navigationDestination(isPresented: $viewModel.navigateToCreateFood) { 
+                CreateFoodView(prefilledData: viewModel.prefilledAPIResult, editingFood: viewModel.foodToEdit, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)
+                    .onDisappear { viewModel.foodToEdit = nil; viewModel.prefilledAPIResult = nil }
             }
-            .navigationDestination(isPresented: $navigateToQuickEstimate) { QuickEstimateView(selectedDate: selectedDate, isRootPresented: $navigateToQuickEstimate, mainTabSelection: $mainTabSelection) }
-            .navigationDestination(item: $selectedExistingFood) { food in LogFoodView(food: food, selectedDate: selectedDate, mainTabSelection: $mainTabSelection) }
+            .navigationDestination(isPresented: $viewModel.navigateToQuickEstimate) { QuickEstimateView(selectedDate: selectedDate, isRootPresented: $viewModel.navigateToQuickEstimate, mainTabSelection: $mainTabSelection) }
+            .navigationDestination(item: $viewModel.selectedExistingFood) { food in LogFoodView(food: food, selectedDate: selectedDate, mainTabSelection: $mainTabSelection) }
             .navigationDestination(item: Binding<String?>(
-                get: { onlineSearchQuery },
-                set: { onlineSearchQuery = $0 }
+                get: { viewModel.onlineSearchQuery },
+                set: { viewModel.onlineSearchQuery = $0 }
             )) { query in
                 OnlineSearchResultsView(query: query)
             }
-            .sheet(isPresented: $isShowingScanner) { ScannerView(scannedBarcode: $scannedBarcode).ignoresSafeArea() }
-            .onChange(of: scannedBarcode) { _, newValue in if let barcode = newValue { fetchFromOpenFoodFacts(barcode: barcode) } }
+            .sheet(isPresented: $viewModel.isShowingScanner) { ScannerView(scannedBarcode: $viewModel.scannedBarcode).ignoresSafeArea() }
+            .onChange(of: viewModel.scannedBarcode) { _, newValue in if let barcode = newValue { viewModel.fetchFromOpenFoodFacts(barcode: barcode, foodLibrary: foodLibrary) } }
         }
     }
     
     private var foodListContent: some View {
         Group {
-            if !searchText.isEmpty {
+            if !viewModel.searchText.isEmpty {
                 Section {
                     Button(action: {
-                        onlineSearchQuery = searchText
+                        viewModel.onlineSearchQuery = viewModel.searchText
                     }) {
                         HStack {
                             Image(systemName: "globe")
-                            Text("Search '\(searchText)' Globally")
+                            Text("Search '\(viewModel.searchText)' Globally")
                             Spacer()
                             Image(systemName: "chevron.right").font(.caption).foregroundColor(.secondary)
                         }
@@ -171,11 +142,11 @@ struct AddMealView: View {
                 }
             }
             
-            if filteredFoods.isEmpty {
+            if viewModel.filteredFoods(from: foodLibrary).isEmpty {
                 ContentUnavailableView("No Foods Locally", systemImage: "carrot", description: Text("Tap '+' to create food, or search globally above."))
                     .listRowBackground(Color.clear)
             } else {
-                ForEach(filteredFoods) { food in
+                ForEach(viewModel.filteredFoods(from: foodLibrary)) { food in
                     NavigationLink(destination: LogFoodView(food: food, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(food.name).font(.headline)
@@ -188,11 +159,11 @@ struct AddMealView: View {
                         .padding(.vertical, 4)
                     }
                     .swipeActions { 
-                        Button(role: .destructive) { context.delete(food) } label: { Label("Delete", systemImage: "trash") } 
+                        Button(role: .destructive) { viewModel.deleteFood(food, context: context) } label: { Label("Delete", systemImage: "trash") } 
                         Button {
-                            foodToEdit = food
-                            prefilledAPIResult = (name: food.name, calories: food.calories, protein: food.protein, carbs: food.carbs, fat: food.fat, barcode: food.barcode ?? "", category: food.category, fiber: food.fiber, sugar: food.sugar, saturatedFat: food.saturatedFat, sodium: food.sodium, imageUrl: food.imageUrl, nutriscore: food.nutriscore, ecoscore: food.ecoscore, novaGroup: food.novaGroup, ingredients: food.ingredients, allergens: food.allergens, brand: food.brand)
-                            navigateToCreateFood = true
+                            viewModel.foodToEdit = food
+                            viewModel.prefilledAPIResult = (name: food.name, calories: food.calories, protein: food.protein, carbs: food.carbs, fat: food.fat, barcode: food.barcode ?? "", category: food.category, fiber: food.fiber, sugar: food.sugar, saturatedFat: food.saturatedFat, sodium: food.sodium, imageUrl: food.imageUrl, nutriscore: food.nutriscore, ecoscore: food.ecoscore, novaGroup: food.novaGroup, ingredients: food.ingredients, allergens: food.allergens, brand: food.brand)
+                            viewModel.navigateToCreateFood = true
                         } label: { Label("Edit", systemImage: "pencil") }.tint(.blue)
                     }
                 }
@@ -202,94 +173,69 @@ struct AddMealView: View {
     
     private var recipeListContent: some View {
         Group {
-            if filteredRecipes.isEmpty {
+            if viewModel.filteredRecipes(from: recipeLibrary).isEmpty {
                 ContentUnavailableView("No Recipes", systemImage: "frying.pan", description: Text("Tap '+' to combine foods into a recipe."))
                     .listRowBackground(Color.clear)
             } else {
-                ScrollView {
-                    let groupedRecipes = Dictionary(grouping: filteredRecipes, by: { $0.category })
-                    let sortedCategories = groupedRecipes.keys.sorted()
-                    
-                    VStack(alignment: .leading, spacing: 20) {
-                        ForEach(sortedCategories, id: \.self) { category in
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text(LocalizedStringKey(category))
-                                    .font(.title2.weight(.bold))
-                                    .padding(.horizontal)
-                                
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 16) {
-                                        ForEach(groupedRecipes[category] ?? []) { recipe in
-                                            NavigationLink(destination: LogRecipeView(recipe: recipe, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)) {
-                                                VStack(alignment: .leading, spacing: 8) {
-                                                    ZStack {
-                                                        RoundedRectangle(cornerRadius: 16)
-                                                            .fill(Color.green.opacity(0.1))
-                                                            .frame(width: 140, height: 100)
-                                                        Image(systemName: recipe.systemImage)
-                                                            .font(.system(size: 40))
-                                                            .foregroundColor(.green)
-                                                    }
-                                                    
-                                                    Text(recipe.name)
-                                                        .font(.headline)
-                                                        .foregroundColor(.primary)
-                                                        .lineLimit(2)
-                                                        .frame(width: 140, alignment: .leading)
-                                                    
-                                                    HStack(spacing: 4) {
-                                                        Image(systemName: "clock")
-                                                        Text("\(recipe.prepTimeMinutes) min")
-                                                    }
-                                                    .font(.caption)
-                                                    .foregroundColor(.secondary)
-                                                    
-                                                    Text("\(Int(recipe.calories)) kcal")
-                                                        .font(.subheadline.weight(.semibold))
-                                                        .foregroundColor(.green)
-                                                }
+                let groupedRecipes = Dictionary(grouping: viewModel.filteredRecipes(from: recipeLibrary), by: { $0.category })
+                let sortedCategories = groupedRecipes.keys.sorted()
+                
+                ForEach(sortedCategories, id: \.self) { category in
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(LocalizedStringKey(category))
+                            .font(.title2.weight(.bold))
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 16) {
+                                ForEach(groupedRecipes[category] ?? []) { recipe in
+                                    NavigationLink(destination: LogRecipeView(recipe: recipe, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)) {
+                                        VStack(alignment: .leading, spacing: 8) {
+                                            ZStack {
+                                                RoundedRectangle(cornerRadius: 16)
+                                                    .fill(Color.green.opacity(0.1))
+                                                    .frame(width: 140, height: 100)
+                                                Image(systemName: recipe.systemImage)
+                                                    .font(.system(size: 40))
+                                                    .foregroundColor(.green)
                                             }
-                                            .buttonStyle(.plain)
-                                            .contextMenu {
-                                                Button(role: .destructive) {
-                                                    context.delete(recipe)
-                                                } label: {
-                                                    Label("Delete", systemImage: "trash")
-                                                }
+                                            
+                                            Text(recipe.name)
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+                                                .lineLimit(2)
+                                                .frame(width: 140, alignment: .leading)
+                                            
+                                            HStack(spacing: 4) {
+                                                Image(systemName: "clock")
+                                                Text("\(recipe.prepTimeMinutes) min")
                                             }
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                            
+                                            Text("\(Int(recipe.calories)) kcal")
+                                                .font(.subheadline.weight(.semibold))
+                                                .foregroundColor(.green)
                                         }
                                     }
-                                    .padding(.horizontal)
+                                    .buttonStyle(.plain)
+                                    .contextMenu {
+                                        Button(role: .destructive) {
+                                            viewModel.deleteRecipe(recipe, context: context)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
                                 }
                             }
+                            .padding(.horizontal)
                         }
                     }
-                    .padding(.vertical)
+                    .padding(.vertical, 8)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
             }
-        }
-    }
-    
-    private func fetchFromOpenFoodFacts(barcode: String) {
-        if let existingFood = foodLibrary.first(where: { $0.barcode == barcode }) {
-            selectedExistingFood = existingFood
-            return
-        }
-        
-        isFetchingAPI = true
-        Task {
-            if let result = try? await OpenFoodFactsAPI.fetchProduct(barcode: barcode) {
-                await MainActor.run { 
-                    prefilledAPIResult = (name: result.name, calories: result.calories, protein: result.protein, carbs: result.carbs, fat: result.fat, barcode: barcode, category: result.category, fiber: result.fiber, sugar: result.sugar, saturatedFat: result.saturatedFat, sodium: result.sodium, imageUrl: result.imageUrl, nutriscore: result.nutriscore, ecoscore: result.ecoscore, novaGroup: result.novaGroup, ingredients: result.ingredients, allergens: result.allergens, brand: result.brand)
-                    isFetchingAPI = false
-                    navigateToCreateFood = true 
-                }
-            } else {
-                await MainActor.run { isFetchingAPI = false; prefilledAPIResult = nil; navigateToCreateFood = true }
-            }
-        }
-    }
 }
 

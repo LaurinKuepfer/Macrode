@@ -99,7 +99,8 @@ final class Supplement {
 
 @Model
 final class DailyLog {
-    @Attribute(.unique) var date: Date
+    @Attribute(.unique) var id: UUID
+    var date: Date
     var calorieTarget: Double
     var proteinTarget: Double
     var carbsTarget: Double
@@ -110,7 +111,8 @@ final class DailyLog {
     var isSocialDay: Bool
     
     
-    init(date: Date = Calendar.current.startOfDay(for: Date()), calorieTarget: Double = 2200, proteinTarget: Double = 150, carbsTarget: Double = 250, fatTarget: Double = 70, waterML: Int = 0, waterTargetML: Int = 2500, bodyWeight: Double? = nil, isSocialDay: Bool = false) {
+    init(id: UUID = UUID(), date: Date = Calendar.current.startOfDay(for: Date()), calorieTarget: Double = 2200, proteinTarget: Double = 150, carbsTarget: Double = 250, fatTarget: Double = 70, waterML: Int = 0, waterTargetML: Int = 2500, bodyWeight: Double? = nil, isSocialDay: Bool = false) {
+        self.id = id
         self.date = date
         self.calorieTarget = calorieTarget
         self.proteinTarget = proteinTarget

@@ -18,7 +18,13 @@ struct ScannerView: UIViewControllerRepresentable {
     }
     
     func updateUIViewController(_ uiViewController: DataScannerViewController, context: Context) {
-        try? uiViewController.startScanning()
+        if !uiViewController.isScanning {
+            try? uiViewController.startScanning()
+        }
+    }
+    
+    func dismantleUIViewController(_ uiViewController: DataScannerViewController, coordinator: Coordinator) {
+        uiViewController.stopScanning()
     }
     
     func makeCoordinator() -> Coordinator {

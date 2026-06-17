@@ -25,6 +25,17 @@ class LiveActivityManager {
         }
     }
     
+    func updateOrStartFastingActivity(caloriesLeft: Int, fastingHours: Double) {
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
+        if #available(iOS 16.2, *) {
+            if Activity<MacrodeAttributes>.activities.isEmpty {
+                startFastingActivity(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
+            } else {
+                updateFastingActivity(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
+            }
+        }
+    }
+    
     func updateFastingActivity(caloriesLeft: Int, fastingHours: Double) {
         Task {
             let contentState = MacrodeAttributes.ContentState(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
