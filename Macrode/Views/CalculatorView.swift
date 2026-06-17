@@ -81,7 +81,7 @@ struct CalculatorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .keyboard) { Button("Done") { isInputActive = false } }
+                ToolbarItem(placement: .keyboard) { Button("Done") { isInputActive = false }.frame(maxWidth: .infinity, alignment: .trailing) }
             }
             .onAppear {
                 if let w = dailyLog.bodyWeight {
@@ -119,6 +119,7 @@ struct CalculatorView: View {
         dailyLog.carbsTarget = carbsTarget
         dailyLog.fatTarget = fatTarget
         dailyLog.bodyWeight = w
+        dailyLog.waterTargetML = Int((w / 20.0) * 1000)
         
         try? context.save()
         WidgetCenter.shared.reloadAllTimelines()

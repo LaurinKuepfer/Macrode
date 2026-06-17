@@ -2,11 +2,12 @@ import SwiftUI
 import SwiftData
 import WidgetKit
 
-struct MacroTetrisView: View {
+struct SmartSuggesterView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
     @Query private var foodLibrary: [FoodItem]
+    @Query private var pastMeals: [ConsumedMeal]
     
     var remProtein: Double
     var remCarbs: Double
@@ -25,6 +26,24 @@ struct MacroTetrisView: View {
         var protein: Double { food.protein * (grams / 100.0) }
         var carbs: Double { food.carbs * (grams / 100.0) }
         var fat: Double { food.fat * (grams / 100.0) }
+    }
+    
+    struct FoodData: Sendable {
+        let id: UUID
+        let name: String
+        let calories: Double
+        let protein: Double
+        let carbs: Double
+        let fat: Double
+        
+        init(from item: FoodItem) {
+            self.id = item.id
+            self.name = item.name
+            self.calories = item.calories
+            self.protein = item.protein
+            self.carbs = item.carbs
+            self.fat = item.fat
+        }
     }
     
     var body: some View {
@@ -98,7 +117,7 @@ struct MacroTetrisView: View {
                 }
             }
             }
-            .navigationTitle("Macro Tetris 🧩")
+            .navigationTitle("Smart Suggester 🪄")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -147,48 +166,73 @@ struct MacroTetrisView: View {
         isCalculating = true
         suggestion = []
         
+        let foodsToAnalyze = foodLibrary.map { FoodData(from: $0) }
+        var freqMap: [String: Int] = [:]
+        for m in pastMeals { freqMap[m.name, default: 0] += 1 }
+        
         DispatchQueue.global(qos: .userInitiated).async {
-            let validFoods = self.foodLibrary.filter { $0.protein > 0 || $0.carbs > 0 || $0.fat > 0 }
+            var validFoods = foodsToAnalyze.filter { $0.protein > 0 || $0.carbs > 0 || $0.fat > 0 }
             guard !validFoods.isEmpty else {
                 DispatchQueue.main.async { self.isCalculating = false }
                 return
             }
             
-            var bestCombo: [FoodPortion] = []
+            validFoods.sort { (freqMap[$0.name] ?? 0) > (freqMap[$1.name] ?? 0) }
+            
+            var bestComboData: [(id: UUID, grams: Double)] = []
             var bestScore: Double = Double.infinity
             
-            for _ in 0..<2000 {
-                let numItems = Int.random(in: 1...3)
-                var currentCombo: [FoodPortion] = []
-                var p: Double = 0
-                var c: Double = 0
-                var f: Double = 0
-                
-                for _ in 0..<numItems {
-                    guard let randomFood = validFoods.randomElement() else { continue }
-                    let randomGrams = Double(Int.random(in: 1...30) * 10)
-                    let portion = FoodPortion(food: randomFood, grams: randomGrams)
-                    currentCombo.append(portion)
+            // 1. Check single foods
+            for food in validFoods.prefix(15) {
+                for g in stride(from: 10, through: 500, by: 10) {
+                    let grams = Double(g)
+                    let p = food.protein * (grams/100.0)
+                    let c = food.carbs * (grams/100.0)
+                    let f = food.fat * (grams/100.0)
                     
-                    p += portion.protein
-                    c += portion.carbs
-                    f += portion.fat
+                    let score = abs(self.remProtein - p) + abs(self.remCarbs - c) + abs(self.remFat - f)
+                    if score < bestScore {
+                        bestScore = score
+                        bestComboData = [(food.id, grams)]
+                    }
                 }
-                
-                let pDiff = abs(self.remProtein - p)
-                let cDiff = abs(self.remCarbs - c)
-                let fDiff = abs(self.remFat - f)
-                let score = pDiff + cDiff + fDiff
-                
-                if score < bestScore {
-                    bestScore = score
-                    bestCombo = currentCombo
+            }
+            
+            // 2. Check pairs if score isn't perfect yet
+            if bestScore > 10 && validFoods.count > 1 {
+                let topFoods = Array(validFoods.prefix(10))
+                for i in 0..<topFoods.count {
+                    for j in (i+1)..<topFoods.count {
+                        let f1 = topFoods[i]
+                        let f2 = topFoods[j]
+                        for g1 in stride(from: 10, through: 300, by: 20) {
+                            for g2 in stride(from: 10, through: 300, by: 20) {
+                                let grams1 = Double(g1)
+                                let grams2 = Double(g2)
+                                let p = f1.protein * (grams1/100.0) + f2.protein * (grams2/100.0)
+                                let c = f1.carbs * (grams1/100.0) + f2.carbs * (grams2/100.0)
+                                let f = f1.fat * (grams1/100.0) + f2.fat * (grams2/100.0)
+                                
+                                let score = abs(self.remProtein - p) + abs(self.remCarbs - c) + abs(self.remFat - f)
+                                if score < bestScore {
+                                    bestScore = score
+                                    bestComboData = [(f1.id, grams1), (f2.id, grams2)]
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
             DispatchQueue.main.async {
                 if bestScore < 30 {
-                    self.suggestion = bestCombo
+                    var finalCombo: [FoodPortion] = []
+                    for data in bestComboData {
+                        if let food = self.foodLibrary.first(where: { $0.id == data.id }) {
+                            finalCombo.append(FoodPortion(food: food, grams: data.grams))
+                        }
+                    }
+                    self.suggestion = finalCombo
                 }
                 self.isCalculating = false
             }

@@ -11,6 +11,8 @@ struct InsightsView: View {
     
     @State private var showingWeightAlert = false
     @State private var weightInput: String = ""
+    @State private var showingReviewSheet = false
+    @State private var reviewData: ReviewData? = nil
 
     private var currentLog: DailyLog? {
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
@@ -68,6 +70,8 @@ struct InsightsView: View {
                     
                     if currentStreak > 0 { streakBanner }
                     
+                    reviewSection
+                    
                     if let tdee = trueMetabolism { metabolismInsightCard(tdee: tdee) }
                     
                     weeklyCalorieChartCard
@@ -83,7 +87,51 @@ struct InsightsView: View {
             .onAppear {
                 ReviewManager.shared.checkAndPromptReview(currentStreak: currentStreak)
             }
+            .fullScreenCover(isPresented: $showingReviewSheet) {
+                if let data = reviewData {
+                    ReviewReportView(data: data)
+                }
+            }
         }
+    }
+    
+    private var reviewSection: some View {
+        HStack(spacing: 16) {
+            Button(action: {
+                reviewData = ReviewEngine.generateReview(days: 7, logs: dailyLogs, meals: allMeals)
+                showingReviewSheet = true
+            }) {
+                VStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.title)
+                    Text("Weekly Review")
+                        .font(.headline)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(LinearGradient(gradient: Gradient(colors: [.blue, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                .cornerRadius(16)
+            }
+            
+            Button(action: {
+                reviewData = ReviewEngine.generateReview(days: 30, logs: dailyLogs, meals: allMeals)
+                showingReviewSheet = true
+            }) {
+                VStack(spacing: 8) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.title)
+                    Text("Monthly Review")
+                        .font(.headline)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(LinearGradient(gradient: Gradient(colors: [.purple, .pink]), startPoint: .topLeading, endPoint: .bottomTrailing))
+                .cornerRadius(16)
+            }
+        }
+        .padding(.horizontal, 24)
     }
     
    
@@ -100,15 +148,20 @@ struct InsightsView: View {
     private func metabolismInsightCard(tdee: Double) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack { Image(systemName: "brain.head.profile").foregroundColor(.purple); Text("Smart Insights").font(.headline) }
-            Text("Based on your last logs, your True Metabolism (TDEE) is approx **\(Int(tdee)) kcal** per day.")
-                .font(.subheadline).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text("Your True Metabolism is approx **\(Int(tdee)) kcal**.")
+                .font(.subheadline).foregroundColor(.primary).fixedSize(horizontal: false, vertical: true)
+            Text("This is your estimated daily calorie burn rate, based on your logs and weight.")
+                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
         }
         .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
     }
     
     private var weeklyCalorieChartCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack { Image(systemName: "chart.bar.fill").foregroundColor(.orange); Text("Weekly Calories").font(.headline) }
+            VStack(alignment: .leading, spacing: 4) {
+                HStack { Image(systemName: "chart.bar.fill").foregroundColor(.orange); Text("Weekly Calories").font(.headline) }
+                Text("Compare your daily intake against your targets.").font(.caption).foregroundColor(.secondary)
+            }
             
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: selectedDate)
@@ -128,9 +181,12 @@ struct InsightsView: View {
                     )
                     .foregroundStyle(cals > target ? Color.red.gradient : Color.green.gradient)
                     
-                    RuleMark(y: .value("Target", target))
-                        .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
-                        .foregroundStyle(.secondary)
+                    LineMark(
+                        x: .value("Day", date, unit: .day),
+                        y: .value("Target", target)
+                    )
+                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
+                    .foregroundStyle(.secondary)
                 }
             }
             .frame(height: 180)
@@ -141,7 +197,10 @@ struct InsightsView: View {
     
     private var weeklyMacroPieChartCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack { Image(systemName: "chart.pie.fill").foregroundColor(.pink); Text("Weekly Macro Split").font(.headline) }
+            VStack(alignment: .leading, spacing: 4) {
+                HStack { Image(systemName: "chart.pie.fill").foregroundColor(.pink); Text("Weekly Macro Split").font(.headline) }
+                Text("See your average macro distribution over the last 7 days.").font(.caption).foregroundColor(.secondary)
+            }
             
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: selectedDate)
@@ -178,19 +237,22 @@ struct InsightsView: View {
     
     private var weightTrackerCard: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "scalemass.fill").foregroundColor(.purple)
-                Text("Body Weight").font(.headline)
-                Spacer()
-                Button(action: {
-                    HapticManager.shared.impact(.light)
-                    weightInput = currentLog?.bodyWeight.map { String($0) } ?? ""
-                    showingWeightAlert = true
-                }) {
-                    Text(currentLog?.bodyWeight.map { "\($0, specifier: "%.1f") kg" } ?? "Log Weight")
-                        .font(.subheadline).fontWeight(.bold).foregroundColor(currentLog?.bodyWeight != nil ? .primary : .white)
-                        .padding(.horizontal, 12).padding(.vertical, 6).background(currentLog?.bodyWeight != nil ? Color.secondary.opacity(0.2) : Color.purple).cornerRadius(8)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Image(systemName: "scalemass.fill").foregroundColor(.purple)
+                    Text("Body Weight").font(.headline)
+                    Spacer()
+                    Button(action: {
+                        HapticManager.shared.impact(.light)
+                        weightInput = currentLog?.bodyWeight.map { String($0) } ?? ""
+                        showingWeightAlert = true
+                    }) {
+                        Text(currentLog?.bodyWeight.map { "\($0, specifier: "%.1f") kg" } ?? "Log Weight")
+                            .font(.subheadline).fontWeight(.bold).foregroundColor(currentLog?.bodyWeight != nil ? .primary : .white)
+                            .padding(.horizontal, 12).padding(.vertical, 6).background(currentLog?.bodyWeight != nil ? Color.secondary.opacity(0.2) : Color.purple).cornerRadius(8)
+                    }
                 }
+                Text("Track your weight trends over time.").font(.caption).foregroundColor(.secondary)
             }
             let logsWithWeight = dailyLogs.filter { $0.bodyWeight != nil }.sorted(by: { $0.date < $1.date })
             if logsWithWeight.count >= 2 {

@@ -42,6 +42,9 @@ struct CalorieHUD: View {
             }
         }
         .frame(width: 220, height: 220)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Calories")
+        .accessibilityValue(difference < 0 ? "\(abs(difference)) calories over target" : "\(abs(difference)) calories left")
     }
 }
 
@@ -87,6 +90,9 @@ struct MacroBar: View {
             }
             .frame(height: 12)
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title) Macros")
+        .accessibilityValue("\(Int(consumed)) grams consumed out of \(Int(target)) grams")
     }
 }
 
@@ -94,7 +100,16 @@ struct MealRow: View {
     let meal: ConsumedMeal
     
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
+            ZStack {
+                Circle()
+                    .fill(colorForCategory(meal.mealCategory).opacity(0.15))
+                    .frame(width: 44, height: 44)
+                Image(systemName: iconForCategory(meal.mealCategory))
+                    .font(.title3)
+                    .foregroundColor(colorForCategory(meal.mealCategory))
+            }
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(meal.name)
                     .font(.body)
@@ -122,10 +137,47 @@ struct MealRow: View {
                     .font(.caption)
                     .foregroundColor(.secondary)
             }
-        }
         .padding(16)
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+    }
+    
+    private func iconForCategory(_ category: String) -> String {
+        switch category {
+        case "Breakfast": return "sunrise.fill"
+        case "Lunch": return "sun.max.fill"
+        case "Dinner": return "moon.stars.fill"
+        default: return "leaf.fill"
+        }
+    }
+    
+    private func colorForCategory(_ category: String) -> Color {
+        switch category {
+        case "Breakfast": return .orange
+        case "Lunch": return .yellow
+        case "Dinner": return .indigo
+        default: return .green
+        }
     }
 }
+
+
+struct StatBadge: View {
+    let icon: String
+    let text: String
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+            Text(text)
+        }
+        .font(.caption.weight(.bold))
+        .foregroundColor(.secondary)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(.ultraThinMaterial, in: Capsule())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(text)
+    }
+}
+

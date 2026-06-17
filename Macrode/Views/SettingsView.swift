@@ -29,14 +29,6 @@ struct SettingsView: View {
                 
                
                 Section {
-                    Picker(selection: $userGoal) {
-                        ForEach(GoalType.allCases, id: \.self) { type in
-                            Text(type.rawValue).tag(type)
-                        }
-                    } label: {
-                        Label("Fitness Goal", systemImage: "target")
-                    }
-                    
                     HStack {
                         Label("Safety Floor", systemImage: "shield.fill")
                         Spacer()
@@ -94,20 +86,6 @@ struct SettingsView: View {
                 
                
                 Section {
-                    Button(action: {
-                        HapticManager.shared.impact(.light)
-                        if let url = URL(string: "x-apple-widgetkit-gallery://") {
-                            UIApplication.shared.open(url)
-                        }
-                    }) {
-                        HStack {
-                            Label("Add Home Screen Widget", systemImage: "plus.rectangle.on.rectangle")
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Image(systemName: "arrow.up.right").font(.caption).foregroundColor(.secondary)
-                        }
-                    }
-                    
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Available Widgets").font(.caption).foregroundColor(.secondary)
                         

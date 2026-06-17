@@ -82,19 +82,36 @@ struct CreateRecipeView: View {
                 }
             )
         }
-        .alert("How many grams?", isPresented: Binding(
-            get: { selectedFood != nil },
-            set: { if !$0 { selectedFood = nil } }
-        )) {
-            TextField("Weight in grams", value: $ingredientWeight, format: .number).keyboardType(.decimalPad)
-            Button("Add") {
-                if let food = selectedFood {
-                    ingredients.append(RecipeIngredientTemp(food: food, weightGrams: ingredientWeight))
-                    selectedFood = nil
-                    ingredientWeight = 100
+        .sheet(item: Binding(get: { selectedFood }, set: { if $0 == nil { selectedFood = nil } })) { food in
+            NavigationStack {
+                Form {
+                    Section(header: Text("Weight for \(food.name)")) {
+                        HStack {
+                            Text("Grams")
+                            Spacer()
+                            TextField("100", value: $ingredientWeight, format: .number)
+                                .keyboardType(.decimalPad)
+                                .multilineTextAlignment(.trailing)
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+                .navigationTitle("Add Ingredient")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { selectedFood = nil }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Add") {
+                            ingredients.append(RecipeIngredientTemp(food: food, weightGrams: ingredientWeight))
+                            selectedFood = nil
+                            ingredientWeight = 100
+                        }
+                    }
                 }
             }
-            Button("Cancel", role: .cancel) { selectedFood = nil }
+            .presentationDetents([.height(250)])
         }
     }
     

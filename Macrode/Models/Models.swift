@@ -174,3 +174,25 @@ public struct MacrodeAttributes: ActivityAttributes {
         self.name = name
     }
 }
+
+public struct DailyLogData: Sendable {
+    public let date: Date
+    public let calorieTarget: Double
+    public let bodyWeight: Double?
+    
+    public init(from log: DailyLog) {
+        self.date = log.date
+        self.calorieTarget = log.calorieTarget
+        self.bodyWeight = log.bodyWeight
+    }
+}
+
+public struct ConsumedMealData: Sendable {
+    public let calories: Double
+    public let consumedAt: Date
+    
+    public init(from meal: ConsumedMeal) {
+        self.calories = meal.calories
+        self.consumedAt = meal.consumedAt
+    }
+}

@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 struct MetabolismEngine {
-    static func calculateTrueTDEE(dailyLogs: [DailyLog], allMeals: [ConsumedMeal]) -> Double? {
+    static func calculateTrueTDEE(dailyLogs: [DailyLogData], allMeals: [ConsumedMealData]) -> Double? {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         

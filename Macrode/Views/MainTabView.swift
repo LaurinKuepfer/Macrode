@@ -42,8 +42,8 @@ struct MainTabView: View {
                 .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
                 .tag(1)
             
-            AddMealView(selectedDate: $globalSelectedDate)
-                .tabItem { Label("Library", systemImage: "book.pages.fill") }
+            AddMealView(selectedDate: $globalSelectedDate, mainTabSelection: $selectedTab)
+                .tabItem { Label("Add", systemImage: "plus.circle.fill") }
                 .tag(2)
             
             NavigationStack {

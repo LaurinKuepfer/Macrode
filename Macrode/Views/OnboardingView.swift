@@ -13,6 +13,7 @@ struct OnboardingView: View {
     @State private var age: String = ""
     @State private var heightCM: String = ""
     @State private var weightKG: String = ""
+    @State private var hasLoggedDummy = false
     
     @State private var goal: GoalType = .maintain
     @State private var activityLevel: ActivityLevel = .sedentary
@@ -83,9 +84,16 @@ struct OnboardingView: View {
                     bodyStatsScreen.tag(1)
                     goalsScreen.tag(2)
                     resultScreen.tag(3)
+                    interactiveScreen.tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut, value: currentStep)
+                .toolbar {
+                    ToolbarItem(placement: .keyboard) {
+                        Button("Done") { isInputActive = false }
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
             }
             
             if currentStep > 0 {
@@ -116,7 +124,7 @@ struct OnboardingView: View {
    
     private var progressHeader: some View {
         HStack(spacing: 8) {
-            ForEach(0..<4) { index in
+            ForEach(0..<5) { index in
                 Capsule()
                     .frame(height: 6)
                     .foregroundColor(index <= currentStep ? .green : Color.secondary.opacity(0.2))
@@ -372,18 +380,70 @@ struct OnboardingView: View {
             
             Spacer()
             
-            Button(action: {
-                saveAndFinish()
-            }) {
-                Text("Start Tracking")
+            nextButton(title: "Try It Out")
+                .padding(.horizontal, 24)
+                .padding(.bottom, 24)
+        }
+    }
+    
+    private var interactiveScreen: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            Text("Let's Log Your First Snack")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+            
+            CalorieHUD(consumed: hasLoggedDummy ? 105 : 0, target: computedMacros.calories, isSocialDay: false)
+                .frame(width: 250, height: 250)
+                .padding()
+            
+            HStack(spacing: 20) {
+                MacroPreviewCol(name: "Protein", amount: hasLoggedDummy ? "1g" : "0g", color: .purple)
+                MacroPreviewCol(name: "Carbs", amount: hasLoggedDummy ? "27g" : "0g", color: .orange)
+                MacroPreviewCol(name: "Fats", amount: hasLoggedDummy ? "0g" : "0g", color: .blue)
+            }
+            .padding()
+            .background(Color(UIColor.secondarySystemGroupedBackground))
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+            .padding(.horizontal, 24)
+            
+            if !hasLoggedDummy {
+                Button(action: {
+                    withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
+                        hasLoggedDummy = true
+                        playHaptic()
+                    }
+                }) {
+                    Text("Log a Banana 🍌 (105 kcal)")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.yellow)
+                        .cornerRadius(16)
+                        .shadow(color: .yellow.opacity(0.4), radius: 8, x: 0, y: 4)
+                }
+                .padding(.horizontal, 24)
+            } else {
+                Text("Awesome! You're ready.")
+                    .font(.headline)
+                    .foregroundColor(.green)
+                    .transition(.opacity)
+            }
+            
+            Spacer()
+            Button(action: saveAndFinish) {
+                Text("Enter Macrode")
                     .font(.headline)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 16)
-                    .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    .background(hasLoggedDummy ? LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing) : LinearGradient(colors: [.gray, .gray.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
                     .cornerRadius(16)
-                    .shadow(color: .green.opacity(0.4), radius: 8, x: 0, y: 4)
+                    .shadow(color: hasLoggedDummy ? .green.opacity(0.4) : .clear, radius: 8, x: 0, y: 4)
             }
+            .disabled(!hasLoggedDummy)
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }

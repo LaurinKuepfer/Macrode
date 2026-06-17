@@ -59,9 +59,33 @@ struct OFFNutriments: Codable {
     }
 }
 
+    }
+}
+
+struct OFFProductResult: Sendable {
+    let name: String
+    let calories: Double
+    let protein: Double
+    let carbs: Double
+    let fat: Double
+    let category: String
+    let fiber: Double?
+    let sugar: Double?
+    let saturatedFat: Double?
+    let sodium: Double?
+    let imageUrl: String?
+    let nutriscore: String?
+    let ecoscore: String?
+    let novaGroup: Int?
+    let ingredients: String?
+    let allergens: String?
+    let brand: String?
+}
+
 class OpenFoodFactsAPI {
-    static func fetchProduct(barcode: String) async throws -> (name: String, calories: Double, protein: Double, carbs: Double, fat: Double, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)? {
-        let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json"
+    static func fetchProduct(barcode: String) async throws -> OFFProductResult? {
+        let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands"
+        let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json?fields=\(fields)"
         guard let url = URL(string: urlString) else { return nil }
         
         let (data, _) = try await URLSession.shared.data(from: url)
@@ -78,7 +102,7 @@ class OpenFoodFactsAPI {
         let satFat = product.nutriments?.saturatedFat.flatMap { $0 > 0 ? $0 : nil }
         let sodium = product.nutriments?.sodium.flatMap { $0 > 0 ? $0 : nil }
         
-        return (
+        return OFFProductResult(
             name: cleanName,
             calories: product.nutriments?.energyKcal ?? 0,
             protein: product.nutriments?.proteins ?? 0,
@@ -99,16 +123,17 @@ class OpenFoodFactsAPI {
         )
     }
     
-    static func searchProducts(query: String) async throws -> [(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)] {
+    static func searchProducts(query: String) async throws -> [OFFProductResult] {
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=30"
+        let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands"
+        let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=30&fields=\(fields)"
         
         guard let url = URL(string: urlString) else { return [] }
         
         let (data, _) = try await URLSession.shared.data(from: url)
         let response = try JSONDecoder().decode(OFFSearchResponse.self, from: data)
         
-        var results: [(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)] = []
+        var results: [OFFProductResult] = []
         
         if let products = response.products {
             for product in products {
@@ -128,12 +153,12 @@ class OpenFoodFactsAPI {
                 let sodium = product.nutriments?.sodium.flatMap { $0 > 0 ? $0 : nil }
                 
                 if energy > 0 || protein > 0 || carbs > 0 || fat > 0 {
-                    results.append((name: cleanName, calories: energy, protein: protein, carbs: carbs, fat: fat, category: category, fiber: fiber, sugar: sugar, saturatedFat: satFat, sodium: sodium, imageUrl: product.imageFrontUrl, nutriscore: product.nutriscoreGrade, ecoscore: product.ecoscoreGrade, novaGroup: product.novaGroup, ingredients: product.ingredientsText, allergens: product.allergens, brand: product.brands))
+                    results.append(OFFProductResult(name: cleanName, calories: energy, protein: protein, carbs: carbs, fat: fat, category: category, fiber: fiber, sugar: sugar, saturatedFat: satFat, sodium: sodium, imageUrl: product.imageFrontUrl, nutriscore: product.nutriscoreGrade, ecoscore: product.ecoscoreGrade, novaGroup: product.novaGroup, ingredients: product.ingredientsText, allergens: product.allergens, brand: product.brands))
                 }
             }
         }
         
-        var uniqueResults = [(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)]()
+        var uniqueResults = [OFFProductResult]()
         var seenNames = Set<String>()
         for result in results {
             let lowerName = result.name.lowercased()

@@ -9,8 +9,8 @@ struct ForgivenessEngine {
     
     static func calculateForgiveness(
         for date: Date,
-        allLogs: [DailyLog],
-        allMeals: [ConsumedMeal],
+        allLogs: [DailyLogData],
+        allMeals: [ConsumedMealData],
         userGoal: GoalType
     ) -> ForgivenessResult? {
         let calendar = Calendar.current

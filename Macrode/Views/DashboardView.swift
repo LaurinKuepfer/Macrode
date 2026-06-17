@@ -17,6 +17,7 @@ struct DashboardView: View {
     
     @State private var showingGoalsSheet = false
     @State private var showingHistorySheet = false
+    @State private var goalsMetCache: [Date: Bool] = [:]
     
     private var currentLog: DailyLog {
         let startOfDay = Calendar.current.startOfDay(for: selectedDate)
@@ -62,9 +63,13 @@ struct DashboardView: View {
                     hasLoadedStarterData = true 
                 }
                 ensureDailyLogExists(for: selectedDate)
+                updateGoalsMetCache()
             }
             .onChange(of: selectedDate) { _, newDate in
                 ensureDailyLogExists(for: newDate)
+            }
+            .onChange(of: dailyLogs.count) { _, _ in
+                updateGoalsMetCache()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -167,7 +172,7 @@ struct DashboardView: View {
                                                     .foregroundColor(.secondary)
                                             }
                                             Spacer()
-                                            if checkIfGoalMet(for: log.date) {
+                                            if goalsMetCache[Calendar.current.startOfDay(for: log.date)] == true {
                                                 Image(systemName: "flame.fill")
                                                     .foregroundColor(.orange)
                                             }
@@ -219,7 +224,7 @@ struct DashboardView: View {
                             if let date = calendar.date(byAdding: .day, value: dayOffset, to: today), date >= firstLaunch {
                                 let isSelected = calendar.isDate(date, inSameDayAs: selectedDate)
                                 let isCurrentDay = calendar.isDateInToday(date)
-                                let hitGoal = checkIfGoalMet(for: date)
+                                let hitGoal = goalsMetCache[calendar.startOfDay(for: date)] == true
                                 
                                 VStack(spacing: 6) {
                                     Text(date.formatted(.dateTime.weekday(.short))).font(.caption2).fontWeight(isSelected ? .bold : .regular).foregroundColor(isSelected ? .primary : .secondary)
@@ -238,21 +243,34 @@ struct DashboardView: View {
     }
     
    
-    private func checkIfGoalMet(for date: Date) -> Bool {
+    private func updateGoalsMetCache() {
         let calendar = Calendar.current
-        guard let log = logsDictionary[calendar.startOfDay(for: date)] else { return false }
-        
-        let start = calendar.startOfDay(for: date)
-        let end = calendar.date(byAdding: .day, value: 1, to: start)!
+        let today = calendar.startOfDay(for: Date())
+        let start = calendar.date(byAdding: .day, value: -14, to: today)!
+        let end = calendar.date(byAdding: .day, value: 1, to: today)!
         
         let descriptor = FetchDescriptor<ConsumedMeal>(
             predicate: #Predicate { $0.consumedAt >= start && $0.consumedAt < end }
         )
         
-        let meals = (try? context.fetch(descriptor)) ?? []
-        let totalCals = meals.reduce(0) { $0 + $1.calories }
+        let recentMeals = (try? context.fetch(descriptor)) ?? []
         
-        return !meals.isEmpty && totalCals <= log.calorieTarget
+        var newCache: [Date: Bool] = [:]
+        for dayOffset in -14...0 {
+            if let date = calendar.date(byAdding: .day, value: dayOffset, to: today) {
+                let dayStart = calendar.startOfDay(for: date)
+                let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+                
+                let daysMeals = recentMeals.filter { $0.consumedAt >= dayStart && $0.consumedAt < dayEnd }
+                if let log = logsDictionary[dayStart], !daysMeals.isEmpty {
+                    let totalCals = daysMeals.reduce(0) { $0 + $1.calories }
+                    newCache[dayStart] = totalCals <= log.calorieTarget
+                } else {
+                    newCache[dayStart] = false
+                }
+            }
+        }
+        self.goalsMetCache = newCache
     }
 
     private func ensureDailyLogExists(for date: Date) {
@@ -285,9 +303,10 @@ struct DailyDashboardContent: View {
     @Query private var allConsumedMeals: [ConsumedMeal]
     
     @AppStorage("userGoal") private var userGoal: GoalType = .maintain
-    @State private var showingMacroTetris = false
+    @State private var showingSmartSuggester = false
     @State private var editingMeal: ConsumedMeal? = nil
     @State private var showingQuickAddSheet = false
+    @State private var mealToDelete: ConsumedMeal? = nil
     
     var selectedDate: Date
     var currentLog: DailyLog
@@ -304,6 +323,10 @@ struct DailyDashboardContent: View {
             filter: #Predicate<ConsumedMeal> { $0.consumedAt >= start && $0.consumedAt < end },
             sort: \.consumedAt, order: .reverse
         )
+        
+        let lookback = Calendar.current.date(byAdding: .day, value: -60, to: start)!
+        self._allConsumedMeals = Query(filter: #Predicate<ConsumedMeal> { $0.consumedAt >= lookback })
+        self._allDailyLogs = Query(filter: #Predicate<DailyLog> { $0.date >= lookback })
     }
     
     private var consumedCalories: Double { selectedDateMeals.reduce(0) { $0 + $1.calories } }
@@ -311,12 +334,11 @@ struct DailyDashboardContent: View {
     private var consumedCarbs: Double { selectedDateMeals.reduce(0) { $0 + $1.carbs } }
     private var consumedFat: Double { selectedDateMeals.reduce(0) { $0 + $1.fat } }
     
-    private var trueTDEE: Double? {
-        MetabolismEngine.calculateTrueTDEE(dailyLogs: allDailyLogs, allMeals: allConsumedMeals)
-    }
+    @State private var cachedTDEE: Double?
+    @State private var cachedForgiveness: ForgivenessEngine.ForgivenessResult?
     
     private var baseTarget: Double {
-        if let tdee = trueTDEE {
+        if let tdee = cachedTDEE {
             switch userGoal {
             case .lose: return tdee - 500
             case .gain: return tdee + 300
@@ -329,7 +351,7 @@ struct DailyDashboardContent: View {
     @AppStorage("safetyFloorCalories") var safetyFloorCalories: Double = 1500
 
     private var forgiveness: ForgivenessEngine.ForgivenessResult? {
-        ForgivenessEngine.calculateForgiveness(for: selectedDate, allLogs: allDailyLogs, allMeals: allConsumedMeals, userGoal: userGoal)
+        cachedForgiveness
     }
     
     private var dynamicTarget: Double {
@@ -379,28 +401,29 @@ struct DailyDashboardContent: View {
         VStack(spacing: 20) {
            
             VStack(spacing: 6) {
-                HStack(spacing: 8) {
-                    if let tdee = trueTDEE {
-                        Label("TDEE: \(Int(tdee))", systemImage: "bolt.fill")
-                            .font(.caption2).fontWeight(.bold)
-                            .foregroundColor(.yellow)
-                            .padding(.horizontal, 8).padding(.vertical, 4)
-                            .background(Color.yellow.opacity(0.1))
-                            .cornerRadius(6)
-                    }
-                    if let f = forgiveness, f.calorieAdjustment != 0 {
-                        Label("\(f.calorieAdjustment > 0 ? "+" : "")\(Int(f.calorieAdjustment))", systemImage: "banknote.fill")
-                            .font(.caption2).fontWeight(.bold)
-                            .foregroundColor(f.calorieAdjustment < 0 ? .red : .green)
-                            .padding(.horizontal, 8).padding(.vertical, 4)
-                            .background(f.calorieAdjustment < 0 ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
-                            .cornerRadius(6)
-                    }
+                if let tdee = cachedTDEE {
+                    Label("TDEE: \(Int(tdee))", systemImage: "bolt.fill")
+                        .font(.caption2).fontWeight(.bold)
+                        .foregroundColor(.yellow)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(Color.yellow.opacity(0.1))
+                        .cornerRadius(6)
                 }
                 
                 CalorieHUD(consumed: consumedCalories, target: dynamicTarget, isSocialDay: currentLog.isSocialDay)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedCalories)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: dynamicTarget)
+                    .overlay(alignment: .topTrailing) {
+                        if let f = forgiveness, f.calorieAdjustment != 0 {
+                            Label("\(f.calorieAdjustment > 0 ? "+" : "")\(Int(f.calorieAdjustment))", systemImage: "banknote.fill")
+                                .font(.caption2).fontWeight(.bold)
+                                .foregroundColor(f.calorieAdjustment < 0 ? .red : .green)
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                                .background(f.calorieAdjustment < 0 ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                                .cornerRadius(6)
+                                .offset(x: 10, y: 10)
+                        }
+                    }
             }
             
            
@@ -416,14 +439,16 @@ struct DailyDashboardContent: View {
             
            
             HStack(spacing: 10) {
-                Button(action: { playHaptic(); showingMacroTetris = true }) {
-                    Label("Macro Tetris", systemImage: "puzzlepiece.extension.fill")
-                        .font(.caption).fontWeight(.bold)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(Color.blue)
-                        .cornerRadius(12)
+                Button(action: { playHaptic(); showingSmartSuggester = true }) {
+                    HStack {
+                        Image(systemName: "wand.and.stars")
+                        Text("Smart Suggest").fontWeight(.bold)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.blue)
+                    .cornerRadius(12)
                 }
                 Button(action: { playHaptic(); showingQuickAddSheet = true }) {
                     Label("Quick Add", systemImage: "bolt.fill")
@@ -453,12 +478,15 @@ struct DailyDashboardContent: View {
                         Button(action: { addWater(250) }) { Label("Glass (250 ml)", systemImage: "cup.and.saucer") }
                         Button(action: { addWater(500) }) { Label("Flask (500 ml)", systemImage: "waterbottle") }
                         Button(action: { addWater(1000) }) { Label("Large Bottle (1L)", systemImage: "drop.fill") }
-                    } label: { Image(systemName: "plus.circle.fill").font(.title3).foregroundColor(.blue) }
+                    } label: { 
+                        Image(systemName: "plus.circle.fill").font(.title3).foregroundColor(.blue) 
+                    } primaryAction: {
+                        addWater(250)
+                    }
                 }
                 .padding(12)
-                .background(Color(UIColor.secondarySystemGroupedBackground))
-                .cornerRadius(14)
-                .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+                .shadow(color: Color.black.opacity(0.08), radius: 6, x: 0, y: 3)
                 
                 fastingCompactCard
             }
@@ -473,12 +501,19 @@ struct DailyDashboardContent: View {
         }
         .onAppear {
             updateLiveActivity()
+            recalculateEngines()
         }
         .onChange(of: consumedCalories) { _, _ in
             updateLiveActivity()
         }
-        .sheet(isPresented: $showingMacroTetris) {
-            MacroTetrisView(
+        .onChange(of: allConsumedMeals.count) { _, _ in
+            recalculateEngines()
+        }
+        .onChange(of: selectedDate) { _, _ in
+            recalculateEngines()
+        }
+        .sheet(isPresented: $showingSmartSuggester) {
+            SmartSuggesterView(
                 remProtein: max(0, dynamicProteinTarget - consumedProtein),
                 remCarbs: max(0, dynamicCarbsTarget - consumedCarbs),
                 remFat: max(0, dynamicFatTarget - consumedFat),
@@ -495,6 +530,22 @@ struct DailyDashboardContent: View {
         }
     }
 
+    private func recalculateEngines() {
+        let logsData = allDailyLogs.map { DailyLogData(from: $0) }
+        let mealsData = allConsumedMeals.map { ConsumedMealData(from: $0) }
+        let goal = userGoal
+        let date = selectedDate
+        
+        Task.detached {
+            let tdee = MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
+            let f = ForgivenessEngine.calculateForgiveness(for: date, allLogs: logsData, allMeals: mealsData, userGoal: goal)
+            
+            await MainActor.run {
+                self.cachedTDEE = tdee
+                self.cachedForgiveness = f
+            }
+        }
+    }
 
     private var frequentMeals: [ConsumedMeal] {
         let calendar = Calendar.current
@@ -546,7 +597,7 @@ struct DailyDashboardContent: View {
                                     Text("Log").font(.caption).fontWeight(.bold).foregroundColor(.white).padding(.horizontal, 16).padding(.vertical, 6).background(Color.green).cornerRadius(12)
                                 }
                             }
-                            .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                            .padding().background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16)).shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
                             .frame(width: 140)
                         }
                     }
@@ -565,8 +616,8 @@ struct DailyDashboardContent: View {
         return HStack(spacing: 8) {
             Image(systemName: isFasting ? "flame.fill" : "timer")
                 .foregroundColor(isFasting ? .orange : .blue)
-                .font(.title3)
-            VStack(alignment: .leading, spacing: 2) {
+                .font(.body)
+            VStack(alignment: .leading, spacing: 0) {
                 Text(isFasting ? "Fasting" : "Last Meal")
                     .font(.caption2).foregroundColor(.secondary)
                 if lastMeal != nil {
@@ -578,10 +629,10 @@ struct DailyDashboardContent: View {
             }
             Spacer()
         }
-        .padding(12)
-        .background(isFasting ? Color.purple.opacity(0.1) : Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(14)
-        .shadow(color: Color.black.opacity(0.04), radius: 3, x: 0, y: 1)
+        .padding(8)
+        .background(isFasting ? AnyShapeStyle(Color.purple.opacity(0.1)) : AnyShapeStyle(.ultraThinMaterial))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color.black.opacity(0.04), radius: 2, x: 0, y: 1)
     }
 
     private var supplementTrackerCard: some View {
@@ -626,7 +677,7 @@ struct DailyDashboardContent: View {
                     }
                 }
             }
-            .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+            .padding().background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16)).shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4).padding(.horizontal, 24)
         )
     }
     
@@ -674,7 +725,7 @@ struct DailyDashboardContent: View {
                                     }
                                     .buttonStyle(.plain)
                                     
-                                    Button(action: { deleteMeal(meal) }) { 
+                                    Button(action: { mealToDelete = meal }) { 
                                         Image(systemName: "trash.circle.fill").font(.title3).foregroundColor(.red.opacity(0.6)) 
                                     }
                                     .buttonStyle(.plain) 
@@ -686,7 +737,15 @@ struct DailyDashboardContent: View {
                 }
             }
         }
-        .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+        .padding().background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16)).shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4).padding(.horizontal, 24)
+        .confirmationDialog("Delete Meal?", isPresented: Binding(
+            get: { mealToDelete != nil },
+            set: { if !$0 { mealToDelete = nil } }
+        ), titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                if let meal = mealToDelete { deleteMeal(meal) }
+            }
+        }
     }
     
     private func playHaptic() { HapticManager.shared.impact(.light) }

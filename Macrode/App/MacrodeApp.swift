@@ -28,6 +28,7 @@ struct MacrodeApp: App {
             WindowGroup {
                 MainTabView()
                     .environment(\.locale, appLanguage == "system" ? .current : Locale(identifier: appLanguage))
+                    .id(appLanguage)
             }
             .modelContainer(sharedModelContainer)
     }
