@@ -68,7 +68,11 @@ struct SettingsView: View {
                         if newValue {
                             NotificationManager.shared.requestPermission { success in
                                 if success {
-                                    NotificationManager.shared.scheduleDailyNotifications()
+                                    let today = Calendar.current.startOfDay(for: Date())
+                                    let logs = (try? context.fetch(FetchDescriptor<DailyLog>())) ?? []
+                                    let supplements = (try? context.fetch(FetchDescriptor<Supplement>())) ?? []
+                                    let todayLog = logs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: today) })
+                                    NotificationManager.shared.scheduleDynamicNotifications(meals: allMeals, log: todayLog, supplements: supplements)
                                 } else {
                                     isProactiveCoachEnabled = false
                                     showAlert(String(localized: "Permission Denied"), String(localized: "Please enable notifications for Macrode in your iPhone Settings."))

@@ -415,11 +415,11 @@ struct DailyDashboardContent: View {
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: dynamicTarget)
                     .overlay(alignment: .topTrailing) {
                         if let f = energyBalance, f.calorieAdjustment != 0 {
-                            Label("\(f.calorieAdjustment > 0 ? "+" : "")\(Int(f.calorieAdjustment))", systemImage: "banknote.fill")
+                            Label("\(Int(abs(f.calorieAdjustment))) kcal", systemImage: f.calorieAdjustment < 0 ? "arrow.up.right" : "arrow.down.right")
                                 .font(.caption2).fontWeight(.bold)
-                                .foregroundColor(f.calorieAdjustment < 0 ? .red : .green)
+                                .foregroundColor(f.calorieAdjustment < 0 ? .purple : .green)
                                 .padding(.horizontal, 8).padding(.vertical, 4)
-                                .background(f.calorieAdjustment < 0 ? Color.red.opacity(0.1) : Color.green.opacity(0.1))
+                                .background(f.calorieAdjustment < 0 ? Color.purple.opacity(0.1) : Color.green.opacity(0.1))
                                 .cornerRadius(6)
                                 .offset(x: 10, y: 10)
                         }

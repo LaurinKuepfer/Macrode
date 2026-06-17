@@ -6,26 +6,47 @@ class NotificationManager {
     
     private init() {}
     
+    private let supplementNagMessages = [
+        String(localized: "💊 Hey! Did you forget your supplements today?"),
+        String(localized: "Time to take your vitamins! ⚡️"),
+        String(localized: "Your supplements are waiting for you. ⏰"),
+        String(localized: "Boost your day! Don't forget your supplements. 💊")
+    ]
+    
+    private let eveningSuccessMessages = [
+        String(localized: "Goal Achieved! 🎉 You hit your calorie target today."),
+        String(localized: "Incredible work today! 🌟 You nailed your macros."),
+        String(localized: "Perfect day! Keep up the great consistency. 🔥"),
+        String(localized: "You crushed it today! Rest up for tomorrow. 🌙")
+    ]
+    
+    private func eveningRemainingMessages(cals: Int) -> [String] {
+        return [
+            String(localized: "Dinner time! 🍽️ You have \(cals) kcal left to hit your goal."),
+            String(localized: "Evening check-in 🌙 You can still eat \(cals) kcal today!"),
+            String(localized: "Almost there! You've got \(cals) kcal remaining for a late snack. 🍎"),
+            String(localized: "Don't starve yourself! You still have \(cals) kcal to hit your target. 🎯")
+        ]
+    }
+    
     func requestPermission(completion: @escaping (Bool) -> Void) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
-            DispatchQueue.main.async {
-                completion(success)
-            }
+            DispatchQueue.main.async { completion(success) }
         }
     }
     
-    func scheduleDailyNotifications(meals: [ConsumedMeal] = [], log: DailyLog? = nil) {
+    func cancelNotifications() {
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+    }
+    
+    func scheduleDynamicNotifications(meals: [ConsumedMeal], log: DailyLog?, supplements: [Supplement]) {
         cancelNotifications()
         
-        scheduleNotification(
-            id: "morning_motivation",
-            title: String(localized: "💊 Don't forget your breakfast and supplements! 🍳"),
-            body: String(localized: "Don't forget to log your breakfast and take your supplements."),
-            hour: 7,
-            minute: 0,
-            repeats: true
-        )
+        let center = UNUserNotificationCenter.current()
+        let calendar = Calendar.current
+        let now = Date()
         
+        // 1. Water Reminders (Fixed but useful)
         let waterHours = [10, 12, 14, 16, 18]
         let waterMessages = [
             String(localized: "Hydration Check 💧 Grab a glass of water!"),
@@ -36,68 +57,53 @@ class NotificationManager {
         ]
         
         for (index, hour) in waterHours.enumerated() {
-            scheduleNotification(
-                id: "water_reminder_\(hour)",
-                title: String(localized: "Hydration Coach"),
-                body: waterMessages[index],
-                hour: hour,
-                minute: 0,
-                repeats: true
-            )
+            scheduleNotification(id: "water_reminder_\(hour)", title: "Hydration Coach", body: waterMessages[index], hour: hour, minute: 0, repeats: true)
         }
         
-        scheduleEveningCheckIns(meals: meals, log: log)
-    }
-    
-    private func scheduleEveningCheckIns(meals: [ConsumedMeal], log: DailyLog?) {
-        let center = UNUserNotificationCenter.current()
-        let calendar = Calendar.current
-        let now = Date()
+        // 2. Dynamic Supplement Nag (10:00 AM)
+        let todayString = now.formatted(.iso8601.year().month().day())
+        let dayOfWeek = String(calendar.component(.weekday, from: now))
+        let supplementsForToday = supplements.filter { $0.scheduledDays.contains(dayOfWeek) }
+        let supplementsNotTaken = supplementsForToday.filter { !$0.datesTaken.contains(todayString) }
         
-        for dayOffset in 0..<7 {
-            guard let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: now),
-                  let eveningDate = calendar.date(bySettingHour: 20, minute: 0, second: 0, of: targetDate) else {
-                continue
-            }
+        if !supplementsNotTaken.isEmpty {
+            let msg = supplementNagMessages.randomElement() ?? supplementNagMessages[0]
+            scheduleNotification(id: "supplement_nag_today", title: "Supplement Reminder", body: msg, hour: 10, minute: 0, repeats: false)
+        }
+        
+        // 3. Dynamic Evening Calories (20:00 PM)
+        if let currentLog = log {
+            let todayMeals = meals.filter { calendar.isDate($0.consumedAt, inSameDayAs: now) }
+            let totalCals = todayMeals.reduce(0) { $0 + $1.calories }
+            let remaining = Int(currentLog.calorieTarget - totalCals)
             
-            guard eveningDate > now else { continue }
+            let title = remaining <= 0 ? "Goal Met! 🏆" : "Evening Check-in 🌙"
+            let bodyMsg = remaining <= 0 ? (eveningSuccessMessages.randomElement() ?? "") : (eveningRemainingMessages(cals: remaining).randomElement() ?? "")
             
-            let content = UNMutableNotificationContent()
-            content.sound = .default
-            
-            if dayOffset == 0, let log = log {
-                let todayMeals = meals.filter { calendar.isDate($0.consumedAt, inSameDayAs: now) }
-                let totalCals = todayMeals.reduce(0) { $0 + $1.calories }
-                let totalProtein = todayMeals.reduce(0) { $0 + $1.protein }
+            scheduleNotification(id: "evening_cal_today", title: title, body: bodyMsg, hour: 20, minute: 0, repeats: false)
+        }
+        
+        // 4. Fallback Evening check-ins for future days (so the app still reminds them tomorrow if they don't open it)
+        for dayOffset in 1...3 {
+            if let targetDate = calendar.date(byAdding: .day, value: dayOffset, to: now) {
+                let title = "Evening Check-in 🌙"
+                let body = "Did you hit your goals today? Log your dinner to keep your streak alive!"
+                var comps = calendar.dateComponents([.year, .month, .day], from: targetDate)
+                comps.hour = 20
+                comps.minute = 0
                 
-                let isCalGoalHit = totalCals >= log.calorieTarget
-                let isProteinGoalHit = totalProtein >= log.proteinTarget
-                
-                if isCalGoalHit && isProteinGoalHit {
-                    content.title = String(localized: "Goal Achieved! 🎉")
-                    content.body = String(localized: "You've successfully hit both your protein and calorie goals today! Keep up the consistency.")
-                } else {
-                    content.title = String(localized: "Evening Check-in 🌙")
-                    content.body = String(localized: "Have you hit your protein goal for today? Log your dinner to keep your streak alive!")
-                }
-            } else {
-                content.title = String(localized: "Evening Check-in 🌙")
-                content.body = String(localized: "Have you hit your protein goal for today? Log your dinner to keep your streak alive!")
-            }
-            
-            let components = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: eveningDate)
-            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
-            let request = UNNotificationRequest(identifier: "evening_protein_day_\(dayOffset)", content: content, trigger: trigger)
-            
-            center.add(request) { error in
-                if let error = error {
-                    print("Error scheduling evening check-in for day \(dayOffset): \(error.localizedDescription)")
-                }
+                let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
+                let content = UNMutableNotificationContent()
+                content.title = title
+                content.body = body
+                content.sound = .default
+                let req = UNNotificationRequest(identifier: "evening_future_\(dayOffset)", content: content, trigger: trigger)
+                center.add(req)
             }
         }
     }
     
-    private func scheduleNotification(id: String, title: String, body: String, hour: Int, minute: Int, repeats: Bool = true) {
+    private func scheduleNotification(id: String, title: String, body: String, hour: Int, minute: Int, repeats: Bool) {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -109,15 +115,6 @@ class NotificationManager {
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: repeats)
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error scheduling notification: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func cancelNotifications() {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        UNUserNotificationCenter.current().add(request)
     }
 }

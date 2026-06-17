@@ -179,7 +179,7 @@ struct InsightsView: View {
                         x: .value("Day", date, unit: .day),
                         y: .value("Calories", cals)
                     )
-                    .foregroundStyle(cals > target ? Color.red.gradient : Color.green.gradient)
+                    .foregroundStyle(cals > target ? Color.blue.gradient : Color.green.gradient)
                     
                     LineMark(
                         x: .value("Day", date, unit: .day),
@@ -256,13 +256,33 @@ struct InsightsView: View {
             }
             let logsWithWeight = dailyLogs.filter { $0.bodyWeight != nil }.sorted(by: { $0.date < $1.date })
             if logsWithWeight.count >= 2 {
+                let alpha = 0.3
+                var smoothedData: [(Date, Double)] = []
+                var currentEWMA: Double? = nil
+                
+                for log in logsWithWeight {
+                    if let weight = log.bodyWeight {
+                        if let last = currentEWMA {
+                            currentEWMA = (alpha * weight) + ((1 - alpha) * last)
+                        } else {
+                            currentEWMA = weight
+                        }
+                        if let smoothed = currentEWMA {
+                            smoothedData.append((log.date, smoothed))
+                        }
+                    }
+                }
+                
                 Chart {
                     ForEach(logsWithWeight) { log in
                         if let weight = log.bodyWeight {
-                            AreaMark(x: .value("Date", log.date), y: .value("Weight", weight)).interpolationMethod(.monotone).foregroundStyle(LinearGradient(gradient: Gradient(colors: [Color.purple.opacity(0.4), Color.clear]), startPoint: .top, endPoint: .bottom))
-                            LineMark(x: .value("Date", log.date), y: .value("Weight", weight)).interpolationMethod(.monotone).foregroundStyle(Color.purple.gradient)
-                            PointMark(x: .value("Date", log.date), y: .value("Weight", weight)).foregroundStyle(Color.purple)
+                            PointMark(x: .value("Date", log.date), y: .value("Raw Weight", weight)).foregroundStyle(Color.purple.opacity(0.3))
                         }
+                    }
+                    
+                    ForEach(smoothedData, id: \.0) { point in
+                        AreaMark(x: .value("Date", point.0), y: .value("Trend", point.1)).interpolationMethod(.monotone).foregroundStyle(LinearGradient(gradient: Gradient(colors: [Color.purple.opacity(0.4), Color.clear]), startPoint: .top, endPoint: .bottom))
+                        LineMark(x: .value("Date", point.0), y: .value("Trend", point.1)).interpolationMethod(.monotone).foregroundStyle(Color.purple.gradient)
                     }
                 }
                 .frame(height: 120).chartYScale(domain: .automatic(includesZero: false)).chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisTick(); AxisValueLabel(format: .dateTime.weekday(), centered: true) } }

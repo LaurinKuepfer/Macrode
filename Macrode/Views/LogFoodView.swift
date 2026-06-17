@@ -172,6 +172,11 @@ struct LogFoodView: View {
         .navigationTitle(food.name)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
+            if food.isVerified {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Label("Verified", systemImage: "checkmark.seal.fill").foregroundColor(.green)
+                }
+            }
             ToolbarItem(placement: .keyboard) {
                 Button("Done") { isInputActive = false }
                     .frame(maxWidth: .infinity, alignment: .trailing)

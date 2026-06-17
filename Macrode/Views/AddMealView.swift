@@ -149,7 +149,12 @@ struct AddMealView: View {
                 ForEach(viewModel.filteredFoods(from: foodLibrary)) { food in
                     NavigationLink(destination: LogFoodView(food: food, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)) {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(food.name).font(.headline)
+                            HStack(spacing: 4) {
+                                Text(food.name).font(.headline)
+                                if food.isVerified {
+                                    Image(systemName: "checkmark.seal.fill").foregroundColor(.green).font(.caption)
+                                }
+                            }
                             HStack(spacing: 8) {
                                 Text("\(Int(food.calories)) kcal").foregroundColor(.green)
                                 Text("•  \(Int(food.protein))g P | \(Int(food.carbs))g C | \(Int(food.fat))g F").foregroundColor(.secondary)

@@ -27,6 +27,8 @@ final class FoodItem {
     var allergens: String?
     var brand: String?
     
+    var isVerified: Bool { barcode != nil }
+    
     init(id: UUID = UUID(), name: String, calories: Double, protein: Double, carbs: Double, fat: Double, barcode: String? = nil, category: String = "Other", createdAt: Date = Date(), fiber: Double? = nil, sugar: Double? = nil, saturatedFat: Double? = nil, sodium: Double? = nil, imageUrl: String? = nil, nutriscore: String? = nil, ecoscore: String? = nil, novaGroup: Int? = nil, ingredients: String? = nil, allergens: String? = nil, brand: String? = nil) {
         self.id = id
         self.name = name
