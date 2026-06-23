@@ -15,14 +15,28 @@ struct LogRecipeView: View {
     @FocusState private var isInputActive: Bool
     @State private var showingEditSheet = false
     
-    private var validServings: Double {
-        max(0, servings ?? 1) // default to 1 for calculations if empty
+    enum LogMode { case servings, weight }
+    @State private var logMode: LogMode = .servings
+    @State private var portionWeight: Double? = nil
+    
+    private var macroMultiplier: Double {
+        if logMode == .weight, let w = portionWeight, let total = recipe.totalCookedWeight, total > 0 {
+            return w / total
+        }
+        return max(0, servings ?? 1)
     }
     
-    private var calcCalories: Double { recipe.calories * validServings }
-    private var calcProtein: Double { recipe.protein * validServings }
-    private var calcCarbs: Double { recipe.carbs * validServings }
-    private var calcFat: Double { recipe.fat * validServings }
+    private var calcCalories: Double { recipe.calories * macroMultiplier }
+    private var calcProtein: Double { recipe.protein * macroMultiplier }
+    private var calcCarbs: Double { recipe.carbs * macroMultiplier }
+    private var calcFat: Double { recipe.fat * macroMultiplier }
+    
+    private var loggedWeightGrams: Double {
+        if logMode == .weight {
+            return portionWeight ?? 0
+        }
+        return 0
+    }
     
     var body: some View {
         ScrollView {
@@ -42,7 +56,8 @@ struct LogRecipeView: View {
                     Spacer()
                 }
                 .padding()
-                .background(.ultraThinMaterial)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .cornerRadius(20)
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -56,8 +71,8 @@ struct LogRecipeView: View {
                         }
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .cornerRadius(20)
                     
                     if !recipe.instructions.isEmpty {
                         VStack(alignment: .leading, spacing: 16) {
@@ -86,19 +101,43 @@ struct LogRecipeView: View {
                         Text("Log Meal")
                             .font(.title3.weight(.bold))
                         
-                        HStack {
-                            Text("Servings")
-                                .font(.headline)
-                            Spacer()
-                            TextField("1", value: $servings, format: .number)
-                                .keyboardType(.decimalPad)
-                                .focused($isInputActive)
-                                .multilineTextAlignment(.trailing)
-                                .font(.title3.weight(.bold))
-                                .frame(width: 80)
-                                .padding(8)
-                                .background(Color.secondary.opacity(0.1))
-                                .cornerRadius(8)
+                        if recipe.totalCookedWeight != nil {
+                            Picker("Mode", selection: $logMode) {
+                                Text("Servings").tag(LogMode.servings)
+                                Text("Weight (g)").tag(LogMode.weight)
+                            }.pickerStyle(.segmented)
+                        }
+                        
+                        if logMode == .servings {
+                            HStack {
+                                Text("Servings")
+                                    .font(.headline)
+                                Spacer()
+                                TextField("1", value: $servings, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .focused($isInputActive)
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.title3.weight(.bold))
+                                    .frame(width: 80)
+                                    .padding(8)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(8)
+                            }
+                        } else {
+                            HStack {
+                                Text("Portion (g)")
+                                    .font(.headline)
+                                Spacer()
+                                TextField("e.g. 250", value: $portionWeight, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .focused($isInputActive)
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.title3.weight(.bold))
+                                    .frame(width: 100)
+                                    .padding(8)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(8)
+                            }
                         }
                         
                         Button(action: logMeal) {
@@ -114,11 +153,11 @@ struct LogRecipeView: View {
                             .cornerRadius(16)
                             .shadow(color: .green.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .disabled((servings ?? 0) <= 0)
+                        .disabled(logMode == .servings ? ((servings ?? 0) <= 0) : ((portionWeight ?? 0) <= 0))
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .cornerRadius(20)
                 }
                 .padding()
             }
@@ -147,7 +186,7 @@ struct LogRecipeView: View {
             protein: calcProtein,
             carbs: calcCarbs,
             fat: calcFat,
-            weightGrams: 0,
+            weightGrams: loggedWeightGrams,
             consumedAt: selectedDate,
             mealCategory: autoMealCategory(for: selectedDate)
         )

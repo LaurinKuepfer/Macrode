@@ -59,7 +59,9 @@ struct BalanceEngine {
         
         let weeklyEnergyOffset = totalConsumed - totalBaseTarget
         
-        // Destroy the punishment engine! We only return the offset for information.
-        return BalanceResult(calorieAdjustment: 0.0, weeklyEnergyOffset: weeklyEnergyOffset)
+        // Gently adjust the daily target by spreading the weekly energy offset over the next 7 days.
+        // A positive offset means overeating, so adjustment is negative.
+        let calorieAdjustment = -(weeklyEnergyOffset / 7.0)
+        return BalanceResult(calorieAdjustment: calorieAdjustment, weeklyEnergyOffset: weeklyEnergyOffset)
     }
 }

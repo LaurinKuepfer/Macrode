@@ -22,6 +22,8 @@ struct CreateFoodView: View {
     @State private var sugar: Double?
     @State private var saturatedFat: Double?
     @State private var sodium: Double?
+    @State private var householdUnitName: String = ""
+    @State private var householdUnitWeightGrams: Double?
     @State private var isDrink: Bool = false
     @State private var selectedCategory: String = "Other"
     @FocusState private var isInputActive: Bool
@@ -139,6 +141,21 @@ struct CreateFoodView: View {
                     }
                 }
             }
+            
+            Section(header: Text("Household Unit (Optional)"), footer: Text("Configure a custom unit (e.g., '1 Burger' = 150g) to log this item without entering its weight every time.")) {
+                TextField("Unit Name (e.g., Slice, Burger)", text: $householdUnitName)
+                    .focused($isInputActive)
+                
+                HStack {
+                    Text("Weight of 1 \(householdUnitName.isEmpty ? "Unit" : householdUnitName)")
+                    Spacer()
+                    TextField("g/ml", value: $householdUnitWeightGrams, format: .number)
+                        .keyboardType(.decimalPad)
+                        .focused($isInputActive)
+                        .multilineTextAlignment(.trailing)
+                }
+            }
+            
             if prefilledData != nil {
                 if let data = prefilledData, (data.nutriscore != nil || data.ecoscore != nil || data.novaGroup != nil) {
                     Section(header: Text("Scores (OpenFoodFacts)")) {
@@ -203,6 +220,9 @@ struct CreateFoodView: View {
                 if categories.contains(data.category) {
                     selectedCategory = data.category
                 }
+            } else if let existing = editingFood {
+                householdUnitName = existing.householdUnitName ?? ""
+                householdUnitWeightGrams = existing.householdUnitWeightGrams
             }
         }
         .toolbar {
@@ -235,6 +255,8 @@ struct CreateFoodView: View {
             existing.sugar = sugar
             existing.saturatedFat = saturatedFat
             existing.sodium = sodium
+            existing.householdUnitName = householdUnitName.isEmpty ? nil : householdUnitName
+            existing.householdUnitWeightGrams = householdUnitWeightGrams
             if let b = prefilledData?.barcode { existing.barcode = b }
             finalFood = existing
         } else {
@@ -256,7 +278,9 @@ struct CreateFoodView: View {
                 novaGroup: prefilledData?.novaGroup,
                 ingredients: prefilledData?.ingredients,
                 allergens: prefilledData?.allergens,
-                brand: prefilledData?.brand
+                brand: prefilledData?.brand,
+                householdUnitName: householdUnitName.isEmpty ? nil : householdUnitName,
+                householdUnitWeightGrams: householdUnitWeightGrams
             )
             context.insert(newFood)
             finalFood = newFood

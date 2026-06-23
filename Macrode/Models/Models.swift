@@ -27,9 +27,12 @@ final class FoodItem {
     var allergens: String?
     var brand: String?
     
+    var householdUnitName: String?
+    var householdUnitWeightGrams: Double?
+    
     var isVerified: Bool { barcode != nil }
     
-    init(id: UUID = UUID(), name: String, calories: Double, protein: Double, carbs: Double, fat: Double, barcode: String? = nil, category: String = "Other", createdAt: Date = Date(), fiber: Double? = nil, sugar: Double? = nil, saturatedFat: Double? = nil, sodium: Double? = nil, imageUrl: String? = nil, nutriscore: String? = nil, ecoscore: String? = nil, novaGroup: Int? = nil, ingredients: String? = nil, allergens: String? = nil, brand: String? = nil) {
+    init(id: UUID = UUID(), name: String, calories: Double, protein: Double, carbs: Double, fat: Double, barcode: String? = nil, category: String = "Other", createdAt: Date = Date(), fiber: Double? = nil, sugar: Double? = nil, saturatedFat: Double? = nil, sodium: Double? = nil, imageUrl: String? = nil, nutriscore: String? = nil, ecoscore: String? = nil, novaGroup: Int? = nil, ingredients: String? = nil, allergens: String? = nil, brand: String? = nil, householdUnitName: String? = nil, householdUnitWeightGrams: Double? = nil) {
         self.id = id
         self.name = name
         self.calories = calories
@@ -50,6 +53,23 @@ final class FoodItem {
         self.ingredients = ingredients
         self.allergens = allergens
         self.brand = brand
+        self.householdUnitName = householdUnitName
+        self.householdUnitWeightGrams = householdUnitWeightGrams
+    }
+}
+
+@Model
+final class RecipeIngredient {
+    @Attribute(.unique) var id: UUID
+    var food: FoodItem?
+    var weightGrams: Double
+    var recipe: RecipeItem?
+    
+    init(id: UUID = UUID(), food: FoodItem? = nil, weightGrams: Double = 100, recipe: RecipeItem? = nil) {
+        self.id = id
+        self.food = food
+        self.weightGrams = weightGrams
+        self.recipe = recipe
     }
 }
 
@@ -68,7 +88,12 @@ final class RecipeItem {
     var difficulty: String
     var systemImage: String
     
-    init(id: UUID = UUID(), name: String, calories: Double, protein: Double, carbs: Double, fat: Double, instructions: [String] = [], category: String = "Breakfast", prepTimeMinutes: Int = 10, difficulty: String = "Easy", systemImage: String = "fork.knife") {
+    @Relationship(deleteRule: .cascade, inverse: \RecipeIngredient.recipe)
+    var savedIngredients: [RecipeIngredient]?
+    
+    var totalCookedWeight: Double?
+    
+    init(id: UUID = UUID(), name: String, calories: Double, protein: Double, carbs: Double, fat: Double, instructions: [String] = [], category: String = "Breakfast", prepTimeMinutes: Int = 10, difficulty: String = "Easy", systemImage: String = "fork.knife", totalCookedWeight: Double? = nil) {
         self.id = id
         self.name = name
         self.calories = calories
@@ -80,6 +105,7 @@ final class RecipeItem {
         self.prepTimeMinutes = prepTimeMinutes
         self.difficulty = difficulty
         self.systemImage = systemImage
+        self.totalCookedWeight = totalCookedWeight
     }
 }
 
@@ -101,8 +127,8 @@ final class Supplement {
 
 @Model
 final class DailyLog {
-    @Attribute(.unique) var id: UUID
-    var date: Date
+    var id: UUID
+    @Attribute(.unique) var date: Date
     var calorieTarget: Double
     var proteinTarget: Double
     var carbsTarget: Double

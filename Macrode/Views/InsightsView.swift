@@ -59,9 +59,8 @@ struct InsightsView: View {
         return streak
     }
     
-    private var trueMetabolism: Double? {
-        MetabolismEngine.calculateTrueTDEE(dailyLogs: dailyLogs, allMeals: allMeals)
-    }
+    @State private var trueMetabolism: Double? = nil
+    @State private var isCalculatingInsights = true
 
     var body: some View {
         NavigationStack {
@@ -72,13 +71,17 @@ struct InsightsView: View {
                     
                     reviewSection
                     
-                    if let tdee = trueMetabolism { metabolismInsightCard(tdee: tdee) }
+                    if isCalculatingInsights {
+                        metabolismInsightCard(tdee: 0)
+                    } else if let tdee = trueMetabolism { 
+                        metabolismInsightCard(tdee: tdee) 
+                    }
                     
-                    weeklyCalorieChartCard
+                    WeeklyCalorieChartCard(selectedDate: selectedDate, allMeals: allMeals, logsDictionary: logsDictionary)
                     
-                    weeklyMacroPieChartCard
+                    WeeklyMacroPieChartCard(selectedDate: selectedDate, allMeals: allMeals)
                     
-                    weightTrackerCard
+                    WeightTrackerCard(dailyLogs: dailyLogs, currentLog: currentLog, selectedDate: selectedDate)
                 }
                 .padding(.vertical, 20)
             }
@@ -86,6 +89,18 @@ struct InsightsView: View {
             .navigationTitle("Insights")
             .onAppear {
                 ReviewManager.shared.checkAndPromptReview(currentStreak: currentStreak)
+            }
+            .task(id: selectedDate) {
+                isCalculatingInsights = true
+                let logsData = dailyLogs.map { DailyLogData(from: $0) }
+                let mealsData = allMeals.map { ConsumedMealData(from: $0) }
+                
+                let result = await Task.detached(priority: .userInitiated) {
+                    MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
+                }.value
+                
+                trueMetabolism = result
+                isCalculatingInsights = false
             }
             .fullScreenCover(isPresented: $showingReviewSheet) {
                 if let data = reviewData {
@@ -111,7 +126,7 @@ struct InsightsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(LinearGradient(gradient: Gradient(colors: [.blue, .purple]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                .cornerRadius(16)
+                .cornerRadius(20)
             }
             
             Button(action: {
@@ -128,7 +143,7 @@ struct InsightsView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(LinearGradient(gradient: Gradient(colors: [.purple, .pink]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                .cornerRadius(16)
+                .cornerRadius(20)
             }
         }
         .padding(.horizontal, 24)
@@ -142,172 +157,28 @@ struct InsightsView: View {
             Spacer()
             Text("Perfect Days!").font(.subheadline).foregroundColor(.secondary)
         }
-        .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+        .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(20).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
     }
     
     private func metabolismInsightCard(tdee: Double) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack { Image(systemName: "brain.head.profile").foregroundColor(.purple); Text("Smart Insights").font(.headline) }
-            Text("Your True Metabolism is approx **\(Int(tdee)) kcal**.")
-                .font(.subheadline).foregroundColor(.primary).fixedSize(horizontal: false, vertical: true)
-            Text("This is your estimated daily calorie burn rate, based on your logs and weight.")
-                .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
-        }
-        .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
-    }
-    
-    private var weeklyCalorieChartCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack { Image(systemName: "chart.bar.fill").foregroundColor(.orange); Text("Weekly Calories").font(.headline) }
-                Text("Compare your daily intake against your targets.").font(.caption).foregroundColor(.secondary)
-            }
             
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: selectedDate)
-            let past7Days = (0..<7).reversed().compactMap { calendar.date(byAdding: .day, value: -$0, to: today) }
-            
-            Chart {
-                ForEach(past7Days, id: \.self) { date in
-                    let dayStart = calendar.startOfDay(for: date)
-                    let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) ?? dayStart.addingTimeInterval(86400)
-                    let meals = allMeals.filter { $0.consumedAt >= dayStart && $0.consumedAt < dayEnd }
-                    let cals = meals.reduce(0) { $0 + $1.calories }
-                    let target = logsDictionary[dayStart]?.calorieTarget ?? 2000
-                    
-                    BarMark(
-                        x: .value("Day", date, unit: .day),
-                        y: .value("Calories", cals)
-                    )
-                    .foregroundStyle(cals > target ? Color.blue.gradient : Color.green.gradient)
-                    
-                    LineMark(
-                        x: .value("Day", date, unit: .day),
-                        y: .value("Target", target)
-                    )
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [5]))
-                    .foregroundStyle(.secondary)
-                }
-            }
-            .frame(height: 180)
-            .chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisValueLabel(format: .dateTime.weekday(.narrow)) } }
-        }
-        .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
-    }
-    
-    private var weeklyMacroPieChartCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack { Image(systemName: "chart.pie.fill").foregroundColor(.pink); Text("Weekly Macro Split").font(.headline) }
-                Text("See your average macro distribution over the last 7 days.").font(.caption).foregroundColor(.secondary)
-            }
-            
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: selectedDate)
-            let past7DaysStart = calendar.date(byAdding: .day, value: -6, to: today) ?? today.addingTimeInterval(-6 * 86400)
-            
-            let recentMeals = allMeals.filter { $0.consumedAt >= past7DaysStart }
-            let totalPro = recentMeals.reduce(0) { $0 + $1.protein }
-            let totalCarb = recentMeals.reduce(0) { $0 + $1.carbs }
-            let totalFat = recentMeals.reduce(0) { $0 + $1.fat }
-            let totalMacros = totalPro + totalCarb + totalFat
-            
-            if totalMacros > 0 {
-                Chart {
-                    SectorMark(angle: .value("Protein", totalPro), innerRadius: .ratio(0.5), angularInset: 1.5)
-                        .foregroundStyle(Color.red.gradient)
-                    SectorMark(angle: .value("Carbs", totalCarb), innerRadius: .ratio(0.5), angularInset: 1.5)
-                        .foregroundStyle(Color.blue.gradient)
-                    SectorMark(angle: .value("Fat", totalFat), innerRadius: .ratio(0.5), angularInset: 1.5)
-                        .foregroundStyle(Color.orange.gradient)
-                }
-                .frame(height: 180)
-                HStack(spacing: 20) {
-                    Label("\(Int((totalPro/totalMacros)*100))%", systemImage: "circle.fill").foregroundColor(.red)
-                    Label("\(Int((totalCarb/totalMacros)*100))%", systemImage: "circle.fill").foregroundColor(.blue)
-                    Label("\(Int((totalFat/totalMacros)*100))%", systemImage: "circle.fill").foregroundColor(.orange)
-                }
-                .font(.caption).fontWeight(.bold).frame(maxWidth: .infinity)
+            if isCalculatingInsights {
+                ProgressView("Crunching your data...")
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.vertical, 8)
             } else {
-                Text("Not enough data.").foregroundColor(.secondary)
+                Text("Your True Metabolism is approx **\(Int(tdee)) kcal**.")
+                    .font(.subheadline).foregroundColor(.primary).fixedSize(horizontal: false, vertical: true)
+                Text("This is your estimated daily calorie burn rate, based on your logs and weight.")
+                    .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+        .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(20).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
     }
     
-    private var weightTrackerCard: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Image(systemName: "scalemass.fill").foregroundColor(.purple)
-                    Text("Body Weight").font(.headline)
-                    Spacer()
-                    Button(action: {
-                        HapticManager.shared.impact(.light)
-                        weightInput = currentLog?.bodyWeight.map { String($0) } ?? ""
-                        showingWeightAlert = true
-                    }) {
-                        Text(currentLog?.bodyWeight.map { "\($0, specifier: "%.1f") kg" } ?? "Log Weight")
-                            .font(.subheadline).fontWeight(.bold).foregroundColor(currentLog?.bodyWeight != nil ? .primary : .white)
-                            .padding(.horizontal, 12).padding(.vertical, 6).background(currentLog?.bodyWeight != nil ? Color.secondary.opacity(0.2) : Color.purple).cornerRadius(8)
-                    }
-                }
-                Text("Track your weight trends over time.").font(.caption).foregroundColor(.secondary)
-            }
-            let logsWithWeight = dailyLogs.filter { $0.bodyWeight != nil }.sorted(by: { $0.date < $1.date })
-            if logsWithWeight.count >= 2 {
-                let alpha = 0.3
-                var smoothedData: [(Date, Double)] = []
-                var currentEWMA: Double? = nil
-                
-                for log in logsWithWeight {
-                    if let weight = log.bodyWeight {
-                        if let last = currentEWMA {
-                            currentEWMA = (alpha * weight) + ((1 - alpha) * last)
-                        } else {
-                            currentEWMA = weight
-                        }
-                        if let smoothed = currentEWMA {
-                            smoothedData.append((log.date, smoothed))
-                        }
-                    }
-                }
-                
-                Chart {
-                    ForEach(logsWithWeight) { log in
-                        if let weight = log.bodyWeight {
-                            PointMark(x: .value("Date", log.date), y: .value("Raw Weight", weight)).foregroundStyle(Color.purple.opacity(0.3))
-                        }
-                    }
-                    
-                    ForEach(smoothedData, id: \.0) { point in
-                        AreaMark(x: .value("Date", point.0), y: .value("Trend", point.1)).interpolationMethod(.monotone).foregroundStyle(LinearGradient(gradient: Gradient(colors: [Color.purple.opacity(0.4), Color.clear]), startPoint: .top, endPoint: .bottom))
-                        LineMark(x: .value("Date", point.0), y: .value("Trend", point.1)).interpolationMethod(.monotone).foregroundStyle(Color.purple.gradient)
-                    }
-                }
-                .frame(height: 120).chartYScale(domain: .automatic(includesZero: false)).chartXAxis { AxisMarks(values: .stride(by: .day)) { _ in AxisTick(); AxisValueLabel(format: .dateTime.weekday(), centered: true) } }
-            } else {
-                VStack { Image(systemName: "chart.xyaxis.line").font(.largeTitle).foregroundColor(.secondary.opacity(0.3)); Text("Log your weight for a few days to see your trend.").font(.caption).foregroundColor(.secondary).multilineTextAlignment(.center) }
-                .frame(maxWidth: .infinity).frame(height: 100)
-            }
-        }
-        .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(16).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
-        .alert("Log Body Weight", isPresented: $showingWeightAlert) {
-            TextField("Weight (e.g. 75.5)", text: $weightInput).keyboardType(.decimalPad)
-            Button("Save") {
-                if let weight = Double(weightInput.replacingOccurrences(of: ",", with: ".")) {
-                    HapticManager.shared.impact(.light)
-                    withAnimation { 
-                        currentLog?.bodyWeight = weight
-                        let newWaterTarget = Int((weight / 20.0) * 1000)
-                        currentLog?.waterTargetML = newWaterTarget
-                    }
-                    try? context.save()
-                }
-            }
-            Button("Cancel", role: .cancel) { }
-        } message: { Text("Enter your weight for \(selectedDate.formatted(.dateTime.month().day())).") }
-    }
+
     
 
 }

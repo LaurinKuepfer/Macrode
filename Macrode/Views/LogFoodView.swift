@@ -12,9 +12,18 @@ struct LogFoodView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @State private var weight: Double? = nil
+    @State private var unitCount: Double? = nil
     @FocusState private var isInputActive: Bool
     
-    private var validWeight: Double { max(0, weight ?? 0) }
+    enum LogMode { case weight, unit }
+    @State private var logMode: LogMode = .weight
+    
+    private var validWeight: Double { 
+        if logMode == .unit, let count = unitCount, let unitWeight = food.householdUnitWeightGrams {
+            return count * unitWeight
+        }
+        return max(0, weight ?? 0) 
+    }
     private var multiplier: Double { validWeight / 100.0 }
     
     private var calcCalories: Double { food.calories * multiplier }
@@ -61,7 +70,8 @@ struct LogFoodView: View {
                     Spacer()
                 }
                 .padding()
-                .background(.ultraThinMaterial)
+                .background(Color(uiColor: .secondarySystemGroupedBackground))
+                .cornerRadius(20)
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 12) {
@@ -75,8 +85,8 @@ struct LogFoodView: View {
                         }
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .cornerRadius(20)
                     
                     if food.fiber != nil || food.sugar != nil || food.saturatedFat != nil || food.sodium != nil {
                         VStack(alignment: .leading, spacing: 12) {
@@ -131,19 +141,43 @@ struct LogFoodView: View {
                         Text("Log Meal")
                             .font(.title3.weight(.bold))
                         
-                        HStack {
-                            Text(isDrink ? "Volume (ml)" : "Weight (grams)")
-                                .font(.headline)
-                            Spacer()
-                            TextField("100", value: $weight, format: .number)
-                                .keyboardType(.decimalPad)
-                                .focused($isInputActive)
-                                .multilineTextAlignment(.trailing)
-                                .font(.title3.weight(.bold))
-                                .frame(width: 100)
-                                .padding(8)
-                                .background(Color.secondary.opacity(0.1))
-                                .cornerRadius(8)
+                        if let unitName = food.householdUnitName, let _ = food.householdUnitWeightGrams {
+                            Picker("Mode", selection: $logMode) {
+                                Text("Weight").tag(LogMode.weight)
+                                Text(unitName).tag(LogMode.unit)
+                            }.pickerStyle(.segmented)
+                        }
+                        
+                        if logMode == .weight {
+                            HStack {
+                                Text(isDrink ? "Volume (ml)" : "Weight (grams)")
+                                    .font(.headline)
+                                Spacer()
+                                TextField("100", value: $weight, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .focused($isInputActive)
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.title3.weight(.bold))
+                                    .frame(width: 100)
+                                    .padding(8)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(8)
+                            }
+                        } else {
+                            HStack {
+                                Text(food.householdUnitName ?? "Units")
+                                    .font(.headline)
+                                Spacer()
+                                TextField("1", value: $unitCount, format: .number)
+                                    .keyboardType(.decimalPad)
+                                    .focused($isInputActive)
+                                    .multilineTextAlignment(.trailing)
+                                    .font(.title3.weight(.bold))
+                                    .frame(width: 100)
+                                    .padding(8)
+                                    .background(Color.secondary.opacity(0.1))
+                                    .cornerRadius(8)
+                            }
                         }
                         
                         Button(action: logMeal) {
@@ -159,11 +193,11 @@ struct LogFoodView: View {
                             .cornerRadius(16)
                             .shadow(color: .green.opacity(0.3), radius: 8, x: 0, y: 4)
                         }
-                        .disabled(validWeight <= 0)
+                        .disabled(logMode == .weight ? (weight ?? 0) <= 0 : (unitCount ?? 0) <= 0)
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
+                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                    .cornerRadius(20)
                 }
                 .padding()
             }

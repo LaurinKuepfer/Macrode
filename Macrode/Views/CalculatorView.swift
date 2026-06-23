@@ -19,6 +19,7 @@ struct CalculatorView: View {
     @AppStorage("userGoal") private var goal: GoalType = .maintain
     
     @FocusState private var isInputActive: Bool
+    @State private var showConflictAlert = false
     
     enum ActivityLevel: String, CaseIterable {
         case sedentary = "Office Job"
@@ -81,6 +82,21 @@ struct CalculatorView: View {
             .onAppear {
                 viewModel.load(from: dailyLog)
             }
+            .alert("Macro Conflict Detected", isPresented: $showConflictAlert) {
+                Button("Increase Calories (Recommended)") {
+                    viewModel.saveWithIncreasedCalories(dailyLog: dailyLog, context: context, goal: goal)
+                    WidgetCenter.shared.reloadAllTimelines()
+                    dismiss()
+                }
+                Button("Keep Deficit") {
+                    viewModel.saveWithScaledMacros(dailyLog: dailyLog, context: context, goal: goal)
+                    WidgetCenter.shared.reloadAllTimelines()
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Your calorie deficit is too steep to support your minimum protein and fat requirements. Would you like to slightly increase your calories, or keep the strict deficit and scale down your macros?")
+            }
         }
     }
     
@@ -88,8 +104,14 @@ struct CalculatorView: View {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
         
-        viewModel.calculateAndSave(dailyLog: dailyLog, context: context, goal: goal)
-        WidgetCenter.shared.reloadAllTimelines()
-        dismiss()
+        let result = viewModel.calculateAndCheck(goal: goal)
+        switch result {
+        case .clean:
+            viewModel.saveNormal(dailyLog: dailyLog, context: context, goal: goal)
+            WidgetCenter.shared.reloadAllTimelines()
+            dismiss()
+        case .macroConflict(_):
+            showConflictAlert = true
+        }
     }
 }

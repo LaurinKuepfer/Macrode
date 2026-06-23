@@ -38,11 +38,11 @@ struct MainTabView: View {
                 .tabItem { Label("Today", systemImage: "sun.max.fill") }
                 .tag(0)
             
-            InsightsView(selectedDate: .constant(Date()))
+            InsightsView(selectedDate: $globalSelectedDate)
                 .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
                 .tag(1)
             
-            AddMealView(selectedDate: .constant(Date()), mainTabSelection: $selectedTab)
+            AddMealView(selectedDate: $globalSelectedDate, mainTabSelection: $selectedTab)
                 .tabItem { Label("Add", systemImage: "plus.circle.fill") }
                 .tag(2)
             

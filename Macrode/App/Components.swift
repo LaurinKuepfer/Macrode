@@ -16,7 +16,7 @@ struct CalorieHUD: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.secondary.opacity(0.2), lineWidth: 20)
+                .stroke(Color.secondary.opacity(0.15), lineWidth: 16)
             
             Circle()
                 .trim(from: 0, to: progress)
@@ -24,24 +24,24 @@ struct CalorieHUD: View {
                     difference < 0 ? 
                         AngularGradient(gradient: Gradient(colors: isSocialDay ? [.orange, .yellow, .orange] : [.red, .pink, .red]), center: .center) : 
                         AngularGradient(gradient: Gradient(colors: [.green, .mint, .green]), center: .center), 
-                    style: StrokeStyle(lineWidth: 20, lineCap: .round)
+                    style: StrokeStyle(lineWidth: 16, lineCap: .round)
                 )
                 .rotationEffect(.degrees(-90))
                 .animation(.spring(response: 0.6, dampingFraction: 0.8), value: progress)
-                .shadow(color: difference < 0 ? (isSocialDay ? Color.orange : Color.red).opacity(0.6) : Color.green.opacity(0.6), radius: 8, x: 0, y: 0)
+                .shadow(color: difference < 0 ? (isSocialDay ? Color.orange : Color.red).opacity(0.4) : Color.green.opacity(0.4), radius: 6, x: 0, y: 2)
             
             VStack(spacing: 4) {
                 Text("\(abs(difference))")
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                    .font(.system(size: 48, weight: .bold, design: .rounded))
                     .foregroundColor(difference < 0 ? (isSocialDay ? .orange : .red) : .primary)
                     .contentTransition(.numericText())
                 
                 Text(difference < 0 ? (isSocialDay ? "Social Day" : "Over") : "Left")
-                    .font(.headline)
+                    .font(.system(.headline, design: .rounded, weight: .medium))
                     .foregroundColor(difference < 0 ? (isSocialDay ? .orange : .red) : .secondary)
             }
         }
-        .frame(minWidth: 220, minHeight: 220)
+        .frame(minWidth: 200, minHeight: 200)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Calories")
         .accessibilityValue(difference < 0 ? "\(abs(difference)) calories over target" : "\(abs(difference)) calories left")
@@ -74,22 +74,22 @@ struct MacroBar: View {
             
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.secondary.opacity(0.2))
-                        .frame(minHeight: 12)
+                    Capsule()
+                        .fill(Color.secondary.opacity(0.15))
+                        .frame(minHeight: 10)
                     
-                    RoundedRectangle(cornerRadius: 8)
+                    Capsule()
                         .fill(
                             consumed >= target ? 
                                 LinearGradient(gradient: Gradient(colors: [.yellow, .orange]), startPoint: .leading, endPoint: .trailing) : 
-                                LinearGradient(gradient: Gradient(colors: [baseColor, baseColor.opacity(0.6)]), startPoint: .leading, endPoint: .trailing)
+                                LinearGradient(gradient: Gradient(colors: [baseColor, baseColor.opacity(0.7)]), startPoint: .leading, endPoint: .trailing)
                         )
                         .frame(width: min(geometry.size.width * CGFloat(consumed / target), geometry.size.width))
-                        .frame(minHeight: 12)
+                        .frame(minHeight: 10)
                         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: consumed)
                 }
             }
-            .frame(minHeight: 12)
+            .frame(minHeight: 10)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title) Macros")
@@ -144,11 +144,11 @@ struct MealRow: View {
         .background(
             Group {
                 if !isNested {
-                    RoundedRectangle(cornerRadius: 16).fill(.ultraThinMaterial)
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .fill(Color(uiColor: .secondarySystemGroupedBackground))
                 }
             }
         )
-        .shadow(color: isNested ? .clear : Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
         .accessibilityElement(children: .combine)
     }
     

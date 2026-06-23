@@ -33,7 +33,8 @@ struct MetabolismEngine {
         let mealsByDay = Dictionary(grouping: mealsInPeriod) { calendar.startOfDay(for: $0.consumedAt) }
         let trackedDaysCount = mealsByDay.filter { $0.value.reduce(0, { sum, meal in sum + meal.calories }) > 500 }.count
         
-        guard trackedDaysCount >= 2 else { return nil }
+        let complianceRate = Double(trackedDaysCount) / Double(max(1, daysBetween))
+        guard complianceRate >= 0.8 else { return nil }
         
         let totalCaloriesEaten = mealsInPeriod.reduce(0) { $0 + $1.calories }
         let averageDailyCaloriesEaten = totalCaloriesEaten / Double(trackedDaysCount)

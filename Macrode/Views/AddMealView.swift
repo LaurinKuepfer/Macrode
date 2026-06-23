@@ -36,8 +36,7 @@ struct AddMealView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
-                    .background(.ultraThinMaterial)
-                    .overlay(Rectangle().frame(height: 1).foregroundColor(.orange.opacity(0.3)), alignment: .bottom)
+                    .background(Color(UIColor.secondarySystemBackground))
                 }
                 
                 Picker("Library", selection: $viewModel.selectedTab) {
@@ -70,29 +69,39 @@ struct AddMealView: View {
                     }
                 }
                 
-                ZStack {
-                    List {
-                        if viewModel.selectedTab == 0 {
-                            foodListContent
-                        } else {
-                            recipeListContent
-                        }
+                List {
+                    if viewModel.selectedTab == 0 {
+                        foodListContent
+                    } else {
+                        recipeListContent
                     }
-                    .listStyle(.plain)
-                    .searchable(text: $viewModel.searchText, prompt: "Search...")
-                    
+                }
+                .listStyle(.plain)
+                .searchable(text: $viewModel.searchText, prompt: "Search...")
+                .overlay {
                     if viewModel.isFetchingAPI {
-                        Color.black.opacity(0.4).ignoresSafeArea()
-                        VStack {
-                            ProgressView().scaleEffect(1.5).padding()
-                            Text("Looking up product...").font(.headline).foregroundColor(.white)
+                        VStack(spacing: 12) {
+                            ProgressView().scaleEffect(1.2)
+                            Text("Looking up product...")
+                                .font(.headline)
+                                .foregroundColor(.secondary)
                         }
+                        .padding(24)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(16)
+                        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
                     }
                 }
             }
             .navigationTitle(viewModel.selectedTab == 0 ? "Food Library" : "Recipe Library")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: { viewModel.navigateToQuickEstimate = true }) {
+                        Image(systemName: "bolt.fill")
+                            .foregroundColor(.yellow)
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     if viewModel.selectedTab == 0 {
                         HStack(spacing: 16) {

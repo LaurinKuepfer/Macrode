@@ -89,7 +89,7 @@ struct SmartSuggesterView: View {
                             }
                             .padding()
                             .background(Color(UIColor.secondarySystemGroupedBackground))
-                            .cornerRadius(16)
+                            .cornerRadius(20)
                             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                         }
                     }
@@ -100,12 +100,11 @@ struct SmartSuggesterView: View {
                     Button(action: logSuggestion) {
                         Text("Log This Combo")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.green)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(LinearGradient(colors: [.green, .mint], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .cornerRadius(16)
-                            .shadow(color: .green.opacity(0.3), radius: 8, x: 0, y: 4)
+                            .background(Color.green.opacity(0.15))
+                            .cornerRadius(20)
                     }
                     .padding(.horizontal)
                     
@@ -240,7 +239,8 @@ struct SmartSuggesterView: View {
                 }
             }
             
-            if bestScore < 30 { return bestComboData }
+            let dynamicThreshold = max(30.0, (rP + rC + rF) * 0.15)
+            if bestScore < dynamicThreshold { return bestComboData }
             return nil
         }.value
     }

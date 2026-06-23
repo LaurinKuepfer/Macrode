@@ -293,10 +293,44 @@ struct SettingsView: View {
         let formatter = ISO8601DateFormatter()
         for meal in allMeals {
             let dateStr = formatter.string(from: meal.consumedAt)
-            let safeName = meal.name.replacingOccurrences(of: ",", with: "")
+            var safeName = meal.name
+            if safeName.contains(",") || safeName.contains("\"") {
+                safeName = "\"" + safeName.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+            }
             rows.append("\(dateStr),\(safeName),\(meal.calories),\(meal.protein),\(meal.carbs),\(meal.fat),\(meal.weightGrams)")
         }
         csvDocument = CSVDocument(initialText: rows.joined(separator: "\n"))
+    }
+    
+    private func parseCSVRow(_ row: String) -> [String] {
+        var result: [String] = []
+        var current = ""
+        var inQuotes = false
+        var skipNext = false
+        
+        let chars = Array(row)
+        for (i, char) in chars.enumerated() {
+            if skipNext {
+                skipNext = false
+                continue
+            }
+            
+            if char == "\"" {
+                if inQuotes && i + 1 < chars.count && chars[i+1] == "\"" {
+                    current.append("\"")
+                    skipNext = true
+                } else {
+                    inQuotes.toggle()
+                }
+            } else if char == "," && !inQuotes {
+                result.append(current)
+                current = ""
+            } else {
+                current.append(char)
+            }
+        }
+        result.append(current)
+        return result
     }
     
     private func importCSV(from url: URL) {
@@ -313,8 +347,9 @@ struct SettingsView: View {
             var importCount = 0
             
             for row in rows.dropFirst() {
-                let columns = row.components(separatedBy: ",")
-                if columns.count == 7 {
+                if row.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { continue }
+                let columns = parseCSVRow(row)
+                if columns.count >= 7 {
                     if let date = formatter.date(from: columns[0]), let cals = Double(columns[2]), let prot = Double(columns[3]), let carbs = Double(columns[4]), let fat = Double(columns[5]), let weight = Double(columns[6]) {
                         let newMeal = ConsumedMeal(name: columns[1], calories: cals, protein: prot, carbs: carbs, fat: fat, weightGrams: weight, consumedAt: date)
                         context.insert(newMeal)
