@@ -56,6 +56,21 @@ struct WeeklyCalendarView: View {
     }
 }
 
+struct CardModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
+            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+    }
+}
+
+extension View {
+    func dashboardCardStyle() -> some View {
+        self.modifier(CardModifier())
+    }
+}
+
 struct FastingCompactCard: View {
     var allConsumedMeals: [ConsumedMeal]
     
@@ -73,17 +88,15 @@ struct FastingCompactCard: View {
                 if lastMeal != nil {
                     Text(String(format: "%.1fh", hours))
                         .font(.subheadline).fontWeight(.bold)
+                        .contentTransition(.numericText())
                 } else {
                     Text("—").font(.subheadline).fontWeight(.bold)
                 }
             }
             Spacer()
         }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .dashboardCardStyle()
+        .padding(.horizontal, 24)
     }
 }
 
@@ -134,7 +147,8 @@ struct SupplementTrackerCard: View {
                     }
                 }
             }
-            .padding().background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20)).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+            .dashboardCardStyle()
+            .padding(.horizontal, 24)
         )
     }
 }
@@ -166,7 +180,7 @@ struct FrequentMealsCard: View {
                                     Text("Log").font(.caption).fontWeight(.bold).foregroundColor(.white).padding(.horizontal, 16).padding(.vertical, 6).background(Color.green).cornerRadius(12)
                                 }
                             }
-                            .padding().background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20)).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                            .dashboardCardStyle()
                             .frame(width: 140)
                         }
                     }
@@ -243,7 +257,8 @@ struct MealTimeline: View {
                 }
             }
         }
-        .padding().background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20)).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+        .dashboardCardStyle()
+        .padding(.horizontal, 24)
         .confirmationDialog("Delete Meal?", isPresented: Binding(
             get: { mealToDelete != nil },
             set: { if !$0 { mealToDelete = nil } }

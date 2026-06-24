@@ -251,5 +251,6 @@ struct AddMealView: View {
                     .listRowSeparator(.hidden)
                 }
             }
+        }
+    }
 }
-

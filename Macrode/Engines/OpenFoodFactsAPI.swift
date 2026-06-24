@@ -59,9 +59,6 @@ struct OFFNutriments: Codable {
     }
 }
 
-    }
-}
-
 struct OFFProductResult: Sendable {
     let name: String
     let calories: Double

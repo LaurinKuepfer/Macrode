@@ -172,6 +172,35 @@ struct MealRow: View {
 }
 
 
+struct FlipCardView<Front: View, Back: View>: View {
+    var front: Front
+    var back: Back
+    @State private var isFlipped = false
+    
+    init(@ViewBuilder front: () -> Front, @ViewBuilder back: () -> Back) {
+        self.front = front()
+        self.back = back()
+    }
+    
+    var body: some View {
+        ZStack {
+            front
+                .opacity(isFlipped ? 0 : 1)
+                .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
+                .accessibility(hidden: isFlipped)
+            
+            back
+                .opacity(isFlipped ? 1 : 0)
+                .rotation3DEffect(.degrees(isFlipped ? 0 : -180), axis: (x: 0, y: 1, z: 0))
+                .accessibility(hidden: !isFlipped)
+        }
+        .onTapGesture {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+                isFlipped.toggle()
+            }
+        }
+    }
+}
 struct StatBadge: View {
     let icon: String
     let text: String
