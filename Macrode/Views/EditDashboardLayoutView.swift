@@ -17,7 +17,7 @@ struct EditDashboardLayoutView: View {
                         HStack {
                             Image(systemName: block.systemImage).foregroundColor(.blue)
                                 .frame(width: 24)
-                            Text(block.title)
+                            Text(LocalizedStringKey(block.title))
                             Spacer()
                             Button(action: {
                                 HapticManager.shared.impact(.light)
@@ -47,7 +47,7 @@ struct EditDashboardLayoutView: View {
                             HStack {
                                 Image(systemName: block.systemImage).foregroundColor(.secondary)
                                     .frame(width: 24)
-                                Text(block.title).foregroundColor(.secondary)
+                                Text(LocalizedStringKey(block.title)).foregroundColor(.secondary)
                                 Spacer()
                                 Button(action: {
                                     HapticManager.shared.impact(.light)
@@ -89,7 +89,7 @@ struct EditDashboardLayoutView: View {
         let inactiveRaw = inactiveBlocksRaw.split(separator: ",").map(String.init)
         
         var active = activeRaw.compactMap { DashboardBlock(rawValue: $0) }
-        var inactive = inactiveRaw.compactMap { DashboardBlock(rawValue: $0) }
+        let inactive = inactiveRaw.compactMap { DashboardBlock(rawValue: $0) }
         
         // Safety net: ensure all cases are represented in case of app updates adding new blocks
         let allKnown = Set(DashboardBlock.allCases)

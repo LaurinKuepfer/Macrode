@@ -53,10 +53,10 @@ struct Provider: TimelineProvider {
             let logData = logs.map(DailyLogData.init)
             let mealData = meals.map(ConsumedMealData.init)
             
-            let trueTDEE = MetabolismEngine.calculateTrueTDEE(dailyLogs: logData, allMeals: mealData)
+            let trueTDEEResult = MetabolismEngine.calculateTrueTDEE(dailyLogs: logData, allMeals: mealData)
             
             var baseTarget = dynamicTarget
-            if let tdee = trueTDEE {
+            if let tdee = trueTDEEResult.tdee {
                 if userGoalStr == "Lose Weight" { baseTarget = tdee - 500 }
                 else if userGoalStr == "Build Muscle" { baseTarget = tdee + 300 }
                 else { baseTarget = tdee }

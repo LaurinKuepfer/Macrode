@@ -44,7 +44,7 @@ struct DailyDashboardView: View {
     private var consumedFat: Double { selectedDateMeals.reduce(0) { $0 + $1.fat } }
     
     private var baseTarget: Double {
-        if let tdee = viewModel.cachedTDEE {
+        if let tdee = viewModel.cachedTDEE?.tdee {
             switch userGoal {
             case .lose: return tdee - 500
             case .gain: return tdee + 300
@@ -162,7 +162,7 @@ struct DailyDashboardView: View {
             EditMealView(meal: meal).presentationDetents([.fraction(0.8), .large])
         }
         .sheet(isPresented: $viewModel.showingQuickAddSheet) { 
-            QuickEstimateView(selectedDate: selectedDate, isRootPresented: $viewModel.showingQuickAddSheet).presentationDetents([.fraction(0.5), .large]) 
+            QuickEstimateView(selectedDate: selectedDate, isRootPresented: $viewModel.showingQuickAddSheet, mainTabSelection: .constant(0)).presentationDetents([.fraction(0.5), .large]) 
         }
     }
     
@@ -171,14 +171,28 @@ struct DailyDashboardView: View {
     private var energySection: some View {
         FlipCardView {
             VStack(spacing: 6) {
-                if let tdee = viewModel.cachedTDEE {
-                    Label("TDEE: \(Int(tdee))", systemImage: "bolt.fill")
-                        .font(.caption2).fontWeight(.bold)
-                        .foregroundColor(.yellow)
-                        .contentTransition(.numericText())
+                if let tdeeResult = viewModel.cachedTDEE {
+                    if let tdee = tdeeResult.tdee {
+                        Label("TDEE: \(Int(tdee))", systemImage: "bolt.fill")
+                            .font(.caption2).fontWeight(.bold)
+                            .foregroundColor(.yellow)
+                            .contentTransition(.numericText())
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Color.yellow.opacity(0.1))
+                            .cornerRadius(6)
+                    } else {
+                        HStack(spacing: 6) {
+                            Image(systemName: "bolt.badge.clock.fill").foregroundColor(.yellow)
+                            ProgressView(value: Double(tdeeResult.validDaysLogged), total: 21.0)
+                                .progressViewStyle(LinearProgressViewStyle(tint: .yellow))
+                                .frame(width: 40)
+                            Text("\(tdeeResult.validDaysLogged)/21")
+                                .font(.caption2).fontWeight(.bold).foregroundColor(.yellow)
+                        }
                         .padding(.horizontal, 8).padding(.vertical, 4)
                         .background(Color.yellow.opacity(0.1))
                         .cornerRadius(6)
+                    }
                 }
                 
                 CalorieHUD(consumed: consumedCalories, target: dynamicTarget, isSocialDay: currentLog.isSocialDay)
@@ -197,6 +211,7 @@ struct DailyDashboardView: View {
                         }
                     }
             }
+            .padding(.horizontal, 24)
         } back: {
             VStack(spacing: 8) {
                 Image(systemName: "flame.fill").font(.largeTitle).foregroundColor(.orange)

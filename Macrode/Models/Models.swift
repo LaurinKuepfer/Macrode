@@ -187,30 +187,12 @@ final class ConsumedMeal {
     }
 }
 
-public struct MacrodeAttributes: ActivityAttributes {
-    public struct ContentState: Codable, Hashable {
-        public var caloriesLeft: Int
-        public var fastingHours: Double
-        
-        public init(caloriesLeft: Int, fastingHours: Double) {
-            self.caloriesLeft = caloriesLeft
-            self.fastingHours = fastingHours
-        }
-    }
-    
-    public var name: String
-    
-    public init(name: String) {
-        self.name = name
-    }
-}
-
 public struct DailyLogData: Sendable {
     public let date: Date
     public let calorieTarget: Double
     public let bodyWeight: Double?
     
-    public init(from log: DailyLog) {
+    init(from log: DailyLog) {
         self.date = log.date
         self.calorieTarget = log.calorieTarget
         self.bodyWeight = log.bodyWeight
@@ -221,8 +203,14 @@ public struct ConsumedMealData: Sendable {
     public let calories: Double
     public let consumedAt: Date
     
-    public init(from meal: ConsumedMeal) {
+    init(from meal: ConsumedMeal) {
         self.calories = meal.calories
         self.consumedAt = meal.consumedAt
     }
+}
+
+public enum GoalType: String, CaseIterable, Sendable {
+    case lose = "Lose Weight"
+    case maintain = "Maintain"
+    case gain = "Build Muscle"
 }

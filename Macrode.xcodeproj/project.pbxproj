@@ -68,13 +68,6 @@
 			);
 			target = 4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */;
 		};
-		490774B42FCF2CE500741A69 /* Exceptions for "Macrode" folder in "MacrodeWidgetExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Models.swift,
-			);
-			target = 4907749A2FCF2C4400741A69 /* MacrodeWidgetExtension */;
-		};
 		49AED1A62FDDEC0D00072E07 /* Exceptions for "Macrode" folder in "Macrode" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -97,7 +90,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				49AED1A62FDDEC0D00072E07 /* Exceptions for "Macrode" folder in "Macrode" target */,
-				490774B42FCF2CE500741A69 /* Exceptions for "Macrode" folder in "MacrodeWidgetExtension" target */,
 			);
 			path = Macrode;
 			sourceTree = "<group>";

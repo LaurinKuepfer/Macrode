@@ -61,15 +61,16 @@ struct LogFoodView: View {
                         .font(.system(size: 60)).foregroundColor(.blue).frame(width: 120, height: 120).background(Color.blue.opacity(0.1)).clipShape(Circle())
                 }
                 
-                HStack(spacing: 16) {
-                    StatBadge(icon: isDrink ? "drop.fill" : "scalemass.fill", text: food.category)
-                    StatBadge(icon: "flame.fill", text: "\(Int(food.calories)) kcal/100\(isDrink ? "ml" : "g")")
-                    if let brand = food.brand, !brand.isEmpty {
-                        StatBadge(icon: "tag.fill", text: brand)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        StatBadge(icon: isDrink ? "drop.fill" : "scalemass.fill", text: food.category)
+                        StatBadge(icon: "flame.fill", text: "\(Int(food.calories)) kcal/100\(isDrink ? "ml" : "g")")
+                        if let brand = food.brand, !brand.isEmpty {
+                            StatBadge(icon: "tag.fill", text: brand)
+                        }
                     }
-                    Spacer()
+                    .padding()
                 }
-                .padding()
                 .background(Color(uiColor: .secondarySystemGroupedBackground))
                 .cornerRadius(20)
                 

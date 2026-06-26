@@ -59,7 +59,8 @@ struct InsightsView: View {
         return streak
     }
     
-    @State private var trueMetabolism: Double? = nil
+    @State private var trueMetabolism: TDEEResult? = nil
+    @State private var showingTDEEInfo = false
     @State private var isCalculatingInsights = true
 
     var body: some View {
@@ -72,9 +73,9 @@ struct InsightsView: View {
                     reviewSection
                     
                     if isCalculatingInsights {
-                        metabolismInsightCard(tdee: 0)
-                    } else if let tdee = trueMetabolism { 
-                        metabolismInsightCard(tdee: tdee) 
+                        metabolismInsightCard(result: nil)
+                    } else { 
+                        metabolismInsightCard(result: trueMetabolism) 
                     }
                     
                     WeeklyCalorieChartCard(selectedDate: selectedDate, allMeals: allMeals, logsDictionary: logsDictionary)
@@ -84,25 +85,34 @@ struct InsightsView: View {
                     WeightTrackerCard(dailyLogs: dailyLogs, currentLog: currentLog, selectedDate: selectedDate)
                 }
                 .padding(.vertical, 20)
+                .padding(.bottom, 80)
             }
             .background(Color(UIColor.systemGroupedBackground))
             .navigationTitle("Insights")
             .onAppear {
                 ReviewManager.shared.checkAndPromptReview(currentStreak: currentStreak)
             }
-            .task(id: selectedDate) {
+            .onChange(of: selectedDate) { _, _ in
                 isCalculatingInsights = true
                 let logsData = dailyLogs.map { DailyLogData(from: $0) }
                 let mealsData = allMeals.map { ConsumedMealData(from: $0) }
                 
-                let result = await Task.detached(priority: .userInitiated) {
-                    MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
-                }.value
+                let result = MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
                 
                 trueMetabolism = result
                 isCalculatingInsights = false
             }
-            .fullScreenCover(isPresented: $showingReviewSheet) {
+            .onAppear {
+                isCalculatingInsights = true
+                let logsData = dailyLogs.map { DailyLogData(from: $0) }
+                let mealsData = allMeals.map { ConsumedMealData(from: $0) }
+                
+                let result = MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
+                
+                trueMetabolism = result
+                isCalculatingInsights = false
+            }
+            .sheet(isPresented: $showingReviewSheet) {
                 if let data = reviewData {
                     ReviewReportView(data: data)
                 }
@@ -160,22 +170,40 @@ struct InsightsView: View {
         .padding().background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(20).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
     }
     
-    private func metabolismInsightCard(tdee: Double) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack { Image(systemName: "brain.head.profile").foregroundColor(.purple); Text("Smart Insights").font(.headline) }
+    private func metabolismInsightCard(result: TDEEResult?) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack { 
+                Image(systemName: "brain.head.profile").foregroundColor(.purple)
+                Text("Smart Insights").font(.headline) 
+                Spacer()
+                Button(action: { showingTDEEInfo = true }) {
+                    Image(systemName: "info.circle").foregroundColor(.secondary)
+                }
+            }
             
             if isCalculatingInsights {
                 ProgressView("Crunching your data...")
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.vertical, 8)
-            } else {
+            } else if let tdee = result?.tdee {
                 Text("Your True Metabolism is approx **\(Int(tdee)) kcal**.")
                     .font(.subheadline).foregroundColor(.primary).fixedSize(horizontal: false, vertical: true)
                 Text("This is your estimated daily calorie burn rate, based on your logs and weight.")
                     .font(.caption).foregroundColor(.secondary).fixedSize(horizontal: false, vertical: true)
+            } else {
+                Text("Calculating True Metabolism...")
+                    .font(.subheadline).fontWeight(.medium)
+                ProgressView(value: Double(result?.validDaysLogged ?? 0), total: 21.0)
+                    .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                Text("Needs 21 days of tracked data. Currently \(result?.validDaysLogged ?? 0)/21 days.")
+                    .font(.caption).foregroundColor(.secondary)
             }
         }
         .padding().frame(maxWidth: .infinity, alignment: .leading).background(Color(UIColor.secondarySystemGroupedBackground)).cornerRadius(20).shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2).padding(.horizontal, 24)
+        .sheet(isPresented: $showingTDEEInfo) {
+            InfoPopupView(title: "True Metabolism (TDEE)", description: "TDEE stands for Total Daily Energy Expenditure. It represents the total number of calories you burn in a day.\n\nMacrode calculates this by analyzing your logged calories and body weight over a 21-day period to find your exact metabolic rate, eliminating the need for generic formulas.")
+                .presentationDetents([.fraction(0.4), .medium])
+        }
     }
     
 

@@ -2,11 +2,6 @@ import SwiftUI
 import SwiftData
 import WidgetKit
 
-enum GoalType: String, CaseIterable {
-    case lose = "Lose Weight"
-    case maintain = "Maintain"
-    case gain = "Build Muscle"
-}
 
 struct CalculatorView: View {
     @Environment(\.modelContext) private var context
@@ -53,11 +48,11 @@ struct CalculatorView: View {
                 
                 Section(header: Text("Goals & Activity")) {
                     Picker("Goal", selection: $goal) {
-                        ForEach(GoalType.allCases, id: \.self) { type in Text(type.rawValue).tag(type) }
+                        ForEach(GoalType.allCases, id: \.self) { type in Text(LocalizedStringKey(type.rawValue)).tag(type) }
                     }.pickerStyle(.menu)
                     
                     Picker("Activity", selection: $viewModel.activityLevel) {
-                        ForEach(ActivityLevel.allCases, id: \.self) { type in Text(type.rawValue).tag(type) }
+                        ForEach(ActivityLevel.allCases, id: \.self) { type in Text(LocalizedStringKey(type.rawValue)).tag(type) }
                     }.pickerStyle(.menu)
                 }
                 

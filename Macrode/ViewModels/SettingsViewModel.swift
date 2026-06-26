@@ -40,7 +40,7 @@ class SettingsViewModel {
             HapticManager.shared.notification(.success)
             showAlert(title: String(localized: "Data Reset"), message: String(localized: "All data has been deleted. Restart the app to begin fresh."))
         } catch {
-            showAlert(title: "Error", message: error.localizedDescription)
+            showAlert(title: String(localized: "Error"), message: error.localizedDescription)
         }
     }
     

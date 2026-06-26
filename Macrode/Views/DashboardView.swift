@@ -211,6 +211,11 @@ struct DashboardView: View {
         
         let recentMeals = (try? context.fetch(descriptor)) ?? []
         
+        var logsDictionary: [Date: DailyLog] = [:]
+        for log in dailyLogs {
+            logsDictionary[calendar.startOfDay(for: log.date)] = log
+        }
+        
         var newCache: [Date: Bool] = [:]
         for dayOffset in -14...0 {
             if let date = calendar.date(byAdding: .day, value: dayOffset, to: today) {

@@ -10,7 +10,7 @@ struct OnlineSearchResultsView: View {
     @Environment(\.modelContext) private var context
     
     @State private var isSearching = true
-    @State private var results: [(name: String, calories: Double, protein: Double, carbs: Double, fat: Double, category: String, fiber: Double?, sugar: Double?, saturatedFat: Double?, sodium: Double?, imageUrl: String?, nutriscore: String?, ecoscore: String?, novaGroup: Int?, ingredients: String?, allergens: String?, brand: String?)] = []
+    @State private var results: [OFFProductResult] = []
     
     var body: some View {
         List {

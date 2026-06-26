@@ -234,7 +234,7 @@ struct IngredientPickerSheet: View {
                 }
             }
             .navigationDestination(isPresented: $navigateToCreateFood) { 
-                CreateFoodView(prefilledData: prefilledAPIResult) 
+                CreateFoodView(prefilledData: prefilledAPIResult, mainTabSelection: .constant(0)) 
             }
             .navigationDestination(item: Binding<String?>(
                 get: { onlineSearchQuery },

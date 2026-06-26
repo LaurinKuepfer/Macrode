@@ -32,30 +32,36 @@ struct MainTabView: View {
     }
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            
-            DashboardView(selectedDate: $globalSelectedDate, selectedTab: $selectedTab)
-                .tabItem { Label("Today", systemImage: "sun.max.fill") }
-                .tag(0)
-            
-            InsightsView(selectedDate: $globalSelectedDate)
-                .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
-                .tag(1)
-            
-            AddMealView(selectedDate: $globalSelectedDate, mainTabSelection: $selectedTab)
-                .tabItem { Label("Add", systemImage: "plus.circle.fill") }
-                .tag(2)
-            
-            NavigationStack {
-                SettingsView(dailyLog: todayLog)
+        ZStack(alignment: .bottom) {
+            TabView(selection: $selectedTab) {
+                
+                DashboardView(selectedDate: $globalSelectedDate, selectedTab: $selectedTab)
+                    .tabItem { Label("Today", systemImage: "sun.max.fill") }
+                    .tag(0)
+                
+                InsightsView(selectedDate: $globalSelectedDate)
+                    .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
+                    .tag(1)
+                
+                AddMealView(selectedDate: $globalSelectedDate, mainTabSelection: $selectedTab)
+                    .tabItem { Label("Add", systemImage: "plus.circle.fill") }
+                    .tag(2)
+                
+                NavigationStack {
+                    SettingsView(dailyLog: todayLog)
+                }
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                .tag(3)
+                
             }
-            .tabItem { Label("Settings", systemImage: "gearshape.fill") }
-            .tag(3)
+            .animation(.easeInOut(duration: 0.2), value: selectedTab)
+            .toolbarBackground(.visible, for: .tabBar)
+            .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+            .tint(.green)
             
+            FeatureTourBanner()
+                .padding(.bottom, 60)
         }
-        .toolbarBackground(.visible, for: .tabBar)
-        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-        .tint(.green)
         .onAppear {
             syncToWidget()
         }

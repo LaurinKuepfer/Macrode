@@ -242,6 +242,7 @@ struct CreateFoodView: View {
         }
     }
     
+    @discardableResult
     private func saveFood() -> FoodItem {
         let finalFood: FoodItem
         if let existing = editingFood {

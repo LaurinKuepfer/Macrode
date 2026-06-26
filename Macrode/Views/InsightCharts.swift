@@ -7,10 +7,19 @@ struct WeeklyCalorieChartCard: View {
     var allMeals: [ConsumedMeal]
     var logsDictionary: [Date: DailyLog]
     
+    @State private var showingInfo = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack { Image(systemName: "chart.bar.fill").foregroundColor(.orange); Text("Weekly Calories").font(.headline) }
+                HStack { 
+                    Image(systemName: "chart.bar.fill").foregroundColor(.orange)
+                    Text("Weekly Calories").font(.headline) 
+                    Spacer()
+                    Button(action: { showingInfo = true }) {
+                        Image(systemName: "info.circle").foregroundColor(.secondary)
+                    }
+                }
                 Text("Compare your daily intake against your targets.").font(.caption).foregroundColor(.secondary)
             }
             
@@ -55,6 +64,10 @@ struct WeeklyCalorieChartCard: View {
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .padding(.horizontal, 24)
+        .sheet(isPresented: $showingInfo) {
+            InfoPopupView(title: "Weekly Calories & Balance Engine", description: "The Weekly Bank tracks your daily surplus or deficit and rolls it over into the upcoming days.\n\nFor example, if you eat 300 calories over your target on Saturday, your targets for the remaining days of the week will automatically adjust downward to keep your weekly average perfectly aligned with your goal.")
+                .presentationDetents([.fraction(0.4), .medium])
+        }
     }
 }
 
@@ -127,6 +140,29 @@ struct WeightTrackerCard: View {
     @State private var showingWeightAlert = false
     @State private var weightInput: String = ""
     
+    private var smoothedData: [(Date, Double)] {
+        let logsWithWeight = dailyLogs.filter { $0.bodyWeight != nil }.sorted(by: { $0.date < $1.date })
+        guard logsWithWeight.count >= 2 else { return [] }
+        
+        let alpha = 0.3
+        var data: [(Date, Double)] = []
+        var currentEWMA: Double? = nil
+        
+        for log in logsWithWeight {
+            if let weight = log.bodyWeight {
+                if let last = currentEWMA {
+                    currentEWMA = (alpha * weight) + ((1 - alpha) * last)
+                } else {
+                    currentEWMA = weight
+                }
+                if let smoothed = currentEWMA {
+                    data.append((log.date, smoothed))
+                }
+            }
+        }
+        return data
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
@@ -148,24 +184,7 @@ struct WeightTrackerCard: View {
             }
             
             let logsWithWeight = dailyLogs.filter { $0.bodyWeight != nil }.sorted(by: { $0.date < $1.date })
-            if logsWithWeight.count >= 2 {
-                let alpha = 0.3
-                var smoothedData: [(Date, Double)] = []
-                var currentEWMA: Double? = nil
-                
-                for log in logsWithWeight {
-                    if let weight = log.bodyWeight {
-                        if let last = currentEWMA {
-                            currentEWMA = (alpha * weight) + ((1 - alpha) * last)
-                        } else {
-                            currentEWMA = weight
-                        }
-                        if let smoothed = currentEWMA {
-                            smoothedData.append((log.date, smoothed))
-                        }
-                    }
-                }
-                
+            if logsWithWeight.count >= 2 {                
                 Chart {
                     ForEach(logsWithWeight) { log in
                         if let weight = log.bodyWeight {

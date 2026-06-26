@@ -222,33 +222,27 @@ struct MealTimeline: View {
                                 Image(systemName: categoryIcons[category] ?? "fork.knife")
                                     .foregroundColor(.secondary)
                                     .font(.caption)
-                                Text(category)
+                                Text(LocalizedStringKey(category))
                                     .font(.caption).fontWeight(.bold).foregroundColor(.secondary)
                                     .textCase(.uppercase)
                             }
                             .padding(.top, 4)
                             
                             ForEach(meals.sorted { $0.consumedAt < $1.consumedAt }) { meal in
-                                HStack(spacing: 8) { 
-                                    Button(action: {
-                                        HapticManager.shared.impact(.light)
-                                        editingMeal = meal
-                                    }) {
-                                        MealRow(meal: meal, isNested: true)
+                                Button(action: {
+                                    HapticManager.shared.impact(.light)
+                                    editingMeal = meal
+                                }) {
+                                    MealRow(meal: meal, isNested: true)
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button(action: { relogMeal(meal) }) {
+                                        Label("Relog Meal", systemImage: "arrow.counterclockwise")
                                     }
-                                    .buttonStyle(.plain)
-                                    
-                                    Spacer()
-                                    
-                                    Button(action: { relogMeal(meal) }) { 
-                                        Image(systemName: "arrow.counterclockwise.circle.fill").font(.title3).foregroundColor(.blue.opacity(0.7)) 
+                                    Button(role: .destructive, action: { mealToDelete = meal }) {
+                                        Label("Delete", systemImage: "trash")
                                     }
-                                    .buttonStyle(.plain)
-                                    
-                                    Button(action: { mealToDelete = meal }) { 
-                                        Image(systemName: "trash.circle.fill").font(.title3).foregroundColor(.red.opacity(0.6)) 
-                                    }
-                                    .buttonStyle(.plain) 
                                 }
                                 .padding(.vertical, 2)
                             }

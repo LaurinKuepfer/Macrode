@@ -429,7 +429,7 @@ struct OnboardingView: View {
             isInputActive = false
             withAnimation(.spring()) { currentStep += 1 }
         }) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(.headline)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)

@@ -41,7 +41,8 @@ struct CalorieHUD: View {
                     .foregroundColor(difference < 0 ? (isSocialDay ? .orange : .red) : .secondary)
             }
         }
-        .frame(minWidth: 200, minHeight: 200)
+        .aspectRatio(1, contentMode: .fit)
+        .frame(maxWidth: 250, maxHeight: 250)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Calories")
         .accessibilityValue(difference < 0 ? "\(abs(difference)) calories over target" : "\(abs(difference)) calories left")
@@ -61,7 +62,7 @@ struct MacroBar: View {
     var body: some View {
         VStack(spacing: 6) {
             HStack {
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.system(.subheadline, design: .rounded))
                     .fontWeight(.semibold)
                 Spacer()
@@ -208,7 +209,7 @@ struct StatBadge: View {
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
-            Text(text)
+            Text(LocalizedStringKey(text))
         }
         .font(.caption.weight(.bold))
         .foregroundColor(.secondary)
@@ -220,3 +221,32 @@ struct StatBadge: View {
     }
 }
 
+
+struct InfoPopupView: View {
+    var title: LocalizedStringKey
+    var description: LocalizedStringKey
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(description)
+                    .font(.body)
+                    .foregroundColor(.primary)
+                    .lineSpacing(6)
+                Spacer()
+            }
+            .padding(24)
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        }
+    }
+}
