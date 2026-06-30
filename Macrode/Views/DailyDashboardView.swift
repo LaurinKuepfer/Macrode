@@ -9,7 +9,6 @@ struct DailyDashboardView: View {
     @Query private var allConsumedMeals: [ConsumedMeal]
     
     @AppStorage("userGoal") private var userGoal: GoalType = .maintain
-    @AppStorage("safetyFloorCalories") var safetyFloorCalories: Double = 1500
     
     // Layout customization properties
     @AppStorage("activeDashboardBlocks") private var activeBlocksRaw: String = DashboardBlock.allCases.map { $0.rawValue }.joined(separator: ",")
@@ -54,38 +53,19 @@ struct DailyDashboardView: View {
         return currentLog.calorieTarget
     }
 
-    private var energyBalance: BalanceEngine.BalanceResult? { viewModel.cachedBalance }
-    
     private var dynamicTarget: Double {
-        var target = baseTarget
-        if let f = energyBalance { target += f.calorieAdjustment }
-        return max(safetyFloorCalories, target)
+        return baseTarget
     }
     
-    private var activeAdjustment: Double { dynamicTarget - baseTarget }
-    
     private var dynamicProteinTarget: Double {
-        if activeAdjustment > 0 {
-            return currentLog.proteinTarget + ((activeAdjustment * 0.60) / 4.0)
-        }
         return currentLog.proteinTarget
     }
 
     private var dynamicCarbsTarget: Double {
-        if activeAdjustment > 0 {
-            return max(30, currentLog.carbsTarget + ((activeAdjustment * 0.20) / 4.0))
-        } else if activeAdjustment < 0 {
-            return max(30, currentLog.carbsTarget + ((activeAdjustment * 0.50) / 4.0))
-        }
         return currentLog.carbsTarget
     }
     
     private var dynamicFatTarget: Double {
-        if activeAdjustment > 0 {
-            return max(20, currentLog.fatTarget + ((activeAdjustment * 0.20) / 9.0))
-        } else if activeAdjustment < 0 {
-            return max(20, currentLog.fatTarget + ((activeAdjustment * 0.50) / 9.0))
-        }
         return currentLog.fatTarget
     }
     
@@ -198,18 +178,6 @@ struct DailyDashboardView: View {
                 CalorieHUD(consumed: consumedCalories, target: dynamicTarget, isSocialDay: currentLog.isSocialDay)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedCalories)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: dynamicTarget)
-                    .overlay(alignment: .topTrailing) {
-                        if let f = energyBalance, f.calorieAdjustment != 0 {
-                            Label("\(Int(abs(f.calorieAdjustment))) kcal", systemImage: f.calorieAdjustment < 0 ? "arrow.up.right" : "arrow.down.right")
-                                .font(.caption2).fontWeight(.bold)
-                                .foregroundColor(f.calorieAdjustment < 0 ? .purple : .green)
-                                .contentTransition(.numericText())
-                                .padding(.horizontal, 8).padding(.vertical, 4)
-                                .background(f.calorieAdjustment < 0 ? Color.purple.opacity(0.1) : Color.green.opacity(0.1))
-                                .cornerRadius(6)
-                                .offset(x: 10, y: 10)
-                        }
-                    }
             }
             .padding(.horizontal, 24)
         } back: {
@@ -222,8 +190,15 @@ struct DailyDashboardView: View {
                     .contentTransition(.numericText())
             }
             .frame(maxWidth: .infinity, minHeight: 220)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
             .padding(.horizontal, 24)
         }
     }
@@ -235,7 +210,7 @@ struct DailyDashboardView: View {
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedProtein)
                 MacroBar(title: "Carbs", consumed: consumedCarbs, target: dynamicCarbsTarget, baseColor: .blue)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedCarbs)
-                MacroBar(title: "Fat", consumed: consumedFat, target: dynamicFatTarget, baseColor: .orange)
+                MacroBar(title: "Fats", consumed: consumedFat, target: dynamicFatTarget, baseColor: .orange)
                     .animation(.spring(response: 0.4, dampingFraction: 0.6), value: consumedFat)
             }
             .padding(.horizontal, 24)
@@ -252,8 +227,15 @@ struct DailyDashboardView: View {
                 .font(.caption)
             }
             .frame(maxWidth: .infinity, minHeight: 120)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
             .padding(.horizontal, 24)
         }
     }
@@ -318,8 +300,15 @@ struct DailyDashboardView: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
         }
         .padding(.horizontal, 24)
     }

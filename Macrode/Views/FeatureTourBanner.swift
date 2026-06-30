@@ -9,7 +9,6 @@ struct TourStep {
 let macrodeTourSteps: [TourStep] = [
     TourStep(icon: "target", title: "Adjust Your Goals", description: "Tap the target icon on the dashboard to change your calories, protein, or weight goals."),
     TourStep(icon: "arrow.up.arrow.down", title: "Customize Dashboard", description: "Scroll down and tap 'Edit Layout' to hide or reorder your dashboard blocks."),
-    TourStep(icon: "bolt.heart.fill", title: "Energy Balance Engine", description: "Macrode auto-adjusts your daily targets based on your previous days. You can disable this in Settings."),
     TourStep(icon: "barcode.viewfinder", title: "Barcode Scanner", description: "In the Library tab, tap the scanner icon in the top right to instantly log packaged foods."),
     TourStep(icon: "calendar.badge.clock", title: "Weekly & Monthly Reviews", description: "Check your Insights tab for detailed reports and consistency scores.")
 ]

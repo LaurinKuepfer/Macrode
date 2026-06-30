@@ -137,12 +137,16 @@ struct DashboardView: View {
                 NavigationStack {
                     let groupedLogs = Dictionary(grouping: dailyLogs.sorted(by: { $0.date > $1.date })) { log -> String in
                         let formatter = DateFormatter()
+                        let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+                        formatter.locale = appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
                         formatter.dateFormat = "MMMM yyyy"
                         return formatter.string(from: log.date)
                     }
                     
                     let sortedMonths = groupedLogs.keys.sorted { month1, month2 in
                         let formatter = DateFormatter()
+                        let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+                        formatter.locale = appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
                         formatter.dateFormat = "MMMM yyyy"
                         guard let d1 = formatter.date(from: month1), let d2 = formatter.date(from: month2) else { return false }
                         return d1 > d2
@@ -161,7 +165,9 @@ struct DashboardView: View {
                                     }) {
                                         HStack {
                                             VStack(alignment: .leading) {
-                                                Text(log.date.formatted(.dateTime.weekday(.wide).day()))
+                                                let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+                                                let locale = appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
+                                                Text(log.date.formatted(.dateTime.weekday(.wide).day().locale(locale)))
                                                     .font(.headline)
                                                     .foregroundColor(.primary)
                                                 Text("\(Int(log.calorieTarget)) kcal Goal")

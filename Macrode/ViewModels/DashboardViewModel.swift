@@ -5,7 +5,6 @@ import SwiftUI
 @Observable
 class DashboardViewModel {
     var cachedTDEE: TDEEResult?
-    var cachedBalance: BalanceEngine.BalanceResult?
     
     var showingSmartSuggester = false
     var showingQuickAddSheet = false
@@ -20,10 +19,8 @@ class DashboardViewModel {
         let mealsData = allConsumedMeals.map { ConsumedMealData(from: $0) }
         
         let tdee = MetabolismEngine.calculateTrueTDEE(dailyLogs: logsData, allMeals: mealsData)
-        let f = BalanceEngine.calculateBalance(for: selectedDate, allLogs: logsData, allMeals: mealsData, userGoal: userGoal)
         
         self.cachedTDEE = tdee
-        self.cachedBalance = f
     }
     
     var frequentMeals: [ConsumedMeal] = []

@@ -67,7 +67,7 @@ struct LogRecipeView: View {
                         HStack(spacing: 12) {
                             MacroPreviewCol(name: "Protein", amount: "\(Int(recipe.protein))g", color: .red)
                             MacroPreviewCol(name: "Carbs", amount: "\(Int(recipe.carbs))g", color: .blue)
-                            MacroPreviewCol(name: "Fat", amount: "\(Int(recipe.fat))g", color: .orange)
+                            MacroPreviewCol(name: "Fats", amount: "\(Int(recipe.fat))g", color: .orange)
                         }
                     }
                     .padding()
@@ -170,8 +170,7 @@ struct LogRecipeView: View {
                 Button("Edit") { showingEditSheet = true }
             }
             ToolbarItem(placement: .keyboard) {
-                Button("Done") { isInputActive = false }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+                KeyboardCloseButton(isInputActive: $isInputActive)
             }
         }
         .sheet(isPresented: $showingEditSheet) {

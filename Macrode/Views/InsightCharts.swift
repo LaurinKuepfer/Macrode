@@ -7,8 +7,6 @@ struct WeeklyCalorieChartCard: View {
     var allMeals: [ConsumedMeal]
     var logsDictionary: [Date: DailyLog]
     
-    @State private var showingInfo = false
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
@@ -16,9 +14,6 @@ struct WeeklyCalorieChartCard: View {
                     Image(systemName: "chart.bar.fill").foregroundColor(.orange)
                     Text("Weekly Calories").font(.headline) 
                     Spacer()
-                    Button(action: { showingInfo = true }) {
-                        Image(systemName: "info.circle").foregroundColor(.secondary)
-                    }
                 }
                 Text("Compare your daily intake against your targets.").font(.caption).foregroundColor(.secondary)
             }
@@ -64,72 +59,9 @@ struct WeeklyCalorieChartCard: View {
         .cornerRadius(20)
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .padding(.horizontal, 24)
-        .sheet(isPresented: $showingInfo) {
-            InfoPopupView(title: "Weekly Calories & Balance Engine", description: "The Weekly Bank tracks your daily surplus or deficit and rolls it over into the upcoming days.\n\nFor example, if you eat 300 calories over your target on Saturday, your targets for the remaining days of the week will automatically adjust downward to keep your weekly average perfectly aligned with your goal.")
-                .presentationDetents([.fraction(0.4), .medium])
-        }
     }
 }
 
-struct WeeklyMacroPieChartCard: View {
-    var selectedDate: Date
-    var allMeals: [ConsumedMeal]
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack { Image(systemName: "chart.pie.fill").foregroundColor(.pink); Text("Weekly Macro Split").font(.headline) }
-                Text("See your average macro distribution over the last 7 days.").font(.caption).foregroundColor(.secondary)
-            }
-            
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: selectedDate)
-            let past7DaysStart = calendar.date(byAdding: .day, value: -6, to: today) ?? today.addingTimeInterval(-6 * 86400)
-            
-            let recentMeals = allMeals.filter { $0.consumedAt >= past7DaysStart }
-            let totalPro = recentMeals.reduce(0) { $0 + $1.protein }
-            let totalCarb = recentMeals.reduce(0) { $0 + $1.carbs }
-            let totalFat = recentMeals.reduce(0) { $0 + $1.fat }
-            let totalMacros = totalPro + totalCarb + totalFat
-            
-            if totalMacros > 0 {
-                ZStack {
-                    Chart {
-                        SectorMark(angle: .value("Protein", totalPro), innerRadius: .ratio(0.65), angularInset: 2.0)
-                            .foregroundStyle(Color.red.gradient)
-                            .cornerRadius(4)
-                        SectorMark(angle: .value("Carbs", totalCarb), innerRadius: .ratio(0.65), angularInset: 2.0)
-                            .foregroundStyle(Color.blue.gradient)
-                            .cornerRadius(4)
-                        SectorMark(angle: .value("Fat", totalFat), innerRadius: .ratio(0.65), angularInset: 2.0)
-                            .foregroundStyle(Color.orange.gradient)
-                            .cornerRadius(4)
-                    }
-                    .frame(height: 180)
-                    
-                    VStack {
-                        Text("Macros").font(.caption).foregroundColor(.secondary)
-                        Text("\(Int(totalMacros))g").font(.headline).fontWeight(.bold)
-                    }
-                }
-                
-                HStack(spacing: 20) {
-                    Label("\(Int((totalPro/totalMacros)*100))%", systemImage: "circle.fill").foregroundColor(.red)
-                    Label("\(Int((totalCarb/totalMacros)*100))%", systemImage: "circle.fill").foregroundColor(.blue)
-                    Label("\(Int((totalFat/totalMacros)*100))%", systemImage: "circle.fill").foregroundColor(.orange)
-                }
-                .font(.caption).fontWeight(.bold).frame(maxWidth: .infinity)
-            } else {
-                Text("Not enough data.").foregroundColor(.secondary).frame(height: 180, alignment: .center).frame(maxWidth: .infinity)
-            }
-        }
-        .padding()
-        .background(Color(UIColor.secondarySystemGroupedBackground))
-        .cornerRadius(20)
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .padding(.horizontal, 24)
-    }
-}
 
 struct WeightTrackerCard: View {
     @Environment(\.modelContext) private var context

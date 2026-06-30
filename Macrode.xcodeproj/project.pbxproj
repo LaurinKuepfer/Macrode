@@ -180,8 +180,6 @@
 				490774A12FCF2C4400741A69 /* MacrodeWidget */,
 			);
 			name = MacrodeWidgetExtension;
-			packageProductDependencies = (
-			);
 			productName = MacrodeWidgetExtension;
 			productReference = 4907749B2FCF2C4400741A69 /* MacrodeWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -204,8 +202,6 @@
 				49587DDB2FCE25FD0078C0C7 /* Macrode */,
 			);
 			name = Macrode;
-			packageProductDependencies = (
-			);
 			productName = Macrode;
 			productReference = 49587DD92FCE25FD0078C0C7 /* Macrode.app */;
 			productType = "com.apple.product-type.application";
@@ -224,8 +220,6 @@
 				49587DEA2FCE25FE0078C0C7 /* PBXTargetDependency */,
 			);
 			name = MacrodeTests;
-			packageProductDependencies = (
-			);
 			productName = MacrodeTests;
 			productReference = 49587DE82FCE25FE0078C0C7 /* MacrodeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -244,8 +238,6 @@
 				49587DF42FCE25FE0078C0C7 /* PBXTargetDependency */,
 			);
 			name = MacrodeUITests;
-			packageProductDependencies = (
-			);
 			productName = MacrodeUITests;
 			productReference = 49587DF22FCE25FE0078C0C7 /* MacrodeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";

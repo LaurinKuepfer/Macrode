@@ -23,11 +23,13 @@ class AddMealViewModel {
     var onlineSearchQuery: String?
     var foodToEdit: FoodItem? = nil
     
-    let categories = ["All", "Drinks", "Fruits", "Vegetables", "Meat", "Carbs", "Dairy & Fats", "Fast Food", "Other"]
+    let categories = ["All", "Scanned", "Drinks", "Fruits", "Vegetables", "Meat", "Carbs", "Dairy & Fats", "Fast Food", "Other"]
     
     func filteredFoods(from foodLibrary: [FoodItem]) -> [FoodItem] {
         var result = foodLibrary
-        if selectedCategory != "All" {
+        if selectedCategory == "Scanned" {
+            result = result.filter { $0.isVerified }
+        } else if selectedCategory != "All" {
             result = result.filter { $0.category == selectedCategory }
         }
         if !searchText.isEmpty {

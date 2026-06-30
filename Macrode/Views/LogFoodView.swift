@@ -82,7 +82,7 @@ struct LogFoodView: View {
                         HStack(spacing: 12) {
                             MacroPreviewCol(name: "Protein", amount: "\(Int(calcProtein))g", color: .red)
                             MacroPreviewCol(name: "Carbs", amount: "\(Int(calcCarbs))g", color: .blue)
-                            MacroPreviewCol(name: "Fat", amount: "\(Int(calcFat))g", color: .orange)
+                            MacroPreviewCol(name: "Fats", amount: "\(Int(calcFat))g", color: .orange)
                         }
                     }
                     .padding()
@@ -212,9 +212,9 @@ struct LogFoodView: View {
                     Label("Verified", systemImage: "checkmark.seal.fill").foregroundColor(.green)
                 }
             }
-            ToolbarItem(placement: .keyboard) {
-                Button("Done") { isInputActive = false }
-                    .frame(maxWidth: .infinity, alignment: .trailing)
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                KeyboardCloseButton(isInputActive: $isInputActive)
             }
         }
         .onAppear {

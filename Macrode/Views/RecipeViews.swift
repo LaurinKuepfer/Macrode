@@ -67,13 +67,13 @@ struct CreateRecipeView: View {
                     LabeledContent("Calories", value: "\(Int(totalCalories)) kcal").foregroundColor(.green)
                     LabeledContent("Protein", value: "\(Int(totalProtein)) g").foregroundColor(.red)
                     LabeledContent("Carbs", value: "\(Int(totalCarbs)) g").foregroundColor(.blue)
-                    LabeledContent("Fat", value: "\(Int(totalFat)) g").foregroundColor(.orange)
+                    LabeledContent("Fats", value: "\(Int(totalFat)) g").foregroundColor(.orange)
                 }
             }
         }
         .navigationTitle("Create Recipe")
         .toolbar {
-            ToolbarItem(placement: .keyboard) { Button("Done") { isNameFocused = false }.frame(maxWidth: .infinity, alignment: .trailing) }
+            ToolbarItem(placement: .keyboard) { KeyboardCloseButton(isInputActive: $isNameFocused) }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save Recipe") {
                     saveRecipe()
@@ -343,7 +343,7 @@ struct EditRecipeView: View {
                         LabeledContent("Calories", value: "\(Int(totalCalories)) kcal").foregroundColor(.green)
                         LabeledContent("Protein", value: "\(Int(totalProtein)) g").foregroundColor(.red)
                         LabeledContent("Carbs", value: "\(Int(totalCarbs)) g").foregroundColor(.blue)
-                        LabeledContent("Fat", value: "\(Int(totalFat)) g").foregroundColor(.orange)
+                        LabeledContent("Fats", value: "\(Int(totalFat)) g").foregroundColor(.orange)
                     }
                 }
             }
@@ -351,7 +351,7 @@ struct EditRecipeView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .keyboard) { Button("Done") { isInputActive = false }.frame(maxWidth: .infinity, alignment: .trailing) }
+                ToolbarItem(placement: .keyboard) { KeyboardCloseButton(isInputActive: $isInputActive) }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { saveRecipe() }
                         .fontWeight(.bold)

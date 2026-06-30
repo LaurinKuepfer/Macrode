@@ -29,7 +29,9 @@ struct AddMealView: View {
                     HStack {
                         Image(systemName: "clock.fill")
                             .foregroundColor(.orange)
-                        Text("Logging for \(selectedDate.formatted(.dateTime.weekday(.wide).month().day()))")
+                        let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+                        let locale = appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
+                        Text("Logging for \(selectedDate.formatted(.dateTime.weekday(.wide).month().day().locale(locale)))")
                             .font(.subheadline)
                             .fontWeight(.medium)
                             .foregroundColor(.primary)

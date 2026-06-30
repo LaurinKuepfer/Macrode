@@ -17,11 +17,11 @@ struct ReviewReportView: View {
                             .padding(.bottom, 16)
                             .shadow(color: .yellow.opacity(0.5), radius: 10, x: 0, y: 0)
                         
-                        Text(data.days == 7 ? "Your Weekly Review" : "Your Monthly Review")
+                        Text(data.days == 7 ? String(localized: "Your Weekly Review") : String(localized: "Your Monthly Review"))
                             .font(.largeTitle.weight(.heavy))
                             .multilineTextAlignment(.center)
                         
-                        Text("Here is a look back at your past \(data.days) days.")
+                        Text(String(localized: "Here is a look back at your past \(data.days) days."))
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
@@ -29,12 +29,16 @@ struct ReviewReportView: View {
                     
                     // The Big Picture
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("The Big Picture")
+                        Text(String(localized: "The Big Picture"))
                             .font(.title2.weight(.bold))
+                        
+                        Text(data.analysisMessage)
+                            .font(.headline)
+                            .foregroundColor(.purple)
                         
                         HStack(spacing: 20) {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Avg. Intake")
+                                Text(String(localized: "Avg. Intake"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Text("\(Int(data.averageCalorieIntake))")
@@ -45,7 +49,7 @@ struct ReviewReportView: View {
                             Spacer()
                             
                             VStack(alignment: .trailing, spacing: 4) {
-                                Text("Avg. Target")
+                                Text(String(localized: "Avg. Target"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Text("\(Int(data.averageCalorieTarget))")
@@ -78,7 +82,7 @@ struct ReviewReportView: View {
                     
                     // Consistency Score
                     VStack(spacing: 16) {
-                        Text("Consistency")
+                        Text(String(localized: "Consistency"))
                             .font(.title2.weight(.bold))
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
@@ -102,9 +106,9 @@ struct ReviewReportView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Goals Met")
+                                Text(String(localized: "Goals Met"))
                                     .font(.headline)
-                                Text("You stayed within your calorie target on \(data.daysGoalMet) out of \(data.days) days.")
+                                Text(String(localized: "You stayed within your calorie target on \(data.daysGoalMet) out of \(data.days) days."))
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
@@ -118,7 +122,7 @@ struct ReviewReportView: View {
                     
                     // Macro Champion
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Macro Champion")
+                        Text(String(localized: "Macro Champion"))
                             .font(.title2.weight(.bold))
                         
                         HStack(spacing: 16) {
@@ -129,7 +133,7 @@ struct ReviewReportView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text("\(data.bestMacroName)")
                                     .font(.title3.weight(.bold))
-                                Text("You hit \(Int(data.bestMacroPercentage))% of your target on average.")
+                                Text(String(localized: "You hit \(Int(data.bestMacroPercentage))% of your target on average."))
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
@@ -143,7 +147,7 @@ struct ReviewReportView: View {
                     // Weight Change
                     if let weightChange = data.weightChange {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Weight Trend")
+                            Text(String(localized: "Weight Trend"))
                                 .font(.title2.weight(.bold))
                             
                             HStack(spacing: 16) {
@@ -154,13 +158,13 @@ struct ReviewReportView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     let absChange = abs(weightChange)
                                     if weightChange > 0 {
-                                        Text("Gained \(String(format: "%.1f", absChange)) kg")
+                                        Text(String(localized: "Gained \(String(format: "%.1f", absChange)) kg"))
                                             .font(.title3.weight(.bold))
                                     } else if weightChange < 0 {
-                                        Text("Lost \(String(format: "%.1f", absChange)) kg")
+                                        Text(String(localized: "Lost \(String(format: "%.1f", absChange)) kg"))
                                             .font(.title3.weight(.bold))
                                     } else {
-                                        Text("Maintained Weight")
+                                        Text(String(localized: "Maintained Weight"))
                                             .font(.title3.weight(.bold))
                                     }
                                 }

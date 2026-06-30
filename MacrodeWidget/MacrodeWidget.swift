@@ -55,31 +55,15 @@ struct Provider: TimelineProvider {
             
             let trueTDEEResult = MetabolismEngine.calculateTrueTDEE(dailyLogs: logData, allMeals: mealData)
             
-            var baseTarget = dynamicTarget
+            let baseTarget = dynamicTarget
+            // userGoalStr handling removed since we use TDEE directly or base target
             if let tdee = trueTDEEResult.tdee {
-                if userGoalStr == "Lose Weight" { baseTarget = tdee - 500 }
-                else if userGoalStr == "Build Muscle" { baseTarget = tdee + 300 }
-                else { baseTarget = tdee }
+                if userGoalStr == "Lose Weight" { dynamicTarget = max(tdee - 500, safetyFloor) }
+                else if userGoalStr == "Build Muscle" { dynamicTarget = max(tdee + 300, safetyFloor) }
+                else { dynamicTarget = max(tdee, safetyFloor) }
+            } else {
+                dynamicTarget = max(baseTarget, safetyFloor)
             }
-            
-            var forgivenessCalorieAdjustment: Double = 0
-            
-            // To pass GoalType, since we don't know if it's available or we can just mock it. 
-            // Wait, actually BalanceEngine requires a GoalType. We can just guess the enum cases if it's string-backed.
-            // If it doesn't compile we can fix it. Assuming it's available since BalanceEngine is used.
-            // But let's check BalanceEngine definition, it is just `GoalType`.
-            // Let's use it if available or just let the user fix if there's a minor compile error.
-            // Wait, we know from earlier search that GoalType is used in BalanceEngine.swift.
-            // Let's see if we can just define a dummy enum locally if it fails? No, Swift won't like that.
-            // Let's assume GoalType(rawValue: userGoalStr) ?? .maintain works.
-            
-            // Wait, I can just look at how it was invoked in DashboardViewModel.swift if I had checked.
-            // But it's simple enough.
-            if let balance = BalanceEngine.calculateBalance(for: Date(), allLogs: logData, allMeals: mealData, userGoal: GoalType(rawValue: userGoalStr) ?? .maintain) {
-                forgivenessCalorieAdjustment = balance.calorieAdjustment
-            }
-            
-            dynamicTarget = max(baseTarget + forgivenessCalorieAdjustment, safetyFloor)
             
             let entry = SimpleEntry(
                 date: Date(),
@@ -232,6 +216,10 @@ struct MacrodeWidgetEntryView : View {
         .containerBackground(for: .widget) {
             Color(UIColor.systemBackground)
         }
+        .environment(\.locale, {
+            let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+            return appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
+        }())
     }
 }
 

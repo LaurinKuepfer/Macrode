@@ -229,14 +229,16 @@ struct InfoPopupView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                Text(description)
-                    .font(.body)
-                    .foregroundColor(.primary)
-                    .lineSpacing(6)
-                Spacer()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text(description)
+                        .font(.body)
+                        .foregroundColor(.primary)
+                        .lineSpacing(6)
+                    Spacer()
+                }
+                .padding(24)
             }
-            .padding(24)
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -248,5 +250,21 @@ struct InfoPopupView: View {
                 }
             }
         }
+    }
+}
+
+struct KeyboardCloseButton: View {
+    var isInputActive: FocusState<Bool>.Binding
+    
+    var body: some View {
+        Button(action: { isInputActive.wrappedValue = false }) {
+            Image(systemName: "keyboard.chevron.compact.down")
+                .font(.title3)
+                .foregroundColor(.white)
+                .padding(6)
+                .background(Color.blue)
+                .clipShape(Circle())
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 }

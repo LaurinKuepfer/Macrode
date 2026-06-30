@@ -62,7 +62,7 @@ struct QuickEstimateView: View {
                         .foregroundColor(.blue)
                 }
                 HStack {
-                    Text("Fat")
+                    Text("Fats")
                     Spacer()
                     TextField("Optional", value: $fat, format: .number)
                         .keyboardType(.decimalPad)
@@ -81,10 +81,7 @@ struct QuickEstimateView: View {
                 }
             }
             ToolbarItem(placement: .keyboard) {
-                Button("Done") {
-                    isInputActive = false
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                KeyboardCloseButton(isInputActive: $isInputActive)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Log Meal") {

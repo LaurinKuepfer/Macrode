@@ -132,7 +132,7 @@ class OpenFoodFactsAPI {
     static func searchProducts(query: String) async throws -> [OFFProductResult] {
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
         let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands"
-        let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=30&fields=\(fields)"
+        let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=30&sort_by=unique_scans_n&fields=\(fields)"
         
         guard let url = URL(string: urlString) else { return [] }
         

@@ -1,7 +1,8 @@
 import Foundation
 import SwiftData
 
-struct ReviewData {
+struct ReviewData: Identifiable {
+    let id = UUID()
     let days: Int
     let averageCalorieTarget: Double
     let averageCalorieIntake: Double
@@ -10,6 +11,7 @@ struct ReviewData {
     let bestMacroPercentage: Double
     let weightChange: Double? // Positive means gained, negative means lost
     let motivationalMessage: String
+    let analysisMessage: String
 }
 
 class ReviewEngine {
@@ -30,6 +32,7 @@ class ReviewEngine {
         let bestMacro = calculateBestMacro(stats: stats)
         let weightChange = calculateWeightChange(validLogs: validLogs)
         let message = generateMotivationalMessage(successfulDays: stats.successfulDays, daysToCount: daysToCount, isEmpty: validLogs.isEmpty)
+        let analysis = generateAnalysisMessage(avgTarget: stats.avgTarget, avgIntake: stats.avgIntake)
         
         return ReviewData(
             days: days,
@@ -39,7 +42,8 @@ class ReviewEngine {
             bestMacroName: bestMacro.name,
             bestMacroPercentage: bestMacro.ratio * 100,
             weightChange: weightChange,
-            motivationalMessage: message
+            motivationalMessage: message,
+            analysisMessage: analysis
         )
     }
     
@@ -99,7 +103,9 @@ class ReviewEngine {
             totalFatTarget += log.fatTarget
             totalFatIntake += dailyTotals.fat
             
-            if dailyTotals.cals > 0 && dailyTotals.cals <= log.calorieTarget {
+            let diff = dailyTotals.cals - log.calorieTarget
+            // Perfect range: 200 minus or 50 above goal
+            if dailyTotals.cals > 0 && diff >= -200 && diff <= 50 {
                 successfulDays += 1
             }
         }
@@ -114,15 +120,15 @@ class ReviewEngine {
     }
     
     private static func calculateBestMacro(stats: ReviewStats) -> (name: String, ratio: Double) {
-        var bestMacro = "Protein"
+        var bestMacro = String(localized: "Protein")
         var bestRatio = stats.proRatio
         
         if stats.carbRatio > bestRatio && stats.carbRatio <= 1.1 {
-            bestMacro = "Carbs"
+            bestMacro = String(localized: "Carbs")
             bestRatio = stats.carbRatio
         }
         if stats.fatRatio > bestRatio && stats.fatRatio <= 1.1 {
-            bestMacro = "Fat"
+            bestMacro = String(localized: "Healthy Fats")
             bestRatio = stats.fatRatio
         }
         return (bestMacro, bestRatio)
@@ -141,15 +147,26 @@ class ReviewEngine {
     
     private static func generateMotivationalMessage(successfulDays: Int, daysToCount: Int, isEmpty: Bool) -> String {
         if isEmpty {
-            return "You don't have enough data yet. Keep logging your meals to see your review!"
+            return String(localized: "You don't have enough data yet. Keep logging your meals to see your review!")
         }
         let successRate = Double(successfulDays) / Double(daysToCount)
         if successRate >= 0.8 {
-            return "Absolutely stellar work! You are building unbreakable habits. Keep this momentum going!"
+            return String(localized: "Absolutely stellar work! You are building unbreakable habits. Keep this momentum going!")
         } else if successRate >= 0.5 {
-            return "Great effort! You had some fantastic days. Let's aim to turn those few slip-ups into wins next time."
+            return String(localized: "Great effort! You had some fantastic days. Let's aim to turn those few slip-ups into wins next time.")
         } else {
-            return "Progress isn't always linear. What matters is that you're here and tracking. Let's focus on winning tomorrow."
+            return String(localized: "Progress isn't always linear. What matters is that you're here and tracking. Let's focus on winning tomorrow.")
+        }
+    }
+    
+    private static func generateAnalysisMessage(avgTarget: Double, avgIntake: Double) -> String {
+        let diff = avgIntake - avgTarget
+        if diff < -200 {
+            return String(localized: "You were way under your goal.")
+        } else if diff > 50 {
+            return String(localized: "You were above your goal.")
+        } else {
+            return String(localized: "You were just perfect!")
         }
     }
 }

@@ -227,10 +227,7 @@ struct CreateFoodView: View {
         }
         .toolbar {
             ToolbarItem(placement: .keyboard) {
-                Button("Done") {
-                    isInputActive = false
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
+                KeyboardCloseButton(isInputActive: $isInputActive)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {

@@ -12,16 +12,14 @@ struct SettingsView: View {
     @State private var viewModel = SettingsViewModel()
     
     @AppStorage("isProactiveCoachEnabled") private var isProactiveCoachEnabled = false
-    @AppStorage("safetyFloorCalories") private var safetyFloorCalories: Double = 1500
     @AppStorage("hasCompletedTutorial") private var hasCompletedTutorial: Bool = true
-    @AppStorage("appLanguage") private var appLanguage: String = "system"
+    @AppStorage("appLanguage", store: UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")) private var appLanguage: String = "system"
     @AppStorage("userGoal") private var userGoal: GoalType = .maintain
     @AppStorage("hasDismissedWidgetPromo") private var hasDismissedWidgetPromo = false
 
     var body: some View {
         NavigationStack {
             List {
-                goalSection
                 preferencesSection
                 integrationsSection
                 dataSection
@@ -74,23 +72,6 @@ struct SettingsView: View {
     }
     
     // MARK: - Sections
-    
-    private var goalSection: some View {
-        Section {
-            HStack {
-                Label("Safety Floor", systemImage: "shield.fill")
-                Spacer()
-                Text("\(Int(safetyFloorCalories)) kcal")
-                    .font(.subheadline).foregroundColor(.secondary)
-                Stepper("", value: $safetyFloorCalories, in: 1000...2500, step: 50)
-                    .labelsHidden()
-            }
-        } header: {
-            Label("Goals & Adjustments", systemImage: "flag.fill")
-        } footer: {
-            Text("Energy Balance will never drop your daily target below the safety floor, even after higher-calorie days.")
-        }
-    }
     
     private var preferencesSection: some View {
         Section {

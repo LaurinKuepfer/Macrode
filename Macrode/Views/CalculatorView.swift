@@ -72,7 +72,7 @@ struct CalculatorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .keyboard) { Button("Done") { isInputActive = false }.frame(maxWidth: .infinity, alignment: .trailing) }
+                ToolbarItem(placement: .keyboard) { KeyboardCloseButton(isInputActive: $isInputActive) }
             }
             .onAppear {
                 viewModel.load(from: dailyLog)

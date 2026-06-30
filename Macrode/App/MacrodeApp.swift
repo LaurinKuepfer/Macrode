@@ -22,7 +22,7 @@ struct MacrodeApp: App {
         }
     }()
 
-    @AppStorage("appLanguage") private var appLanguage: String = "system"
+    @AppStorage("appLanguage", store: UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")) private var appLanguage: String = "system"
     @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
@@ -30,6 +30,7 @@ struct MacrodeApp: App {
                 MainTabView()
                     .environment(\.locale, appLanguage == "system" ? .current : Locale(identifier: appLanguage))
                     .id(appLanguage)
+                    .fontDesign(.rounded)
             }
             .modelContainer(sharedModelContainer)
             .onChange(of: scenePhase) { _, newPhase in

@@ -11,7 +11,9 @@ struct WeeklyCalendarView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                Text(selectedDate.formatted(.dateTime.month(.wide).year())).font(.headline).foregroundColor(.primary)
+                let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+                let locale = appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
+                Text(selectedDate.formatted(.dateTime.month(.wide).year().locale(locale))).font(.headline).foregroundColor(.primary)
                 Spacer()
                 Button(action: { HapticManager.shared.impact(.light); showingHistorySheet = true }) {
                     HStack(spacing: 4) { Text("History"); Image(systemName: "calendar") }.font(.subheadline).foregroundColor(.green)
@@ -33,11 +35,14 @@ struct WeeklyCalendarView: View {
                                 let hitGoal = goalsMetCache[calendar.startOfDay(for: date)] == true
                                 
                                 VStack(spacing: 6) {
-                                    Text(date.formatted(.dateTime.weekday(.short))).font(.caption2).fontWeight(isSelected ? .bold : .regular).foregroundColor(isSelected ? .primary : .secondary)
+                                    let appLanguage = UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
+                                    let locale = appLanguage == "system" ? Locale.current : Locale(identifier: appLanguage)
+                                    
+                                    Text(date.formatted(.dateTime.weekday(.short).locale(locale))).font(.caption2).fontWeight(isSelected ? .bold : .regular).foregroundColor(isSelected ? .primary : .secondary)
                                     ZStack {
                                         if hitGoal { Circle().stroke(Color.green, lineWidth: 2).frame(width: 38, height: 38) }
                                         Circle().fill(isSelected ? Color.primary : Color.clear).frame(width: 32, height: 32)
-                                        Text(date.formatted(.dateTime.day())).font(.subheadline).fontWeight(isSelected ? .bold : .medium).foregroundColor(isSelected ? Color(UIColor.systemBackground) : (isCurrentDay ? .green : .primary))
+                                        Text(date.formatted(.dateTime.day().locale(locale))).font(.subheadline).fontWeight(isSelected ? .bold : .medium).foregroundColor(isSelected ? Color(UIColor.systemBackground) : (isCurrentDay ? .green : .primary))
                                     }
                                 }
                                 .frame(minWidth: 44, minHeight: 44)
@@ -60,8 +65,15 @@ struct CardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding()
-            .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 20))
-            .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .stroke(LinearGradient(colors: [.white.opacity(0.4), .clear], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
     }
 }
 

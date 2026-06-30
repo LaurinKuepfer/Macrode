@@ -11,7 +11,6 @@ struct InsightsView: View {
     
     @State private var showingWeightAlert = false
     @State private var weightInput: String = ""
-    @State private var showingReviewSheet = false
     @State private var reviewData: ReviewData? = nil
 
     private var currentLog: DailyLog? {
@@ -80,8 +79,6 @@ struct InsightsView: View {
                     
                     WeeklyCalorieChartCard(selectedDate: selectedDate, allMeals: allMeals, logsDictionary: logsDictionary)
                     
-                    WeeklyMacroPieChartCard(selectedDate: selectedDate, allMeals: allMeals)
-                    
                     WeightTrackerCard(dailyLogs: dailyLogs, currentLog: currentLog, selectedDate: selectedDate)
                 }
                 .padding(.vertical, 20)
@@ -112,10 +109,8 @@ struct InsightsView: View {
                 trueMetabolism = result
                 isCalculatingInsights = false
             }
-            .sheet(isPresented: $showingReviewSheet) {
-                if let data = reviewData {
-                    ReviewReportView(data: data)
-                }
+            .sheet(item: $reviewData) { data in
+                ReviewReportView(data: data)
             }
         }
     }
@@ -124,7 +119,6 @@ struct InsightsView: View {
         HStack(spacing: 16) {
             Button(action: {
                 reviewData = ReviewEngine.generateReview(days: 7, logs: dailyLogs, meals: allMeals)
-                showingReviewSheet = true
             }) {
                 VStack(spacing: 8) {
                     Image(systemName: "calendar.badge.clock")
@@ -141,7 +135,6 @@ struct InsightsView: View {
             
             Button(action: {
                 reviewData = ReviewEngine.generateReview(days: 30, logs: dailyLogs, meals: allMeals)
-                showingReviewSheet = true
             }) {
                 VStack(spacing: 8) {
                     Image(systemName: "calendar.badge.clock")

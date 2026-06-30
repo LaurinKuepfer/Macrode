@@ -90,8 +90,7 @@ struct OnboardingView: View {
                 .animation(.easeInOut, value: currentStep)
                 .toolbar {
                     ToolbarItem(placement: .keyboard) {
-                        Button("Done") { isInputActive = false }
-                            .frame(maxWidth: .infinity, alignment: .trailing)
+                        KeyboardCloseButton(isInputActive: $isInputActive)
                     }
                 }
             }
@@ -156,7 +155,6 @@ struct OnboardingView: View {
             
             VStack(alignment: .leading, spacing: 20) {
                 FeatureRow(icon: "lock.shield.fill", color: .green, title: "100% Offline & Private", description: "Your data never leaves this device.")
-                FeatureRow(icon: "leaf.fill", color: .green, title: "Energy Balance", description: "Smoothly adjusts your daily targets based on your natural eating rhythm.")
                 FeatureRow(icon: "sparkles", color: .yellow, title: "Quick Logging", description: "Easily add meals and track your daily macros.")
                 FeatureRow(icon: "waveform.path.ecg", color: .purple, title: "Calorie Adaptation", description: "Helps you understand your metabolism over time.")
             }
