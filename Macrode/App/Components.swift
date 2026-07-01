@@ -258,13 +258,18 @@ struct KeyboardCloseButton: View {
     
     var body: some View {
         Button(action: { isInputActive.wrappedValue = false }) {
-            Image(systemName: "keyboard.chevron.compact.down")
-                .font(.title3)
-                .foregroundColor(.white)
-                .padding(6)
-                .background(Color.blue)
-                .clipShape(Circle())
+            HStack(spacing: 6) {
+                Text("Done")
+                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                Image(systemName: "keyboard.chevron.compact.down")
+            }
+            .foregroundColor(.primary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(.ultraThinMaterial, in: Capsule())
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
+        .padding(.horizontal)
     }
 }

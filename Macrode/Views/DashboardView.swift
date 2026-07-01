@@ -45,8 +45,18 @@ struct DashboardView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(uiColor: .systemGroupedBackground)
-                    .ignoresSafeArea()
+                LinearGradient(
+                    colors: [
+                        Color(uiColor: .systemGroupedBackground),
+                        Color.blue.opacity(0.03),
+                        Color.purple.opacity(0.03),
+                        Color(uiColor: .systemGroupedBackground)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                .adaptiveBackgroundTexture()
                 
                 ScrollView {
                     VStack(spacing: 20) {

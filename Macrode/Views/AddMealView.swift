@@ -95,6 +95,8 @@ struct AddMealView: View {
                     }
                 }
             }
+            .background(Color(UIColor.systemGroupedBackground))
+            .adaptiveBackgroundTexture()
             .navigationTitle(viewModel.selectedTab == 0 ? "Food Library" : "Recipe Library")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

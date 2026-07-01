@@ -57,6 +57,10 @@ struct MetabolismEngine {
             return TDEEResult(tdee: nil, validDaysLogged: validDaysLogged) 
         }
         
+        guard validDaysLogged >= 21 else {
+            return TDEEResult(tdee: nil, validDaysLogged: validDaysLogged)
+        }
+        
         let totalCaloriesEaten = mealsInPeriod.reduce(0) { $0 + $1.calories }
         let averageDailyCaloriesEaten = totalCaloriesEaten / Double(max(1, trackedDaysCount))
         

@@ -85,6 +85,7 @@ struct InsightsView: View {
                 .padding(.bottom, 80)
             }
             .background(Color(UIColor.systemGroupedBackground))
+            .adaptiveBackgroundTexture()
             .navigationTitle("Insights")
             .onAppear {
                 ReviewManager.shared.checkAndPromptReview(currentStreak: currentStreak)

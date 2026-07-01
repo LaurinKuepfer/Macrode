@@ -49,7 +49,16 @@ struct SmartSuggesterView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(UIColor.systemGroupedBackground).ignoresSafeArea()
+                LinearGradient(
+                    colors: [
+                        Color(UIColor.systemGroupedBackground),
+                        Color.blue.opacity(0.03),
+                        Color.purple.opacity(0.03),
+                        Color(UIColor.systemGroupedBackground)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ).ignoresSafeArea()
                 VStack(spacing: 24) {
                 if isCalculating {
                     ProgressView()
@@ -199,7 +208,7 @@ struct SmartSuggesterView: View {
             var bestComboData: [(id: UUID, grams: Double)] = []
             var bestScore: Double = Double.infinity
             
-            for food in valid.prefix(15) {
+            for food in valid.prefix(30) {
                 for g in stride(from: 10, through: 500, by: 10) {
                     let grams = Double(g)
                     let p = food.protein * (grams/100.0)
@@ -215,13 +224,13 @@ struct SmartSuggesterView: View {
             }
             
             if bestScore > 10 && valid.count > 1 {
-                let topFoods = Array(valid.prefix(10))
+                let topFoods = Array(valid.prefix(20))
                 for i in 0..<topFoods.count {
                     for j in (i+1)..<topFoods.count {
                         let f1 = topFoods[i]
                         let f2 = topFoods[j]
-                        for g1 in stride(from: 10, through: 300, by: 20) {
-                            for g2 in stride(from: 10, through: 300, by: 20) {
+                        for g1 in stride(from: 10, through: 600, by: 20) {
+                            for g2 in stride(from: 10, through: 600, by: 20) {
                                 let grams1 = Double(g1)
                                 let grams2 = Double(g2)
                                 let p = f1.protein * (grams1/100.0) + f2.protein * (grams2/100.0)
@@ -239,9 +248,9 @@ struct SmartSuggesterView: View {
                 }
             }
             
-            let dynamicThreshold = max(30.0, (rP + rC + rF) * 0.15)
+            let dynamicThreshold = max(80.0, (rP + rC + rF) * 0.40)
             if bestScore < dynamicThreshold { return bestComboData }
-            return nil
+            return bestComboData.isEmpty ? nil : bestComboData
         }.value
     }
 }
