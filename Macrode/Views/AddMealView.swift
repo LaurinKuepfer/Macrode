@@ -19,6 +19,22 @@ struct AddMealView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \FoodItem.name) private var foodLibrary: [FoodItem]
     @Query(sort: \RecipeItem.name) private var recipeLibrary: [RecipeItem]
+    @Query(sort: \ConsumedMeal.consumedAt, order: .reverse) private var recentMeals: [ConsumedMeal]
+    
+    private var recentFoods: [FoodItem] {
+        var foods: [FoodItem] = []
+        var seenNames = Set<String>()
+        for meal in recentMeals {
+            if !seenNames.contains(meal.name) {
+                if let food = foodLibrary.first(where: { $0.name == meal.name }) {
+                    foods.append(food)
+                    seenNames.insert(meal.name)
+                }
+            }
+            if foods.count >= 8 { break }
+        }
+        return foods
+    }
     
     @State private var viewModel = AddMealViewModel()
     
@@ -153,6 +169,34 @@ struct AddMealView: View {
                         .padding(.vertical, 4)
                     }
                 }
+            }
+            
+            if viewModel.searchText.isEmpty && !recentFoods.isEmpty {
+                Section(header: Text("Recent Foods").font(.headline).foregroundColor(.primary).padding(.horizontal)) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(recentFoods) { food in
+                                NavigationLink(destination: LogFoodView(food: food, selectedDate: selectedDate, mainTabSelection: $mainTabSelection)) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(food.name).font(.subheadline).fontWeight(.semibold).lineLimit(1)
+                                        Text("\(Int(food.calories)) kcal").font(.caption).foregroundColor(.green)
+                                    }
+                                    .padding(12)
+                                    .frame(width: 140, alignment: .leading)
+                                    .background(Color(uiColor: .secondarySystemGroupedBackground))
+                                    .cornerRadius(12)
+                                    .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
+                    }
+                }
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
             
             if viewModel.filteredFoods(from: foodLibrary).isEmpty {

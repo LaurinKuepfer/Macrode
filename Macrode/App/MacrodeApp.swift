@@ -33,6 +33,13 @@ struct MacrodeApp: App {
                     .fontDesign(.rounded)
             }
             .modelContainer(sharedModelContainer)
+            .onChange(of: appLanguage) { _, newLang in
+                let langCode = newLang == "system" ? (Locale.current.language.languageCode?.identifier ?? "en") : newLang
+                UserDefaults.standard.set([langCode], forKey: "AppleLanguages")
+                
+                let viewModel = SettingsViewModel()
+                viewModel.reseedStarterDatabase(context: sharedModelContainer.mainContext)
+            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     scheduleDynamicNotifications()

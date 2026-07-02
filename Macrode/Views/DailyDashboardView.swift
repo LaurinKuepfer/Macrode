@@ -15,6 +15,8 @@ struct DailyDashboardView: View {
     @State private var showingEditLayout = false
     
     @State private var viewModel = DashboardViewModel()
+    @State private var showingCustomWaterAlert = false
+    @State private var customWaterInput = ""
     
     var selectedDate: Date
     var currentLog: DailyLog
@@ -143,6 +145,21 @@ struct DailyDashboardView: View {
         }
         .sheet(isPresented: $viewModel.showingQuickAddSheet) { 
             QuickEstimateView(selectedDate: selectedDate, isRootPresented: $viewModel.showingQuickAddSheet, mainTabSelection: .constant(0)).presentationDetents([.fraction(0.5), .large]) 
+        }
+        .alert("Custom Water", isPresented: $showingCustomWaterAlert) {
+            TextField("Amount (ml)", text: $customWaterInput)
+                .keyboardType(.numberPad)
+            Button("Add") {
+                if let amount = Int(customWaterInput), amount > 0 {
+                    addWater(amount)
+                }
+                customWaterInput = ""
+            }
+            Button("Cancel", role: .cancel) {
+                customWaterInput = ""
+            }
+        } message: {
+            Text("Enter the amount of water in ml.")
         }
     }
     
@@ -290,6 +307,7 @@ struct DailyDashboardView: View {
                     Button(action: { addWater(250) }) { Label("Glass (250 ml)", systemImage: "cup.and.saucer") }
                     Button(action: { addWater(500) }) { Label("Flask (500 ml)", systemImage: "waterbottle") }
                     Button(action: { addWater(1000) }) { Label("Large Bottle (1L)", systemImage: "drop.fill") }
+                    Button(action: { showingCustomWaterAlert = true }) { Label("Custom Amount...", systemImage: "pencil") }
                 } label: { 
                     Image(systemName: "plus.circle.fill").font(.title2).foregroundColor(.blue)
                         .frame(width: 32, height: 32)

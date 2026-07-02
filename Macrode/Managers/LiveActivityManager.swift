@@ -4,6 +4,8 @@ import ActivityKit
 class LiveActivityManager {
     static let shared = LiveActivityManager()
     
+    private var isStartingActivity = false
+    
     private init() {}
     
     func startFastingActivity(caloriesLeft: Int, fastingHours: Double) {
@@ -29,7 +31,13 @@ class LiveActivityManager {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         if #available(iOS 16.2, *) {
             if Activity<MacrodeAttributes>.activities.isEmpty {
-                startFastingActivity(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
+                if !isStartingActivity {
+                    isStartingActivity = true
+                    startFastingActivity(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        self.isStartingActivity = false
+                    }
+                }
             } else {
                 updateFastingActivity(caloriesLeft: caloriesLeft, fastingHours: fastingHours)
             }

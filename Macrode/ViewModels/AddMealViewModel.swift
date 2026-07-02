@@ -53,21 +53,26 @@ class AddMealViewModel {
         try? context.save()
     }
     
+    private var fetchTask: Task<Void, Never>?
+    
     func fetchFromOpenFoodFacts(barcode: String, foodLibrary: [FoodItem]) {
         if let existingFood = foodLibrary.first(where: { $0.barcode == barcode }) {
             selectedExistingFood = existingFood
             return
         }
         
+        fetchTask?.cancel()
         isFetchingAPI = true
-        Task {
+        fetchTask = Task {
             if let result = try? await OpenFoodFactsAPI.fetchProduct(barcode: barcode) {
+                if Task.isCancelled { return }
                 await MainActor.run { 
                     self.prefilledAPIResult = (name: result.name, calories: result.calories, protein: result.protein, carbs: result.carbs, fat: result.fat, barcode: barcode, category: result.category, fiber: result.fiber, sugar: result.sugar, saturatedFat: result.saturatedFat, sodium: result.sodium, imageUrl: result.imageUrl, nutriscore: result.nutriscore, ecoscore: result.ecoscore, novaGroup: result.novaGroup, ingredients: result.ingredients, allergens: result.allergens, brand: result.brand)
                     self.isFetchingAPI = false
                     self.navigateToCreateFood = true 
                 }
             } else {
+                if Task.isCancelled { return }
                 await MainActor.run { self.isFetchingAPI = false; self.prefilledAPIResult = nil; self.navigateToCreateFood = true }
             }
         }

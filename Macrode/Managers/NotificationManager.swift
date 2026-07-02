@@ -68,7 +68,12 @@ class NotificationManager {
         
         if !supplementsNotTaken.isEmpty {
             let msg = supplementNagMessages.randomElement() ?? supplementNagMessages[0]
-            scheduleNotification(id: "supplement_nag_today", title: "Supplement Reminder", body: msg, hour: 10, minute: 0, repeats: false)
+            var comps = calendar.dateComponents([.year, .month, .day], from: now)
+            comps.hour = 10
+            comps.minute = 0
+            if let date = calendar.date(from: comps), date > now {
+                scheduleSpecificNotification(id: "supplement_nag_today", title: "Supplement Reminder", body: msg, date: date)
+            }
         }
         
         // 3. Dynamic Evening Calories (20:00 PM)
@@ -80,7 +85,12 @@ class NotificationManager {
             let title = remaining <= 0 ? "Goal Met! 🏆" : "Evening Check-in 🌙"
             let bodyMsg = remaining <= 0 ? (eveningSuccessMessages.randomElement() ?? "") : (eveningRemainingMessages(cals: remaining).randomElement() ?? "")
             
-            scheduleNotification(id: "evening_cal_today", title: title, body: bodyMsg, hour: 20, minute: 0, repeats: false)
+            var comps = calendar.dateComponents([.year, .month, .day], from: now)
+            comps.hour = 20
+            comps.minute = 0
+            if let date = calendar.date(from: comps), date > now {
+                scheduleSpecificNotification(id: "evening_cal_today", title: title, body: bodyMsg, date: date)
+            }
         }
         
         // 4. Fallback Evening check-ins for future days (so the app still reminds them tomorrow if they don't open it)
@@ -114,6 +124,18 @@ class NotificationManager {
         dateComponents.minute = minute
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: repeats)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        UNUserNotificationCenter.current().add(request)
+    }
+    
+    private func scheduleSpecificNotification(id: String, title: String, body: String, date: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        
+        let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
         let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
         UNUserNotificationCenter.current().add(request)
     }

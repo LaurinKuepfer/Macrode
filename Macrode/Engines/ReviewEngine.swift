@@ -120,18 +120,18 @@ class ReviewEngine {
     }
     
     private static func calculateBestMacro(stats: ReviewStats) -> (name: String, ratio: Double) {
-        var bestMacro = String(localized: "Protein")
-        var bestRatio = stats.proRatio
+        let macros = [
+            (name: String(localized: "Protein"), ratio: stats.proRatio),
+            (name: String(localized: "Carbs"), ratio: stats.carbRatio),
+            (name: String(localized: "Healthy Fats"), ratio: stats.fatRatio)
+        ]
         
-        if stats.carbRatio > bestRatio && stats.carbRatio <= 1.1 {
-            bestMacro = String(localized: "Carbs")
-            bestRatio = stats.carbRatio
+        let validMacros = macros.filter { $0.ratio > 0 }
+        if let best = validMacros.min(by: { abs(1.0 - $0.ratio) < abs(1.0 - $1.ratio) }) {
+            return best
         }
-        if stats.fatRatio > bestRatio && stats.fatRatio <= 1.1 {
-            bestMacro = String(localized: "Healthy Fats")
-            bestRatio = stats.fatRatio
-        }
-        return (bestMacro, bestRatio)
+        
+        return (String(localized: "Protein"), 0.0)
     }
     
     private static func calculateWeightChange(validLogs: [DailyLog]) -> Double? {

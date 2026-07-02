@@ -17,6 +17,7 @@ struct LogFoodView: View {
     
     enum LogMode { case weight, unit }
     @State private var logMode: LogMode = .weight
+    @State private var selectedMealCategory: String = "Snack"
     
     private var validWeight: Double { 
         if logMode == .unit, let count = unitCount, let unitWeight = food.householdUnitWeightGrams {
@@ -181,6 +182,15 @@ struct LogFoodView: View {
                             }
                         }
                         
+                        Picker("Meal Category", selection: $selectedMealCategory) {
+                            Text("Breakfast").tag("Breakfast")
+                            Text("Lunch").tag("Lunch")
+                            Text("Snack").tag("Snack")
+                            Text("Dinner").tag("Dinner")
+                        }
+                        .pickerStyle(.segmented)
+                        .padding(.vertical, 8)
+                        
                         Button(action: logMeal) {
                             HStack {
                                 Image(systemName: "checkmark.circle.fill")
@@ -219,6 +229,11 @@ struct LogFoodView: View {
         }
         .onAppear {
             isInputActive = true
+            selectedMealCategory = autoMealCategory(for: selectedDate)
+            if food.householdUnitName != nil && food.householdUnitWeightGrams != nil {
+                logMode = .unit
+                unitCount = 1
+            }
         }
     }
     
@@ -231,7 +246,7 @@ struct LogFoodView: View {
             fat: calcFat,
             weightGrams: validWeight,
             consumedAt: selectedDate,
-            mealCategory: autoMealCategory(for: selectedDate),
+            mealCategory: selectedMealCategory,
             fiber: calcFiber,
             sugar: calcSugar,
             saturatedFat: calcSaturatedFat,

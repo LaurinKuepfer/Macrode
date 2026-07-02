@@ -26,6 +26,7 @@ struct CreateFoodView: View {
     @State private var householdUnitWeightGrams: Double?
     @State private var isDrink: Bool = false
     @State private var selectedCategory: String = "Other"
+    @State private var selectedMealCategory: String = "Snack"
     @FocusState private var isInputActive: Bool
     
     let categories = ["Drinks", "Fruits", "Vegetables", "Meat", "Carbs", "Dairy & Fats", "Fast Food", "Other"]
@@ -192,6 +193,14 @@ struct CreateFoodView: View {
             }
             
             Section {
+                Picker("Meal Category", selection: $selectedMealCategory) {
+                    Text("Breakfast").tag("Breakfast")
+                    Text("Lunch").tag("Lunch")
+                    Text("Snack").tag("Snack")
+                    Text("Dinner").tag("Dinner")
+                }
+                .pickerStyle(.segmented)
+                
                 Button(action: saveAndLog) {
                     HStack {
                         Spacer()
@@ -224,6 +233,7 @@ struct CreateFoodView: View {
                 householdUnitName = existing.householdUnitName ?? ""
                 householdUnitWeightGrams = existing.householdUnitWeightGrams
             }
+            selectedMealCategory = autoMealCategory(for: selectedDate)
         }
         .toolbar {
             ToolbarItem(placement: .keyboard) {
@@ -298,9 +308,9 @@ struct CreateFoodView: View {
             protein: food.protein,
             carbs: food.carbs,
             fat: food.fat,
-            weightGrams: 100, // Default to 100g on quick save & log
+            weightGrams: food.householdUnitWeightGrams ?? 100, // Default to unit weight or 100g on quick save & log
             consumedAt: selectedDate,
-            mealCategory: autoMealCategory(for: selectedDate),
+            mealCategory: selectedMealCategory,
             fiber: food.fiber,
             sugar: food.sugar,
             saturatedFat: food.saturatedFat,

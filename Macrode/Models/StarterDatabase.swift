@@ -25,7 +25,7 @@ struct StarterRecipe {
 struct StarterDatabase {
     
     static var currentLanguage: String {
-        return UserDefaults.standard.string(forKey: "appLanguage") ?? "system"
+        return UserDefaults(suiteName: "group.com.kuepferlaurin.macrode")?.string(forKey: "appLanguage") ?? "system"
     }
     
     static var foods: [StarterFood] {

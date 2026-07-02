@@ -11,25 +11,7 @@ struct MainTabView: View {
     @State private var dummyIsPresented: Bool = false 
     
     
-    private var todayLog: DailyLog {
-        let startOfDay = Calendar.current.startOfDay(for: globalSelectedDate)
-        if let log = dailyLogs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: startOfDay) }) {
-            return log
-        } else {
-            let previousLogs = dailyLogs.filter { $0.date < startOfDay }.sorted { $0.date > $1.date }
-            if let lastLog = previousLogs.first {
-                let newLog = DailyLog(date: startOfDay, calorieTarget: lastLog.calorieTarget, proteinTarget: lastLog.proteinTarget, carbsTarget: lastLog.carbsTarget, fatTarget: lastLog.fatTarget, waterTargetML: lastLog.waterTargetML, bodyWeight: lastLog.bodyWeight)
-                context.insert(newLog)
-                try? context.save()
-                return newLog
-            } else {
-                let newLog = DailyLog(date: startOfDay)
-                context.insert(newLog)
-                try? context.save()
-                return newLog
-            }
-        }
-    }
+    
     
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -48,7 +30,7 @@ struct MainTabView: View {
                     .tag(2)
                 
                 NavigationStack {
-                    SettingsView(dailyLog: todayLog)
+                    SettingsView()
                 }
                 .tabItem { Label("Settings", systemImage: "gearshape.fill") }
                 .tag(3)
@@ -69,7 +51,6 @@ struct MainTabView: View {
             let calendar = Calendar.current
             if !calendar.isDate(globalSelectedDate, inSameDayAs: Date()) {
                 globalSelectedDate = Date()
-                _ = todayLog
             }
             syncToWidget()
         }

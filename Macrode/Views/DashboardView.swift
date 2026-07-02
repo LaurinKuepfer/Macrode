@@ -266,6 +266,9 @@ struct DashboardView: View {
     }
 
     private func loadStarterDatabase() {
+        let existing = try? context.fetch(FetchDescriptor<FoodItem>())
+        if let existing = existing, !existing.isEmpty { return }
+        
         for item in StarterDatabase.foods { context.insert(FoodItem(name: item.name, calories: item.calories, protein: item.protein, carbs: item.carbs, fat: item.fat, category: item.category)) }
         for recipe in StarterDatabase.recipes { context.insert(RecipeItem(name: recipe.name, calories: recipe.calories, protein: recipe.protein, carbs: recipe.carbs, fat: recipe.fat, instructions: recipe.instructions, category: recipe.category, prepTimeMinutes: recipe.prepTimeMinutes, difficulty: recipe.difficulty, systemImage: recipe.systemImage)) }
     }

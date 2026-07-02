@@ -6,7 +6,6 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var context
     @Environment(\.dismiss) private var dismiss
     
-    var dailyLog: DailyLog
     @Query private var allMeals: [ConsumedMeal]
     
     @State private var viewModel = SettingsViewModel()
@@ -64,9 +63,6 @@ struct SettingsView: View {
                 Button("Cancel", role: .cancel) { }
             } message: {
                 Text("This will permanently delete all your logged meals, daily logs, food library, recipes, and supplements. Export a backup first!")
-            }
-            .onChange(of: appLanguage) { _, newLang in
-                viewModel.reseedStarterDatabase(context: context)
             }
         }
     }

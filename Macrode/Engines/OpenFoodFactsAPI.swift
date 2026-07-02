@@ -10,6 +10,32 @@ struct OFFSearchResponse: Codable {
     let products: [OFFProduct]?
 }
 
+@propertyWrapper
+struct FlexibleDouble: Codable {
+    var wrappedValue: Double?
+    
+    init(wrappedValue: Double? = nil) {
+        self.wrappedValue = wrappedValue
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let doubleValue = try? container.decode(Double.self) {
+            wrappedValue = doubleValue
+        } else if let stringValue = try? container.decode(String.self) {
+            let cleaned = stringValue.replacingOccurrences(of: ",", with: ".").trimmingCharacters(in: .letters.union(.whitespaces))
+            wrappedValue = Double(cleaned)
+        } else {
+            wrappedValue = nil
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(wrappedValue)
+    }
+}
+
 struct OFFProduct: Codable {
     let productName: String?
     let categoriesTags: [String]?
@@ -22,6 +48,8 @@ struct OFFProduct: Codable {
     let ingredientsText: String?
     let allergens: String?
     let brands: String?
+    @FlexibleDouble var productQuantity: Double?
+    let servingSize: String?
     
     enum CodingKeys: String, CodingKey {
         case productName = "product_name"
@@ -34,6 +62,8 @@ struct OFFProduct: Codable {
         case ingredientsText = "ingredients_text"
         case allergens
         case brands
+        case productQuantity = "product_quantity"
+        case servingSize = "serving_size"
     }
 }
 
@@ -77,6 +107,8 @@ struct OFFProductResult: Sendable {
     let ingredients: String?
     let allergens: String?
     let brand: String?
+    let householdUnitName: String?
+    let householdUnitWeightGrams: Double?
 }
 
 class OpenFoodFactsAPI {
@@ -90,7 +122,7 @@ class OpenFoodFactsAPI {
     }()
 
     static func fetchProduct(barcode: String) async throws -> OFFProductResult? {
-        let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands"
+        let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands,product_quantity,serving_size"
         let urlString = "https://world.openfoodfacts.org/api/v0/product/\(barcode).json?fields=\(fields)"
         guard let url = URL(string: urlString) else { return nil }
         
@@ -107,6 +139,13 @@ class OpenFoodFactsAPI {
         let sugar = product.nutriments?.sugars.flatMap { $0 > 0 ? $0 : nil }
         let satFat = product.nutriments?.saturatedFat.flatMap { $0 > 0 ? $0 : nil }
         let sodium = product.nutriments?.sodium.flatMap { $0 > 0 ? $0 : nil }
+        
+        var unitName: String? = nil
+        if let s = product.servingSize, !s.isEmpty {
+            unitName = "Serving (\(s))"
+        } else if product.productQuantity != nil {
+            unitName = "1 Package"
+        }
         
         return OFFProductResult(
             name: cleanName,
@@ -125,13 +164,15 @@ class OpenFoodFactsAPI {
             novaGroup: product.novaGroup,
             ingredients: product.ingredientsText,
             allergens: product.allergens,
-            brand: product.brands
+            brand: product.brands,
+            householdUnitName: unitName,
+            householdUnitWeightGrams: product.productQuantity
         )
     }
     
     static func searchProducts(query: String) async throws -> [OFFProductResult] {
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query
-        let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands"
+        let fields = "product_name,categories_tags,nutriments,image_front_url,nutriscore_grade,ecoscore_grade,nova_group,ingredients_text,allergens,brands,product_quantity,serving_size"
         let urlString = "https://world.openfoodfacts.org/cgi/search.pl?search_terms=\(encodedQuery)&search_simple=1&action=process&json=1&page_size=30&sort_by=unique_scans_n&fields=\(fields)"
         
         guard let url = URL(string: urlString) else { return [] }
@@ -158,8 +199,15 @@ class OpenFoodFactsAPI {
                 let satFat = product.nutriments?.saturatedFat.flatMap { $0 > 0 ? $0 : nil }
                 let sodium = product.nutriments?.sodium.flatMap { $0 > 0 ? $0 : nil }
                 
+                var unitName: String? = nil
+                if let s = product.servingSize, !s.isEmpty {
+                    unitName = "Serving (\(s))"
+                } else if product.productQuantity != nil {
+                    unitName = "1 Package"
+                }
+                
                 if energy > 0 || protein > 0 || carbs > 0 || fat > 0 {
-                    results.append(OFFProductResult(name: cleanName, calories: energy, protein: protein, carbs: carbs, fat: fat, category: category, fiber: fiber, sugar: sugar, saturatedFat: satFat, sodium: sodium, imageUrl: product.imageFrontUrl, nutriscore: product.nutriscoreGrade, ecoscore: product.ecoscoreGrade, novaGroup: product.novaGroup, ingredients: product.ingredientsText, allergens: product.allergens, brand: product.brands))
+                    results.append(OFFProductResult(name: cleanName, calories: energy, protein: protein, carbs: carbs, fat: fat, category: category, fiber: fiber, sugar: sugar, saturatedFat: satFat, sodium: sodium, imageUrl: product.imageFrontUrl, nutriscore: product.nutriscoreGrade, ecoscore: product.ecoscoreGrade, novaGroup: product.novaGroup, ingredients: product.ingredientsText, allergens: product.allergens, brand: product.brands, householdUnitName: unitName, householdUnitWeightGrams: product.productQuantity))
                 }
             }
         }
